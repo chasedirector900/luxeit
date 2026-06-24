@@ -1,0 +1,113 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Check, Heart, ShoppingCart } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion } from "motion/react";
+import type { Product } from "@/types/product";
+import { useCart } from "@/hooks/use-cart";
+import { useSaved } from "@/hooks/use-saved";
+import { formatKwacha } from "@/lib/currency";
+
+type HomeTopPickCardProps = {
+  product: Product;
+};
+
+export function HomeTopPickCard({ product }: HomeTopPickCardProps) {
+  const { addItem } = useCart();
+  const { isSaved, toggleSaved } = useSaved();
+  const [added, setAdded] = useState(false);
+  const saved = isSaved(product.id);
+
+  useEffect(() => {
+    if (!added) return;
+    const timer = window.setTimeout(() => setAdded(false), 1000);
+    return () => window.clearTimeout(timer);
+  }, [added]);
+
+  return (
+    <motion.article
+      whileTap={{ scale: 0.985 }}
+      transition={{ type: "spring", stiffness: 400, damping: 28 }}
+      className="transform-gpu overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
+    >
+      <Link href={`/product/${product.slug}`} prefetch className="block">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            sizes="(max-width: 430px) 46vw, 200px"
+            className="object-cover"
+          />
+          <button
+            type="button"
+            aria-label={saved ? "Remove from saved" : "Save item"}
+            aria-pressed={saved}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              toggleSaved({
+                id: product.id,
+                slug: product.slug,
+                title: product.title,
+                image: product.image,
+                price: product.price,
+                href: `/product/${product.slug}`,
+              });
+            }}
+            className="absolute right-2.5 top-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-slate-600 shadow-sm backdrop-blur-sm transition-transform active:scale-90 dark:bg-zinc-950/80 dark:text-zinc-300"
+          >
+            <Heart className={`h-4 w-4 ${saved ? "fill-rose-500 text-rose-500" : ""}`} />
+          </button>
+        </div>
+      </Link>
+
+      <div className="p-3">
+        <Link href={`/product/${product.slug}`} prefetch>
+          <h3 className="line-clamp-2 min-h-[2.4rem] text-[14px] font-bold leading-tight text-slate-900 dark:text-zinc-100">
+            {product.title}
+          </h3>
+        </Link>
+
+        <div className="mt-2.5 flex items-end justify-between gap-1.5">
+          <span className="text-[17px] font-black leading-none text-slate-900 dark:text-zinc-100">
+            {formatKwacha(product.price)}
+          </span>
+
+          <motion.button
+            type="button"
+            aria-label={added ? "Added to cart" : `Add ${product.title} to cart`}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              addItem({
+                productId: product.id,
+                variantId: null,
+                slug: product.slug,
+                title: product.title,
+                image: product.image,
+                price: product.price,
+                quantity: 1,
+                selectedShippingMethod: product.shippingMethod ?? "air",
+                deliveryEstimate: product.deliveryEstimate ?? null,
+                warehouse: product.warehouse,
+              });
+              setAdded(true);
+            }}
+            className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-md transition-colors ${
+              added
+                ? "bg-emerald-500 shadow-emerald-900/20"
+                : "bg-gradient-to-br from-indigo-500 to-violet-600 shadow-indigo-900/25"
+            }`}
+          >
+            {added ? <Check className="h-[17px] w-[17px]" /> : <ShoppingCart className="h-[17px] w-[17px]" />}
+          </motion.button>
+        </div>
+      </div>
+    </motion.article>
+  );
+}

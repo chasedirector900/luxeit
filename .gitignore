@@ -1,0 +1,16 @@
+# Root ignores for the Luxeit monorepo. Per-app rules live in
+# backend/.gitignore and frontend-ui/.gitignore (Git applies nested files too).
+
+# Claude Code local project data (memory, transcripts) — never commit
+.claude/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Environment files (belt-and-suspenders; subfolders also ignore these)
+.env
+.env.*
