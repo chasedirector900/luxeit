@@ -154,7 +154,7 @@ class CarReviewSeedTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         call_command("seed_car_catalog")
-        call_command("seed_car_reviews")
+        call_command("seed_reviews")
 
     def test_products_get_reviews_and_aggregates(self):
         product = Product.objects.filter(product_type=ProductType.CAR_PART).first()
@@ -172,6 +172,6 @@ class CarReviewSeedTests(TestCase):
 
     def test_review_seeder_is_idempotent(self):
         before = sum(p.reviews.count() for p in Product.objects.filter(product_type=ProductType.CAR_PART))
-        call_command("seed_car_reviews")
+        call_command("seed_reviews")
         after = sum(p.reviews.count() for p in Product.objects.filter(product_type=ProductType.CAR_PART))
         self.assertEqual(before, after)

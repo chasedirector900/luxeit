@@ -1,168 +1,206 @@
-"""Seed a few example products covering every product type.
-
-Idempotent — run as many times as you like:
-    python manage.py seed_products
+"""Seed the non-car shop categories (footwear, watches, electronics, security)
+as backend-driven catalogue data: each category carries its listing chrome
+(chips/features/hero) and a set of products with subtitles and, for China-hub
+goods, dual sea/air pricing. Idempotent: clears and recreates these categories.
 """
+from urllib.parse import quote
+
 from django.core.management.base import BaseCommand
 
-from products.models import Category, Product, ProductImage, ProductReview
+from products.models import Category, Product, ProductType, Warehouse, Origin, ShippingMethod
 
+
+def listing_image(label: str, c_from: str, c_to: str) -> str:
+    svg = (
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>"
+        "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
+        f"<stop offset='0%' stop-color='{c_from}'/><stop offset='100%' stop-color='{c_to}'/>"
+        "</linearGradient></defs>"
+        "<rect width='800' height='600' fill='url(#g)'/>"
+        "<circle cx='640' cy='120' r='150' fill='rgba(255,255,255,0.10)'/>"
+        "<circle cx='150' cy='500' r='190' fill='rgba(255,255,255,0.07)'/>"
+        f"<text x='50%' y='53%' fill='rgba(255,255,255,0.22)' font-size='62' "
+        "font-family='Arial, sans-serif' font-weight='900' text-anchor='middle' "
+        f"letter-spacing='3'>{label}</text></svg>"
+    )
+    return "data:image/svg+xml;utf8," + quote(svg)
+
+
+FEATURES = [
+    {"icon": "ShieldCheck", "title": "Trusted Suppliers", "subtitle": "Quality you can trust", "tint": "text-emerald-500", "ring": "bg-emerald-500/10"},
+    {"icon": "Truck", "title": "Fast Shipping", "subtitle": "China & Lusaka hubs", "tint": "text-sky-500", "ring": "bg-sky-500/10"},
+    {"icon": "RotateCcw", "title": "Easy Returns", "subtitle": "Hassle-free returns", "tint": "text-violet-500", "ring": "bg-violet-500/10"},
+]
+
+PALETTE = [
+    ("#1e1b4b", "#4338ca"), ("#0c4a6e", "#0ea5e9"), ("#451a03", "#b45309"),
+    ("#134e4a", "#14b8a6"), ("#4c0519", "#e11d48"), ("#3b0764", "#a855f7"),
+    ("#052e16", "#16a34a"), ("#0a0a0a", "#52525b"),
+]
+
+# Each product: (sub_category, name, subtitle, sea_price, warehouse, original_price|None)
 CATEGORIES = [
-    {"slug": "footwear", "name": "Footwear", "blurb": "Shoes, sneakers, boots, sandals", "ordering": 1},
-    {"slug": "watches", "name": "Watches", "blurb": "Smartwatches and timepieces", "ordering": 2},
-    {"slug": "electronics", "name": "Electronics", "blurb": "Phones, laptops, audio, gaming", "ordering": 3},
-    {"slug": "security", "name": "Security", "blurb": "CCTV, alarms, smart locks", "ordering": 4},
-    {"slug": "car-parts", "name": "Car Parts", "blurb": "Parts and accessories", "ordering": 5},
-    {"slug": "general", "name": "General", "blurb": "Everything else", "ordering": 6},
+    {
+        "slug": "footwear", "name": "Footwear", "type": ProductType.FOOTWEAR,
+        "subtitle": "Browse trending shoes, sneakers, boots, and sandals",
+        "search": "Search footwear...",
+        "hero": {"badge": "New Collection", "title": "New Season Footwear", "subtitle": "Top picks from trusted suppliers"},
+        "chips": [
+            {"key": "all", "label": "All", "icon": "Sparkles"},
+            {"key": "sneakers", "label": "Sneakers", "icon": "Footprints"},
+            {"key": "boots", "label": "Boots", "icon": "Snowflake"},
+            {"key": "sandals", "label": "Sandals", "icon": "Sun"},
+            {"key": "formal", "label": "Formal", "icon": "Briefcase"},
+            {"key": "sports", "label": "Sports", "icon": "Dumbbell"},
+        ],
+        "products": [
+            ("sneakers", "AeroRun Pro Sneakers", "Men's running shoes", 59.99, "china", 69.99),
+            ("sneakers", "Urban Casual Sneakers", "Everyday casual shoes", 49.99, "china", None),
+            ("boots", "Explorer Chelsea Boots", "Men's leather boots", 89.99, "china", None),
+            ("boots", "Rugged Trail Hiking Boots", "Outdoor hiking boots", 74.99, "china", 94.99),
+            ("sandals", "Comfort Trail Sandals", "Men's sandals", 39.99, "zambia", None),
+            ("formal", "Oxford Leather Dress Shoes", "Men's formal shoes", 99.99, "china", None),
+            ("formal", "Classic Leather Loafers", "Slip-on formal shoes", 79.99, "zambia", None),
+            ("sports", "Marathon Speed Runners", "Performance running shoes", 84.99, "china", 99.99),
+        ],
+    },
+    {
+        "slug": "watches", "name": "Watches", "type": ProductType.WATCH,
+        "subtitle": "Browse analog, digital, smart, and luxury timepieces",
+        "search": "Search watches...",
+        "hero": {"badge": "New Collection", "title": "Timeless & Smart", "subtitle": "Curated watches from trusted suppliers"},
+        "chips": [
+            {"key": "all", "label": "All", "icon": "Sparkles"},
+            {"key": "analog", "label": "Analog", "icon": "Clock"},
+            {"key": "digital", "label": "Digital", "icon": "Timer"},
+            {"key": "smart", "label": "Smart", "icon": "Watch"},
+            {"key": "luxury", "label": "Luxury", "icon": "Crown"},
+            {"key": "sport", "label": "Sport", "icon": "Activity"},
+        ],
+        "products": [
+            ("analog", "Heritage Analog Watch", "Stainless steel, leather strap", 64.99, "china", None),
+            ("digital", "PulseTrack Digital Watch", "Backlit, water resistant", 39.99, "china", None),
+            ("smart", "Pulse Smartwatch", "Heart-rate & notifications", 119.99, "china", 149.99),
+            ("smart", "FitBand Active Tracker", "Steps, sleep & calls", 54.99, "china", None),
+            ("luxury", "Aurum Chronograph", "Premium chronograph", 199.99, "china", None),
+            ("sport", "TrailMate Sport Watch", "Rugged outdoor watch", 49.99, "zambia", None),
+            ("analog", "Minimalist Slim Watch", "Thin dial, mesh band", 44.99, "china", 54.99),
+        ],
+    },
+    {
+        "slug": "electronics", "name": "Electronics", "type": ProductType.GENERAL,
+        "subtitle": "Phones, laptops, audio, TVs, and smart gadgets",
+        "search": "Search electronics...",
+        "hero": {"badge": "Top Tech", "title": "Latest Electronics", "subtitle": "Genuine gadgets from trusted suppliers"},
+        "chips": [
+            {"key": "all", "label": "All", "icon": "Sparkles"},
+            {"key": "phones", "label": "Phones", "icon": "Smartphone"},
+            {"key": "laptops", "label": "Laptops", "icon": "Laptop"},
+            {"key": "audio", "label": "Audio", "icon": "Headphones"},
+            {"key": "tvs", "label": "TVs", "icon": "Tv"},
+            {"key": "gaming", "label": "Gaming", "icon": "Gamepad2"},
+            {"key": "cameras", "label": "Cameras", "icon": "Camera"},
+        ],
+        "products": [
+            ("phones", "Nova X Smartphone", '6.7" display, 128GB', 289.99, "china", 329.99),
+            ("audio", "BassPro Wireless Earbuds", "ANC, 30h battery", 44.99, "china", None),
+            ("audio", "SoundWave Bluetooth Speaker", "Portable, waterproof", 59.99, "china", None),
+            ("laptops", "SwiftBook 14 Laptop", "8GB RAM, 256GB SSD", 449.99, "china", 499.99),
+            ("tvs", 'VisionPlus 43" Smart TV', "4K UHD, Android TV", 329.99, "china", None),
+            ("gaming", "PS5 Cooling Dock Pro", "Cooling & charging dock", 32.50, "china", None),
+            ("gaming", "GamePad Wireless Controller", "Low-latency, USB-C", 27.99, "china", None),
+            ("cameras", "StreamCam 1080p Webcam", "Full HD webcam", 34.99, "zambia", None),
+        ],
+    },
+    {
+        "slug": "security", "name": "Security", "type": ProductType.SECURITY,
+        "subtitle": "CCTV, alarms, smart locks, sensors, and safety gear",
+        "search": "Search security...",
+        "hero": {"badge": "Stay Protected", "title": "Home & Business Security", "subtitle": "Trusted security gear from verified suppliers"},
+        "chips": [
+            {"key": "all", "label": "All", "icon": "Sparkles"},
+            {"key": "cameras", "label": "CCTV", "icon": "Cctv"},
+            {"key": "alarms", "label": "Alarms", "icon": "Siren"},
+            {"key": "locks", "label": "Smart Locks", "icon": "Lock"},
+            {"key": "sensors", "label": "Sensors", "icon": "Radar"},
+            {"key": "access", "label": "Access", "icon": "Fingerprint"},
+        ],
+        "products": [
+            ("cameras", "Smart CCTV 4K Hub Kit", "4-cam 4K NVR kit", 129.00, "china", 159.00),
+            ("cameras", "MiniCam Wireless Camera", "1080p, night vision", 39.99, "china", None),
+            ("alarms", "GuardBell Smart Alarm", "Wireless siren + app", 49.99, "china", None),
+            ("locks", "SecureLock Smart Lock", "Fingerprint + code", 89.99, "china", 109.99),
+            ("sensors", "MotionGuard PIR Sensors (3-Pack)", "Motion detection", 24.99, "china", None),
+            ("access", "FingerAccess Reader", "Fingerprint access control", 64.99, "china", None),
+            ("cameras", "Doorbell Cam Pro", "Video doorbell, 2-way audio", 74.99, "zambia", None),
+        ],
+    },
 ]
 
-# Each product carries the type-specific fields its product_type needs, plus a
-# required thumbnail (`image`), >=1 gallery image, an optional video, a hub
-# (`warehouse`) for physical goods, and a units_sold count.
-PRODUCTS = [
-    {
-        "slug": "smart-cctv-4k-hub-kit", "title": "Smart CCTV 4K Hub Kit", "product_type": "security",
-        "category": "security", "sub_category": "cameras", "price": 129.00, "original_price": 159.00,
-        "image": "/images/mock-products/security-kit.svg", "warehouse": "china", "origin": "China",
-        "shipping_method": "air", "delivery_estimate": "5-10 days", "import_tag": "Import", "preorder": True,
-        "units_sold": 41200, "searchable_text": "security cctv camera monitor dvr hub",
-        "video": "/videos/products/security-kit-demo.mp4", "video_thumbnail": "/images/mock-products/security-kit.svg",
-        "images": [
-            {"src": "/images/mock-products/security-kit.svg", "alt": "CCTV kit front", "position": 1},
-            {"src": "/images/mock-products/security-kit.svg", "alt": "CCTV kit ports", "position": 2}],
-        "spec_groups": [{"title": "Security Specifications", "specs": [
-            {"label": "Resolution", "value": "4K UHD"}, {"label": "Camera Count", "value": "4 Cameras"},
-            {"label": "Night Vision", "value": "Up to 25m"}, {"label": "Storage", "value": "1TB DVR Included"}]}],
-        "package_contents": ["4x CCTV Cameras", "1x DVR Unit", "Power Adapter Set", "Mounting Screws + Cable"],
-        "notices": ["Installation service available on request."],
-        "review_tags": [{"label": "Product Quality", "count": 422}, {"label": "Fast Delivery", "count": 288}],
-        "reviews": [
-            {"user_name": "Kristin Lynch", "avatar_initial": "K", "rating": 5, "date": "2026-05-18",
-             "text": "Very clear night vision and easy setup.", "helpful_count": 1},
-            {"user_name": "Ravi Kant Bhargava", "avatar_initial": "R", "rating": 1, "date": "2026-04-25",
-             "text": "Had issues with my first DVR unit but support helped me replace it. Setup instructions can be clearer.",
-             "helpful_count": 8,
-             "reply_text": "Sorry about the issue. We've shared a step-by-step setup guide and replacement support in your inbox.",
-             "reply_author": "LUXEIT Support", "reply_date": "2026-04-29"},
-            {"user_name": "Jay", "avatar_initial": "J", "rating": 4, "date": "2026-05-06",
-             "text": "Good quality cameras for the price.", "helpful_count": 4}],
-    },
-    {
-        "slug": "led-headlight-dual-pack", "title": "LED Headlight Dual Pack", "product_type": "car_part",
-        "category": "car-parts", "price": 48.00, "image": "/images/mock-products/headlight.svg",
-        "warehouse": "zambia", "origin": "China", "shipping_method": "sea", "delivery_estimate": "6-12 days",
-        "import_tag": "Import", "units_sold": 9400, "searchable_text": "car parts led headlight auto",
-        "images": [
-            {"src": "/images/mock-products/headlight.svg", "alt": "Beam pattern", "position": 1},
-            {"src": "/images/mock-products/headlight.svg", "alt": "Socket detail", "position": 2}],
-        "compatibility": {"title": "Vehicle Compatibility", "required": True, "fields": [
-            {"key": "vehicle", "label": "Select vehicle", "required": True,
-             "values": ["Toyota Corolla 2014-2018", "Honda Fit 2015-2020", "Nissan Note 2016-2021"]},
-            {"key": "position", "label": "Part position", "required": True, "values": ["Front Left", "Front Right"]}],
-            "note": "Confirm compatibility before order."},
-        "spec_groups": [{"title": "Electrical Specs", "specs": [
-            {"label": "Voltage", "value": "12V"}, {"label": "Socket", "value": "H11"}, {"label": "Color Temp", "value": "6500K"}]}],
-        "notices": ["Installation by qualified technician recommended."],
-        "review_tags": [{"label": "Brightness", "count": 96}, {"label": "Fitment", "count": 88}],
-        "reviews": [{"user_name": "P. Zulu", "avatar_initial": "P", "rating": 4, "date": "2026-05-01",
-                     "text": "Good brightness and clean beam pattern.", "helpful_count": 5}],
-    },
-    {
-        "slug": "aerorun-pro-sneakers", "title": "AeroRun Pro Sneakers", "product_type": "footwear",
-        "category": "footwear", "sub_category": "sneakers", "price": 59.99, "original_price": 69.99,
-        "image": "/images/mock-products/sling-bag.svg", "warehouse": "zambia", "origin": "Global",
-        "shipping_method": "air", "delivery_estimate": "24-48 hrs", "units_sold": 28100,
-        "searchable_text": "running sneakers shoes footwear",
-        "images": [
-            {"src": "/images/mock-products/sling-bag.svg", "alt": "Side profile", "position": 1},
-            {"src": "/images/mock-products/sling-bag.svg", "alt": "Sole", "position": 2}],
-        "options": [
-            {"name": "Size", "key": "size", "required": True, "values": ["39", "40", "41", "42", "43"],
-             "stockByValue": {"39": 5, "40": 7, "41": 3, "42": 4, "43": 2}},
-            {"name": "Color", "key": "color", "required": False, "values": ["Black", "White", "Blue"]}],
-        "spec_groups": [{"title": "Material & Fit", "specs": [
-            {"label": "Upper", "value": "Breathable mesh"}, {"label": "Sole", "value": "EVA foam"}, {"label": "Fit", "value": "True to size"}]}],
-        "notices": ["Size guide: choose your normal size for the best fit."],
-        "review_tags": [{"label": "Comfort", "count": 222}, {"label": "Material", "count": 178}],
-        "reviews": [{"user_name": "L. Mwansa", "avatar_initial": "L", "rating": 5, "date": "2026-05-14",
-                     "text": "Stylish and comfortable for daily use. Fits true to size.", "helpful_count": 7}],
-    },
-    {
-        "slug": "pulse-smartwatch", "title": "Pulse Smartwatch", "product_type": "watch",
-        "category": "watches", "sub_category": "wearables", "price": 119.99, "original_price": 149.99,
-        "image": "/images/mock-products/mousepad.svg", "warehouse": "china", "origin": "China",
-        "shipping_method": "air", "delivery_estimate": "5-10 days", "import_tag": "Import",
-        "units_sold": 67500, "searchable_text": "smartwatch watch wearable amoled gps",
-        "images": [
-            {"src": "/images/mock-products/mousepad.svg", "alt": "Watch face", "position": 1},
-            {"src": "/images/mock-products/mousepad.svg", "alt": "Strap", "position": 2}],
-        "options": [{"name": "Strap Color", "key": "strap_color", "required": False, "values": ["Black", "Midnight Blue", "Silver"]}],
-        "spec_groups": [{"title": "Watch Specifications", "specs": [
-            {"label": "Water Resistance", "value": "30m"}, {"label": "Display", "value": "AMOLED"},
-            {"label": "Battery Type", "value": "Rechargeable"}, {"label": "Case Size", "value": "42mm"}]}],
-        "notices": ["Imported item includes 6-month seller warranty."],
-        "review_tags": [{"label": "Value for Money", "count": 191}, {"label": "Design", "count": 133}],
-        "reviews": [{"user_name": "Chisomo", "avatar_initial": "C", "rating": 4, "date": "2026-05-09",
-                     "text": "Bright display and solid battery life.", "helpful_count": 2}],
-    },
-    {
-        "slug": "psn-gift-card-20", "title": "PSN Gift Card $20", "product_type": "digital",
-        "category": "general", "price": 21.50, "image": "/images/mock-products/ps5-dock.svg",
-        "origin": "Global", "delivery_estimate": "Within 15 minutes", "units_sold": 19800,
-        "searchable_text": "psn playstation gift card digital code wallet",
-        "images": [{"src": "/images/mock-products/ps5-dock.svg", "alt": "Gift card", "position": 1}],
-        "spec_groups": [{"title": "Delivery", "specs": [
-            {"label": "Region", "value": "Global"}, {"label": "Delivery Type", "value": "Instant digital code"},
-            {"label": "Delivery Estimate", "value": "Within 15 minutes"}]}],
-        "notices": ["Redemption instructions are provided after payment confirmation."],
-        "review_tags": [{"label": "Fast Delivery", "count": 143}],
-        "reviews": [{"user_name": "M. Banda", "avatar_initial": "M", "rating": 5, "date": "2026-05-11",
-                     "text": "Code arrived within minutes. Worked instantly.", "helpful_count": 8}],
-    },
-    {
-        "slug": "skin-care-mini-device-kit", "title": "Skin Care Mini Device Kit", "product_type": "general",
-        "category": "general", "price": 26.75, "image": "/images/mock-products/skin-care.svg",
-        "warehouse": "china", "origin": "China", "shipping_method": "sea", "delivery_estimate": "7-13 days",
-        "import_tag": "Import", "units_sold": 12600, "searchable_text": "beauty skin care wellness device",
-        "images": [
-            {"src": "/images/mock-products/skin-care.svg", "alt": "Device kit", "position": 1},
-            {"src": "/images/mock-products/skin-care.svg", "alt": "Contents", "position": 2}],
-        "review_tags": [{"label": "Packaging", "count": 62}, {"label": "Results", "count": 54}],
-        "reviews": [{"user_name": "N. Phiri", "avatar_initial": "N", "rating": 4, "date": "2026-05-02",
-                     "text": "Compact kit and simple to use at home.", "helpful_count": 1}],
-    },
-]
+
+def slugify(name: str) -> str:
+    out = name.lower()
+    for ch in ['(', ')', '"', "'", ",", ".", "/"]:
+        out = out.replace(ch, "")
+    return "-".join(out.split())
+
+
+def short_label(name: str) -> str:
+    return " ".join(name.upper().split()[:2])
 
 
 class Command(BaseCommand):
-    help = "Seed example categories and products (one per product type)."
+    help = "Seed footwear/watches/electronics/security categories and products."
 
     def handle(self, *args, **options):
-        cats = {}
-        for c in CATEGORIES:
-            obj, _ = Category.objects.update_or_create(slug=c["slug"], defaults=c)
-            cats[c["slug"]] = obj
+        managed = [c["slug"] for c in CATEGORIES]
+        # Clean slate for these categories (and drop any legacy one-off products).
+        Product.objects.filter(category__slug__in=managed).delete()
+        Product.objects.filter(slug__in=[
+            "skin-care-mini-device-kit", "psn-gift-card-20", "pulse-smartwatch",
+            "aerorun-pro-sneakers", "smart-cctv-4k-hub-kit",
+        ]).delete()
 
-        for data in PRODUCTS:
-            data = dict(data)
-            reviews = data.pop("reviews", [])
-            images = data.pop("images", [])
-            data["category"] = cats.get(data.pop("category", None))
-            data.setdefault(
-                "description",
-                f"{data['title']} — quality-checked import sourced from verified suppliers, "
-                "with reliable delivery across Zambia.",
+        cats = prods = 0
+        for ci, cdef in enumerate(CATEGORIES):
+            category, _ = Category.objects.update_or_create(
+                slug=cdef["slug"],
+                defaults={
+                    "name": cdef["name"],
+                    "blurb": cdef["subtitle"],
+                    "subtitle": cdef["subtitle"],
+                    "search_placeholder": cdef["search"],
+                    "hero": cdef["hero"],
+                    "chips": cdef["chips"],
+                    "features": FEATURES,
+                    "ordering": ci,
+                    "is_active": True,
+                },
             )
-            product, _ = Product.objects.update_or_create(slug=data["slug"], defaults=data)
+            cats += 1
+            for pi, (sub, name, subtitle, price, wh, original) in enumerate(cdef["products"]):
+                c_from, c_to = PALETTE[pi % len(PALETTE)]
+                china = wh == "china"
+                Product.objects.create(
+                    slug=slugify(name),
+                    title=name,
+                    product_type=cdef["type"],
+                    category=category,
+                    sub_category=sub,
+                    subtitle=subtitle,
+                    price=price,
+                    original_price=original,
+                    air_price=round(price * 1.45, 2) if china else None,
+                    image=listing_image(short_label(name), c_from, c_to),
+                    warehouse=Warehouse.CHINA if china else Warehouse.ZAMBIA,
+                    origin=Origin.CHINA if china else Origin.GLOBAL,
+                    shipping_method=ShippingMethod.SEA if china else "",
+                    delivery_estimate="10-18 days" if china else "1-2 days (Lusaka)",
+                    import_tag="China import" if china else "",
+                    units_sold=80 + pi * 29 + ci * 13,
+                    searchable_text=f"{name} {subtitle} {sub} {cdef['name']}",
+                    is_active=True,
+                )
+                prods += 1
 
-            product.images.all().delete()
-            ProductImage.objects.bulk_create([ProductImage(product=product, **img) for img in images])
-
-            product.reviews.all().delete()
-            ProductReview.objects.bulk_create([ProductReview(product=product, **r) for r in reviews])
-            product.recalculate_ratings()
-
-        self.stdout.write(self.style.SUCCESS(
-            f"Seeded {Category.objects.count()} categories, {Product.objects.count()} products, "
-            f"{ProductImage.objects.count()} images."
-        ))
+        self.stdout.write(self.style.SUCCESS(f"Seeded {cats} categories and {prods} products."))

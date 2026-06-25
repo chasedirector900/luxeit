@@ -1,6 +1,6 @@
-"""Seed believable customer reviews for the car-part products so each product
-shows a ratings breakdown, review tags and individual reviews. Idempotent:
-re-running clears a product's reviews and recreates them deterministically.
+"""Seed believable customer reviews for every physical product so each shows a
+ratings breakdown, review tags and individual reviews. Idempotent: re-running
+clears a product's reviews and recreates them deterministically.
 """
 import random
 from datetime import timedelta
@@ -17,29 +17,28 @@ NAMES = [
 ]
 
 POSITIVE = [
-    "Fitted perfectly and works great. Delivery to Lusaka was faster than I expected.",
-    "Exactly as described. Good quality for the price — very happy with this purchase.",
-    "Genuine fit for my car. Packaging was solid and nothing arrived damaged.",
-    "Been using it for a few weeks now with no issues at all. Will order again.",
-    "Great value. Shipping from China took about two weeks but it was worth the wait.",
-    "Solid build quality and matches the original part well. Recommended.",
-    "Easy to install and feels well made. Exactly what I needed.",
+    "Exactly as described and great quality. Delivery to Lusaka was quick.",
+    "Really happy with this — good value for the price. Would buy again.",
+    "Solid build and works perfectly. Packaging was secure, nothing damaged.",
+    "Been using it for a few weeks now with zero issues. Recommended.",
+    "Great find. Shipping from China took a couple of weeks but worth it.",
+    "Looks even better in person. Matches the photos well.",
+    "Easy to set up and does exactly what I needed.",
 ]
 NEUTRAL = [
     "Works fine but delivery took a little longer than expected.",
-    "Decent part for the price. Installation needed a bit of effort.",
-    "Good enough for what I paid. Does the job well.",
+    "Decent for the price. Nothing fancy but it does the job.",
+    "Good enough. Setup needed a bit of patience.",
 ]
 TAGS = ["Great Quality", "Good Value", "As Described", "Fast Delivery", "Perfect Fit", "Well Packaged"]
-
-REPLY = "Thanks for the feedback! Glad it fit your vehicle. — LUXEIT Support"
+REPLY = "Thanks for the feedback! Glad you're happy with it. — LUXEIT Support"
 
 
 class Command(BaseCommand):
-    help = "Seed fake reviews for car-part products."
+    help = "Seed fake reviews for all physical products."
 
     def handle(self, *args, **options):
-        products = Product.objects.filter(product_type=ProductType.CAR_PART)
+        products = Product.objects.filter(is_active=True).exclude(product_type=ProductType.DIGITAL)
         total = 0
         for product in products:
             rng = random.Random(product.id)  # deterministic per product
@@ -57,19 +56,19 @@ class Command(BaseCommand):
                     avatar_initial=name[0],
                     rating=rating,
                     text=text,
+                    verified=True,
                     date=timezone.now().date() - timedelta(days=rng.randint(3, 180)),
                     helpful_count=rng.randint(0, 18),
                 )
                 if i == 0 and rng.random() < 0.4:
                     review.reply_text = REPLY
                     review.reply_author = "LUXEIT Support"
-                    review.save()  # save() auto-stamps reply_date
-                total += 1
+                    review.save()
 
-            # Review tag chips with counts.
             chosen = rng.sample(TAGS, rng.randint(3, 5))
             product.review_tags = [{"label": label, "count": rng.randint(40, 320)} for label in chosen]
             product.save(update_fields=["review_tags"])
             product.recalculate_ratings()
+            total += count
 
         self.stdout.write(self.style.SUCCESS(f"Seeded {total} reviews across {products.count()} products."))
