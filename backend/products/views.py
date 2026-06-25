@@ -116,7 +116,7 @@ def product_review(request, slug):
         return Response({"detail": "Rating must be between 1 and 5."}, status=http_status.HTTP_400_BAD_REQUEST)
     text = str(request.data.get("text") or "").strip()[:2000]
 
-    name = (request.user.full_name or "").strip() or (request.user.email or "Customer").split("@")[0]
+    name = request.user.public_display_name
     review, _ = ProductReview.objects.update_or_create(
         product=product,
         user=request.user,

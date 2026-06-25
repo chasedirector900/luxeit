@@ -4,6 +4,20 @@ from django.test import TestCase
 User = get_user_model()
 
 
+class PublicDisplayNameTests(TestCase):
+    def test_prefers_full_name(self):
+        u = User.objects.create_user(email="a@b.com", full_name="Chanda Mwale")
+        self.assertEqual(u.public_display_name, "Chanda Mwale")
+
+    def test_email_handle_when_no_name(self):
+        u = User.objects.create_user(email="chanda.m@example.com")
+        self.assertEqual(u.public_display_name, "chanda.m")
+
+    def test_phone_only_is_masked_to_last_4(self):
+        u = User.objects.create_user(phone="+260971234567")
+        self.assertEqual(u.public_display_name, "Customer ••4567")
+
+
 class ProfileAddressApiTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(email="shopper@example.com")

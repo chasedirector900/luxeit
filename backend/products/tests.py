@@ -60,6 +60,20 @@ class ProductReviewApiTests(TestCase):
         res = self.client.post("/api/products/widget/review", data={"rating": 9}, content_type="application/json")
         self.assertEqual(res.status_code, 400)
 
+    def test_phone_only_user_review_shows_masked_name(self):
+        from django.test import Client
+        from orders.models import Order, OrderItem
+
+        phone_user = User.objects.create_user(phone="+260971234567")
+        order = Order.objects.create(user=phone_user, status="delivered")
+        OrderItem.objects.create(order=order, product=self.product, title="Widget", unit_price=20, quantity=1)
+        c = Client()
+        c.force_login(phone_user)
+        res = c.post("/api/products/widget/review", data={"rating": 5, "text": "good"}, content_type="application/json")
+        self.assertEqual(res.status_code, 201)
+        review = self.product.reviews.get(user=phone_user)
+        self.assertEqual(review.user_name, "Customer ••4567")
+
 
 class CarCatalogSeedTests(TestCase):
     @classmethod

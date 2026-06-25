@@ -67,6 +67,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email or self.phone or f"user#{self.pk}"
 
+    @property
+    def public_display_name(self) -> str:
+        """A name safe to show publicly (e.g. on reviews). Prefers the full name;
+        falls back to the email handle; for phone-only accounts, masks to the
+        last 4 digits so the number is never exposed."""
+        name = (self.full_name or "").strip()
+        if name:
+            return name
+        if self.email:
+            return self.email.split("@")[0]
+        if self.phone:
+            digits = "".join(ch for ch in self.phone if ch.isdigit())
+            if len(digits) >= 4:
+                return f"Customer ••{digits[-4:]}"
+        return "Customer"
+
 
 class LoginCode(models.Model):
     """A one-time code sent to an email or phone for passwordless login."""
