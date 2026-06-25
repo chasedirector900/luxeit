@@ -89,18 +89,50 @@ class ShipmentAdmin(admin.ModelAdmin):
     def items_summary(self, obj):
         return ", ".join(f"{i.quantity}× {i.title}" for i in obj.items.all()[:3]) or "—"
 
-    # ── Sourcing board: batched buy-list for the procurement team ───────────
+    # ── Fulfilment board: batched sourcing, arrivals & local deliveries ─────
     def get_urls(self):
-        custom = [path("sourcing/", self.admin_site.admin_view(self.sourcing_view), name="orders_shipment_sourcing")]
+        custom = [path("fulfilment/", self.admin_site.admin_view(self.fulfilment_view), name="orders_shipment_fulfilment")]
         return custom + super().get_urls()
 
-    def sourcing_view(self, request):
+    def fulfilment_view(self, request):
         if request.method == "POST":
-            return self._fulfil_batch(request)
+            return self._advance_batch(request)
 
-        # Aggregate paid-but-unsourced China demand by (day, carrier, product).
+        Q = OrderStatus
+        sections = [
+            {
+                "key": "source",
+                "title": "To source — buy from the China hub",
+                "hint": "Paid orders waiting to be bought. Buy these quantities, then mark the batch.",
+                "action": "Mark sourced & purchased",
+                "show_carrier": True,
+                "batches": self._aggregate(status_in=[Q.QUEUE], warehouse="china"),
+            },
+            {
+                "key": "arrive",
+                "title": "Arrivals — incoming by air & sea",
+                "hint": "Sourced goods on the way. When a batch lands, mark it arrived — customers are told it's ready for collection.",
+                "action": "Mark arrived (ready for collection)",
+                "show_carrier": True,
+                "batches": self._aggregate(status_in=[Q.SOURCING, Q.TRANSIT], warehouse="china"),
+            },
+            {
+                "key": "deliver",
+                "title": "Lusaka local — ready for delivery",
+                "hint": "Local-stock orders. Mark a day's batch delivered once the rider drops them off.",
+                "action": "Mark delivered",
+                "show_carrier": False,
+                "batches": self._aggregate(status_in=[Q.QUEUE, Q.SOURCING, Q.TRANSIT], warehouse="zambia"),
+            },
+        ]
+        context = {**self.admin_site.each_context(request), "title": "Fulfilment board", "sections": sections}
+        return render(request, "admin/orders/fulfilment.html", context)
+
+    @staticmethod
+    def _aggregate(*, status_in, warehouse):
+        """Group demand into (day, carrier) batches, each listing products + qty."""
         rows = (
-            OrderItem.objects.filter(shipment__status=OrderStatus.QUEUE, warehouse="china")
+            OrderItem.objects.filter(shipment__status__in=status_in, warehouse=warehouse)
             .annotate(day=TruncDate("shipment__order__placed_at"))
             .values("day", "shipping_method", "title")
             .annotate(qty=Sum("quantity"))
@@ -117,31 +149,37 @@ class ShipmentAdmin(admin.ModelAdmin):
                 batches.append(group)
             group["items"].append({"title": r["title"], "qty": r["qty"]})
             group["total"] += r["qty"]
+        return batches
 
-        context = {
-            **self.admin_site.each_context(request),
-            "title": "Sourcing board",
-            "batches": batches,
-        }
-        return render(request, "admin/orders/sourcing.html", context)
-
-    def _fulfil_batch(self, request):
+    def _advance_batch(self, request):
+        section = request.POST.get("section")
         carrier = request.POST.get("carrier", "")
         try:
             day = date.fromisoformat(request.POST.get("day", ""))
         except ValueError:
             self.message_user(request, "Invalid batch.", level=messages.ERROR)
-            return redirect("admin:orders_shipment_sourcing")
+            return redirect("admin:orders_shipment_fulfilment")
 
-        shipments = Shipment.objects.filter(
-            status=OrderStatus.QUEUE, warehouse="china", carrier=carrier, order__placed_at__date=day,
-        )
+        Q = OrderStatus
+        if section == "source":
+            qs = Shipment.objects.filter(status=Q.QUEUE, warehouse="china", carrier=carrier, order__placed_at__date=day)
+            new_status, label = Q.SOURCING, "sourced & purchased"
+        elif section == "arrive":
+            qs = Shipment.objects.filter(status__in=[Q.SOURCING, Q.TRANSIT], warehouse="china", carrier=carrier, order__placed_at__date=day)
+            new_status, label = Q.DELIVERED, "arrived (ready for collection)"
+        elif section == "deliver":
+            qs = Shipment.objects.filter(status__in=[Q.QUEUE, Q.SOURCING, Q.TRANSIT], warehouse="zambia", order__placed_at__date=day)
+            new_status, label = Q.DELIVERED, "delivered"
+        else:
+            self.message_user(request, "Unknown action.", level=messages.ERROR)
+            return redirect("admin:orders_shipment_fulfilment")
+
         count = 0
-        for shipment in shipments:
-            shipment.set_status(OrderStatus.SOURCING)  # notifies the customer + rolls order up
+        for shipment in qs:
+            shipment.set_status(new_status)  # notifies the customer + rolls the order up
             count += 1
-        self.message_user(request, f"Marked {count} {carrier} shipment(s) from {day} as sourced & purchased.")
-        return redirect("admin:orders_shipment_sourcing")
+        self.message_user(request, f"Marked {count} shipment(s) as {label}.")
+        return redirect("admin:orders_shipment_fulfilment")
 
     # ── Bulk status actions (granular, from the changelist) ─────────────────
     def _bulk(self, request, queryset, status):

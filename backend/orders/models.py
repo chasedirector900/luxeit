@@ -214,11 +214,17 @@ class Shipment(models.Model):
         if not wants_notification(self.order.user, "order_updates"):
             return
         ref = self.order.reference
+        # China goods land at the hub for collection; Zambia goods are delivered.
+        delivered = (
+            f"Good news — your {self.label} order ({ref}) has arrived and is ready for collection."
+            if self.warehouse == "china"
+            else f"Your {self.label} order ({ref}) has been delivered. Enjoy!"
+        )
         bodies = {
             OrderStatus.QUEUE: f"Payment received — your {self.label} ({ref}) is queued to be sourced.",
             OrderStatus.SOURCING: f"We're sourcing your {self.label} items in order {ref}.",
             OrderStatus.TRANSIT: f"Your {self.label} shipment for order {ref} is on its way.",
-            OrderStatus.DELIVERED: f"Your {self.label} shipment for order {ref} has been delivered.",
+            OrderStatus.DELIVERED: delivered,
             OrderStatus.CANCELLED: f"Your {self.label} shipment for order {ref} was cancelled.",
             OrderStatus.PENDING: f"Order {ref} is awaiting payment.",
         }

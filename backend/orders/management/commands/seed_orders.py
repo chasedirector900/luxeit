@@ -19,11 +19,15 @@ STAGES = [OrderStatus.PENDING, OrderStatus.QUEUE, OrderStatus.SOURCING, OrderSta
 # Each order: (days_ago, paid, [ (warehouse, carrier, status, n_items), ... ]).
 PLAN = [
     (1, False, [("china", "sea", OrderStatus.PENDING, 1)]),
+    # To-source batches on the fulfilment board (paid, awaiting purchase).
+    (2, True, [("china", "air", OrderStatus.QUEUE, 1)]),
     (4, True, [("china", "sea", OrderStatus.QUEUE, 1)]),
     (9, True, [("china", "sea", OrderStatus.SOURCING, 2)]),
     (16, True, [("china", "air", OrderStatus.TRANSIT, 1)]),
     # Premium showcase: one order, two parcels at different stages.
     (30, True, [("china", "air", OrderStatus.DELIVERED, 1), ("china", "sea", OrderStatus.TRANSIT, 1)]),
+    # Lusaka local: one waiting for delivery, one already delivered.
+    (3, True, [("zambia", "local", OrderStatus.QUEUE, 1)]),
     (44, True, [("zambia", "local", OrderStatus.DELIVERED, 1)]),
 ]
 

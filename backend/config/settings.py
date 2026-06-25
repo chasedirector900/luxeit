@@ -52,6 +52,7 @@ ALLOWED_HOSTS = env_list(
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',  # modern admin theme — must come before django.contrib.admin
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,6 +73,56 @@ INSTALLED_APPS = [
 # Custom passwordless user model (email or phone, OTP auth). Must be set before
 # the first migration of this project's database.
 AUTH_USER_MODEL = 'users.User'
+
+# ── Admin theme (Jazzmin) ────────────────────────────────────────────────────
+JAZZMIN_SETTINGS = {
+    "site_title": "Luxeit Admin",
+    "site_header": "Luxeit",
+    "site_brand": "Luxeit",
+    "welcome_sign": "Luxeit Operations",
+    "copyright": "Luxeit",
+    "search_model": ["orders.Order", "products.Product", "users.User"],
+    # Sidebar: related things grouped, ordered for the ops workflow.
+    "order_with_respect_to": [
+        "orders", "orders.order", "orders.shipment",
+        "products", "products.product", "products.category", "products.productreview",
+        "users", "messaging",
+    ],
+    "icons": {
+        "orders": "fas fa-clipboard-list",
+        "orders.Order": "fas fa-receipt",
+        "orders.Shipment": "fas fa-truck-fast",
+        "products": "fas fa-store",
+        "products.Product": "fas fa-box",
+        "products.Category": "fas fa-tags",
+        "products.ProductReview": "fas fa-star",
+        "users": "fas fa-users",
+        "users.User": "fas fa-user",
+        "messaging": "fas fa-headset",
+        "messaging.Thread": "fas fa-comments",
+        "messaging.Message": "fas fa-comment-dots",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    # Quick link to the fulfilment board from the top bar + the Orders group.
+    "topmenu_links": [
+        {"name": "Fulfilment board", "url": "admin:orders_shipment_fulfilment"},
+    ],
+    "custom_links": {
+        "orders": [
+            {"name": "Fulfilment board", "url": "admin:orders_shipment_fulfilment", "icon": "fas fa-clipboard-check"},
+        ],
+    },
+    "hide_apps": ["auth"],
+}
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",
+    "default_theme_mode": "auto",  # follows the OS light/dark preference
+    "navbar": "navbar-dark",
+    "sidebar": "sidebar-dark-primary",
+    "brand_colour": "navbar-indigo",
+    "accent": "accent-indigo",
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
