@@ -28,12 +28,24 @@
         </h2>
         <table style="width:100%;">
           <thead>
-            <tr><th>Product</th><th style="width:8rem;">Qty</th></tr>
+            <tr><th style="width:4rem;"></th><th>Product</th><th style="width:6rem;">Qty</th></tr>
           </thead>
           <tbody>
             {% for it in batch.items %}
               <tr class="{% cycle 'row1' 'row2' %}">
-                <td>{{ it.title }}</td>
+                <td>
+                  {% if it.image %}
+                    <img src="{{ it.image }}" alt="" loading="lazy"
+                         style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid rgba(0,0,0,.1);">
+                  {% endif %}
+                </td>
+                <td>
+                  {% if it.url %}
+                    <a href="{{ it.url }}" target="_blank" rel="noopener" title="Open the product to view specs, gallery &amp; source it">{{ it.title }}</a>
+                  {% else %}
+                    {{ it.title }}
+                  {% endif %}
+                </td>
                 <td><strong>{{ it.qty }}</strong></td>
               </tr>
             {% endfor %}

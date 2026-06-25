@@ -4,7 +4,7 @@ from django.contrib import admin, messages
 from django.db.models import Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import redirect, render
-from django.urls import path
+from django.urls import path, reverse
 
 from .models import Order, OrderItem, OrderStatus, Shipment
 
@@ -130,11 +130,13 @@ class ShipmentAdmin(admin.ModelAdmin):
 
     @staticmethod
     def _aggregate(*, status_in, warehouse):
-        """Group demand into (day, carrier) batches, each listing products + qty."""
+        """Group demand into (day, carrier) batches, each listing the actual
+        products (thumbnail, title, qty, and a deep-link to the catalogue page so
+        the buyer can see specs/gallery and source it)."""
         rows = (
             OrderItem.objects.filter(shipment__status__in=status_in, warehouse=warehouse)
             .annotate(day=TruncDate("shipment__order__placed_at"))
-            .values("day", "shipping_method", "title")
+            .values("day", "shipping_method", "title", "image", "product_id")
             .annotate(qty=Sum("quantity"))
             .order_by("-day", "shipping_method", "-qty", "title")
         )
@@ -147,7 +149,13 @@ class ShipmentAdmin(admin.ModelAdmin):
                 group = {"day": r["day"], "carrier": r["shipping_method"], "items": [], "total": 0}
                 index[key] = group
                 batches.append(group)
-            group["items"].append({"title": r["title"], "qty": r["qty"]})
+            url = (
+                reverse("admin:products_product_change", args=[r["product_id"]])
+                if r["product_id"] else ""
+            )
+            group["items"].append(
+                {"title": r["title"], "qty": r["qty"], "image": r["image"], "url": url}
+            )
             group["total"] += r["qty"]
         return batches
 
