@@ -18,6 +18,27 @@ class Carrier(models.TextChoices):
     SEA = "sea", "Sea"
 
 
+class ItemCarrier(models.TextChoices):
+    """How a single line ships. China goods go air or sea (per item); Zambia
+    goods are local stock."""
+    AIR = "air", "Air"
+    SEA = "sea", "Sea"
+    LOCAL = "local", "Local"
+
+
+# Per-(hub, method) delivery estimates for grouped shipments.
+SHIPMENT_ETA = {
+    ("china", "air"): "About 2 weeks (Air)",
+    ("china", "sea"): "About 2 months (Sea)",
+    ("zambia", "local"): "1-2 days (Lusaka)",
+}
+SHIPMENT_LABEL = {
+    ("china", "air"): "China Hub · Air",
+    ("china", "sea"): "China Hub · Sea",
+    ("zambia", "local"): "Lusaka Hub · Local",
+}
+
+
 # Maps a fine-grained status to the four account "My Orders" buckets/tabs.
 BUCKET_BY_STATUS = {
     OrderStatus.PENDING: "pending",
@@ -101,6 +122,37 @@ class Order(models.Model):
         self.total = agg["total"] or 0
         self.save(update_fields=["total"])
 
+    def shipments(self) -> list:
+        """Group the order's items into fulfilment shipments by (hub, carrier).
+
+        One order, one payment — but it may ship as several parcels: e.g. a
+        China-air parcel, a China-sea parcel, and a Lusaka-local parcel.
+        """
+        groups: dict = {}
+        order_keys: list = []
+        for item in self.items.all():
+            wh = item.warehouse or "china"
+            method = item.shipping_method or ("local" if wh == "zambia" else "sea")
+            key = (wh, method)
+            if key not in groups:
+                groups[key] = []
+                order_keys.append(key)
+            groups[key].append(item)
+
+        result = []
+        for key in order_keys:
+            wh, method = key
+            items = groups[key]
+            result.append({
+                "warehouse": wh,
+                "carrier": method,
+                "label": SHIPMENT_LABEL.get(key, f"{wh} · {method}"),
+                "eta": SHIPMENT_ETA.get(key, ""),
+                "subtotal": sum((i.line_total for i in items), 0),
+                "items": items,
+            })
+        return result
+
     def set_status(self, status: str) -> None:
         """Transition the order, timestamp it, and notify the customer's inbox."""
         if status == self.status:
@@ -150,6 +202,9 @@ class OrderItem(models.Model):
     title = models.CharField(max_length=200)
     image = models.CharField(max_length=2048, blank=True)
     warehouse = models.CharField(max_length=10, blank=True)
+    # How THIS line ships (air/sea for China, local for Zambia). Lets one order
+    # carry, e.g., 2 China items by air and the rest by sea.
+    shipping_method = models.CharField(max_length=6, choices=ItemCarrier.choices, blank=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 

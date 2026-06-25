@@ -24,6 +24,8 @@ def _item_dict(item: OrderItem, *, reviewable: bool = False) -> dict:
         "image": item.image,
         "quantity": item.quantity,
         "price": float(item.unit_price),
+        "warehouse": item.warehouse or "china",
+        "shippingMethod": item.shipping_method or "",
     }
     # Linked catalogue product -> let the app deep-link to its review page.
     if item.product_id:
@@ -36,6 +38,7 @@ def _item_dict(item: OrderItem, *, reviewable: bool = False) -> dict:
 
 class OrderSerializer(serializers.BaseSerializer):
     def to_representation(self, order: Order) -> dict:
+        reviewable = order.status == OrderStatus.DELIVERED
         data = {
             "id": order.reference,
             "placedOn": _placed_label(order.placed_at),
@@ -44,7 +47,19 @@ class OrderSerializer(serializers.BaseSerializer):
             "statusLabel": order.status_label,
             "statusDescription": order.status_description,
             "total": float(order.total),
-            "items": [_item_dict(i, reviewable=order.status == OrderStatus.DELIVERED) for i in order.items.all()],
+            "items": [_item_dict(i, reviewable=reviewable) for i in order.items.all()],
+            # Fulfilment shipments: one order/payment split by hub + carrier.
+            "shipments": [
+                {
+                    "warehouse": s["warehouse"],
+                    "carrier": s["carrier"],
+                    "label": s["label"],
+                    "eta": s["eta"],
+                    "subtotal": float(s["subtotal"]),
+                    "items": [_item_dict(i, reviewable=reviewable) for i in s["items"]],
+                }
+                for s in order.shipments()
+            ],
             # Per-step timestamps for the tracking timeline.
             "events": [{"status": e.status, "at": _event_label(e.created_at)} for e in order.events.all()],
         }

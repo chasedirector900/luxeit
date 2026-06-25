@@ -250,9 +250,20 @@ export type OrderApiItem = {
   image: string;
   quantity: number;
   price: number;
+  warehouse?: string;
+  shippingMethod?: string; // air | sea | local
   slug?: string;
   categorySlug?: string;
   reviewable?: boolean; // true on delivered orders for catalogue products
+};
+
+export type OrderApiShipment = {
+  warehouse: string;
+  carrier: string; // air | sea | local
+  label: string; // "China Hub · Air"
+  eta: string;
+  subtotal: number;
+  items: OrderApiItem[];
 };
 export type OrderApi = {
   id: string; // reference, e.g. "LX-2041"
@@ -263,6 +274,7 @@ export type OrderApi = {
   statusDescription: string;
   total: number;
   items: OrderApiItem[];
+  shipments?: OrderApiShipment[];
   events?: Array<{ status: string; at: string }>;
   carrier?: string;
   shippingAddress?: string;
@@ -270,7 +282,15 @@ export type OrderApi = {
 };
 
 export type CreateOrderInput = {
-  items: Array<{ title: string; image: string; price: number; quantity: number; warehouse?: string; slug?: string }>;
+  items: Array<{
+    title: string;
+    image: string;
+    price: number;
+    quantity: number;
+    warehouse?: string;
+    slug?: string;
+    shippingMethod?: string; // air | sea | local (per item)
+  }>;
   carrier?: string;
   address?: { line1: string; city: string; area: string } | null;
   payment?: { brand: string; detail: string } | null;

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Check, CreditCard, MapPin, PackageCheck, Plane, Plus, Ship, Truck, Warehouse } from "lucide-react";
+import { ArrowLeft, Check, CreditCard, MapPin, PackageCheck, Plane, Plus, Ship, Truck } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { createOrder } from "@/lib/auth/api";
@@ -23,39 +23,35 @@ function formatAddress(a: SavedAddress): string {
   return [a.line1, a.city, a.area].filter(Boolean).join(", ");
 }
 
-function ItemThumbs({ items }: { items: CartItem[] }) {
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
-  return (
-    <div className="mt-3 flex items-center gap-2">
-      {items.slice(0, 4).map((item) => (
-        <div
-          key={`${item.productId}-${item.variantId ?? "default"}`}
-          className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100 dark:border-zinc-800 dark:bg-zinc-800"
-        >
-          <Image src={item.image} alt={item.title} fill sizes="44px" className="object-cover" />
-        </div>
-      ))}
-      <span className="text-[12px] font-medium text-slate-500 dark:text-zinc-400">
-        {count} {count === 1 ? "item" : "items"}
-      </span>
-    </div>
-  );
+type ItemMethod = "air" | "sea" | "local";
+
+function itemKey(item: CartItem): string {
+  return `${item.productId}-${item.variantId ?? "default"}`;
 }
 
-// Unit price for the chosen carrier: China dual-shipping items re-price by
-// carrier; everything else uses its stored price.
-function unitPriceFor(item: CartItem, carrier: ShippingMethod): number {
-  if (item.shippingPrices && (item.warehouse ?? "china") === "china") {
-    return item.shippingPrices[carrier];
-  }
+// A China item that genuinely offers both air and sea (different prices).
+function isDual(item: CartItem): boolean {
+  return Boolean(item.shippingPrices && item.shippingPrices.air !== item.shippingPrices.sea);
+}
+
+// Unit price for an item's resolved shipping method (air costs more for duals).
+function unitPriceFor(item: CartItem, method: ItemMethod): number {
+  if (isDual(item)) return item.shippingPrices![method === "air" ? "air" : "sea"];
   return item.price;
 }
+
+const SHIPMENT_META: Record<string, { label: string; icon: typeof Plane }> = {
+  "china-air": { label: "China Hub · Air", icon: Plane },
+  "china-sea": { label: "China Hub · Sea", icon: Ship },
+  "zambia-local": { label: "Lusaka Hub · Local", icon: Truck },
+};
 
 export function CheckoutClient() {
   const { items, cartCount, clearCart } = useCart();
   const { updateProfile } = useAuth();
-  // Default to sea (the cheaper "From" price shown across the app).
-  const [carrier, setCarrier] = useState<ShippingMethod>("sea");
+  // Per-item carrier overrides (dual China items only). Defaults to each item's
+  // own chosen method, so a cart can ship some items air and others sea.
+  const [methodOverrides, setMethodOverrides] = useState<Record<string, ShippingMethod>>({});
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [placed, setPlaced] = useState(false);
   const [placing, setPlacing] = useState(false);
@@ -83,13 +79,6 @@ export function CheckoutClient() {
     setSelectedMethodId((saved.find((m) => m.isDefault) ?? saved[0])?.id ?? null);
   }, []);
 
-  const { chinaItems, zambiaItems } = useMemo(() => {
-    return {
-      chinaItems: items.filter((item) => (item.warehouse ?? "china") === "china"),
-      zambiaItems: items.filter((item) => item.warehouse === "zambia"),
-    };
-  }, [items]);
-
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null;
   const selectedMethod = methods.find((m) => m.id === selectedMethodId) ?? null;
   const hasAddress = Boolean(selectedAddress);
@@ -98,18 +87,48 @@ export function CheckoutClient() {
 
   const isLusaka = (selectedAddress?.city ?? "").trim().toLowerCase().includes("lusaka");
   const zambiaEta = isLusaka ? "Within 24 hours" : "About 48 hours";
-  const chinaEta = carrier === "air" ? "About 2 weeks (Air)" : "About 2 months (Sea)";
 
-  // Carrier-aware order total — flipping Air/Sea re-prices the China items.
+  // Resolve each item's shipping method: Zambia is local; a dual China item uses
+  // its override (or its own chosen method); a sea-only China item is always sea.
+  function methodFor(item: CartItem): ItemMethod {
+    if (item.warehouse === "zambia") return "local";
+    if (isDual(item)) return methodOverrides[itemKey(item)] ?? item.selectedShippingMethod ?? "sea";
+    return "sea";
+  }
+
+  // Group the cart into fulfilment shipments — one order, one payment, but split
+  // by (hub, carrier): e.g. China·Air + China·Sea + Lusaka·Local.
+  const shipments = useMemo(() => {
+    const groups = new Map<string, { warehouse: string; carrier: ItemMethod; items: CartItem[] }>();
+    const order: string[] = [];
+    for (const item of items) {
+      const carrier = methodFor(item);
+      const warehouse = item.warehouse ?? "china";
+      const key = `${warehouse}-${carrier}`;
+      if (!groups.has(key)) {
+        groups.set(key, { warehouse, carrier, items: [] });
+        order.push(key);
+      }
+      groups.get(key)!.items.push(item);
+    }
+    return order.map((k) => groups.get(k)!);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, methodOverrides]);
+
   const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + unitPriceFor(item, carrier) * item.quantity, 0),
-    [items, carrier],
+    () => items.reduce((sum, item) => sum + unitPriceFor(item, methodFor(item)) * item.quantity, 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items, methodOverrides],
   );
-  // Does switching carrier actually change anything? (Any dual-priced item.)
-  const hasDualItems = useMemo(
-    () => items.some((item) => item.shippingPrices && item.shippingPrices.air !== item.shippingPrices.sea),
-    [items],
-  );
+
+  function setItemMethod(item: CartItem, method: ShippingMethod) {
+    setMethodOverrides((prev) => ({ ...prev, [itemKey(item)]: method }));
+  }
+
+  function shipmentEta(warehouse: string, carrier: ItemMethod): string {
+    if (warehouse === "zambia") return zambiaEta;
+    return carrier === "air" ? "About 2 weeks (Air)" : "About 2 months (Sea)";
+  }
 
   function persistPrimaryAddress(addr: { line1: string; city: string; area: string }) {
     // Mirror the chosen address to the account profile + backend so it's saved
@@ -148,8 +167,8 @@ export function CheckoutClient() {
           quantity: it.quantity,
           warehouse: it.warehouse,
           slug: it.slug,
+          shippingMethod: methodFor(it), // per-item: air / sea / local
         })),
-        carrier: chinaItems.length > 0 ? carrier : undefined,
         address: { line1: selectedAddress.line1, city: selectedAddress.city, area: selectedAddress.area },
         payment: selectedMethod ? { brand: selectedMethod.brand, detail: selectedMethod.detail } : null,
       });
@@ -333,82 +352,72 @@ export function CheckoutClient() {
         )}
       </section>
 
-      {/* Lusaka hub shipment */}
-      {zambiaItems.length > 0 ? (
-        <section style={{ animationDelay: "140ms" }} className={`reveal-up ${CARD} p-4`}>
-          <div className="flex items-center justify-between">
-            <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${WAREHOUSE_META.zambia.badge}`}>
-              <Warehouse className="h-3 w-3" />
-              {WAREHOUSE_META.zambia.label} Hub
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-emerald-600 dark:text-emerald-400">
-              <Truck className="h-3.5 w-3.5" />
-              {zambiaEta}
-            </span>
-          </div>
-          <ItemThumbs items={zambiaItems} />
-          <p className="mt-3 text-[12px] text-slate-500 dark:text-zinc-400">
-            Stocked locally in Lusaka — no carrier needed. Delivery is included.
-          </p>
-        </section>
-      ) : null}
+      {/* Shipments — one order/payment, split by hub + carrier. Per-item Air/Sea
+          for dual China goods regroups them into separate parcels live. */}
+      {shipments.map((sh, si) => {
+        const key = `${sh.warehouse}-${sh.carrier}`;
+        const meta = SHIPMENT_META[key] ?? { label: `${sh.warehouse} · ${sh.carrier}`, icon: Truck };
+        const HubIcon = meta.icon;
+        const badge = sh.warehouse === "zambia" ? WAREHOUSE_META.zambia.badge : WAREHOUSE_META.china.badge;
+        const shipTotal = sh.items.reduce((s, it) => s + unitPriceFor(it, sh.carrier) * it.quantity, 0);
+        return (
+          <section key={key} style={{ animationDelay: `${140 + si * 40}ms` }} className={`reveal-up ${CARD} p-4`}>
+            <div className="flex items-center justify-between gap-2">
+              <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${badge}`}>
+                <HubIcon className="h-3 w-3" />
+                {meta.label}
+              </span>
+              <span className="text-[12px] font-semibold text-slate-500 dark:text-zinc-400">{shipmentEta(sh.warehouse, sh.carrier)}</span>
+            </div>
 
-      {/* China hub shipment — carrier choice */}
-      {chinaItems.length > 0 ? (
-        <section style={{ animationDelay: "180ms" }} className={`reveal-up ${CARD} p-4`}>
-          <div className="flex items-center justify-between">
-            <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${WAREHOUSE_META.china.badge}`}>
-              <Warehouse className="h-3 w-3" />
-              {WAREHOUSE_META.china.label} Hub
-            </span>
-            <span className="text-[12px] font-semibold text-slate-500 dark:text-zinc-400">{chinaEta}</span>
-          </div>
-          <ItemThumbs items={chinaItems} />
+            <div className="mt-3 space-y-3">
+              {sh.items.map((item) => {
+                const method = methodFor(item);
+                return (
+                  <div key={itemKey(item)} className="flex items-start gap-3">
+                    <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100 dark:border-zinc-800 dark:bg-zinc-800">
+                      <Image src={item.image} alt={item.title} fill sizes="48px" className="object-cover" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-800 dark:text-zinc-200">{item.title}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                        Qty {item.quantity} · {formatKwacha(unitPriceFor(item, method))}
+                      </p>
+                      {isDual(item) ? (
+                        <div className="mt-1.5 inline-flex overflow-hidden rounded-lg border border-slate-200 dark:border-zinc-700">
+                          {(["sea", "air"] as const).map((m) => {
+                            const on = method === m;
+                            return (
+                              <button
+                                key={m}
+                                type="button"
+                                aria-pressed={on}
+                                onClick={() => setItemMethod(item, m)}
+                                className={`px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                                  on
+                                    ? "bg-indigo-500 text-white"
+                                    : "bg-white text-slate-600 dark:bg-zinc-900 dark:text-zinc-400"
+                                }`}
+                              >
+                                {m === "air" ? "Air" : "Sea"} · {formatKwacha(item.shippingPrices![m])}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-          {/* Carrier choice only when the cart has air-eligible items; otherwise
-              these goods are sea-only and we say so. */}
-          {hasDualItems ? (
-            <>
-              <p className="mb-2 mt-4 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Carrier</p>
-              <div className="grid grid-cols-2 gap-2.5">
-                {([
-                  { key: "sea", label: "Sea", note: "~2 months · cheaper", icon: Ship },
-                  { key: "air", label: "Air", note: "~2 weeks · faster", icon: Plane },
-                ] as const).map(({ key, label, note, icon: Icon }) => {
-                  const active = carrier === key;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setCarrier(key)}
-                      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-transform active:scale-[0.98] ${
-                        active
-                          ? "border-indigo-500/60 bg-indigo-500/10 dark:border-indigo-400/50 dark:bg-indigo-500/15"
-                          : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
-                      }`}
-                    >
-                      <Icon className={`h-5 w-5 shrink-0 ${active ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-zinc-400"}`} />
-                      <span className="min-w-0">
-                        <span className={`block text-sm font-bold ${active ? "text-indigo-700 dark:text-indigo-300" : "text-slate-900 dark:text-zinc-100"}`}>{label}</span>
-                        <span className="block text-[11px] text-slate-500 dark:text-zinc-400">{note}</span>
-                      </span>
-                      {active ? <Check className="ml-auto h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" /> : null}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-2 text-[11px] text-slate-400 dark:text-zinc-500">
-                Air applies only to air-eligible items — sea-only items always ship by sea.
-              </p>
-            </>
-          ) : (
-            <p className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-600 dark:text-zinc-300">
-              <Ship className="h-3.5 w-3.5" /> Sea freight · about 2 months
-            </p>
-          )}
-        </section>
-      ) : null}
+            <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-[12px] dark:border-zinc-800">
+              <span className="text-slate-500 dark:text-zinc-400">Shipment subtotal</span>
+              <span className="font-bold text-slate-900 dark:text-zinc-100">{formatKwacha(shipTotal)}</span>
+            </div>
+          </section>
+        );
+      })}
 
       {/* Summary */}
       <section style={{ animationDelay: "240ms" }} className={`reveal-up ${CARD} p-4`}>
@@ -417,14 +426,11 @@ export function CheckoutClient() {
           <span className="font-semibold text-slate-900 dark:text-zinc-100">{formatKwacha(subtotal)}</span>
         </div>
         <div className="mt-2 flex items-center justify-between text-sm">
-          <span className="text-slate-500 dark:text-zinc-400">Delivery ({carrier === "air" ? "Air" : "Sea"})</span>
+          <span className="text-slate-500 dark:text-zinc-400">
+            Delivery{shipments.length > 1 ? ` (${shipments.length} shipments)` : ""}
+          </span>
           <span className="font-semibold text-emerald-600 dark:text-emerald-400">Included</span>
         </div>
-        {hasDualItems ? (
-          <p className="mt-2 text-[11px] text-slate-400 dark:text-zinc-500">
-            China items are priced for {carrier === "air" ? "air (faster)" : "sea (cheaper)"} — switch the carrier above to compare.
-          </p>
-        ) : null}
         <div className="my-3 border-t border-slate-200 dark:border-zinc-800" />
         <div className="flex items-end justify-between">
           <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">Total</span>

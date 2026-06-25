@@ -122,6 +122,46 @@ class OrderApiTests(TestCase):
         ).json()
         self.assertEqual(air["total"], 58.0)
 
+    def test_order_splits_into_shipments_by_hub_and_carrier(self):
+        from products.models import Category, Product
+
+        cat = Category.objects.create(slug="c", name="C")
+        Product.objects.create(slug="a", title="A", category=cat, price=40, air_price=58, warehouse="china", product_type="car_part")
+        Product.objects.create(slug="s", title="S", category=cat, price=20, warehouse="china", product_type="car_part")
+        Product.objects.create(slug="l", title="L", category=cat, price=10, warehouse="zambia", product_type="general")
+        res = self.client.post(
+            "/api/orders",
+            data={
+                "items": [
+                    {"slug": "a", "title": "x", "price": 1, "quantity": 1, "shippingMethod": "air"},
+                    {"slug": "s", "title": "x", "price": 1, "quantity": 1, "shippingMethod": "sea"},
+                    {"slug": "l", "title": "x", "price": 1, "quantity": 1},
+                ],
+                "payment": {"brand": "mtn", "detail": "1"},
+            },
+            content_type="application/json",
+        ).json()
+        # One order, one payment: total = air 58 + sea 20 + local 10.
+        self.assertEqual(res["total"], 88.0)
+        by_carrier = {s["carrier"]: s["subtotal"] for s in res["shipments"]}
+        self.assertEqual(by_carrier, {"air": 58.0, "sea": 20.0, "local": 10.0})
+
+    def test_air_request_on_sea_only_product_falls_back_to_sea(self):
+        from products.models import Category, Product
+
+        cat = Category.objects.create(slug="c2", name="C2")
+        Product.objects.create(slug="seaonly", title="SeaOnly", category=cat, price=20, warehouse="china", product_type="car_part")
+        res = self.client.post(
+            "/api/orders",
+            data={
+                "items": [{"slug": "seaonly", "title": "x", "price": 1, "quantity": 1, "shippingMethod": "air"}],
+                "payment": {"brand": "mtn", "detail": "1"},
+            },
+            content_type="application/json",
+        ).json()
+        self.assertEqual(res["total"], 20.0)  # priced as sea, not air
+        self.assertEqual(res["items"][0]["shippingMethod"], "sea")
+
     def test_create_without_payment_is_pending(self):
         res = self.client.post(
             "/api/orders",

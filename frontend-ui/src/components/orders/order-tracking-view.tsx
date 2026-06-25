@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Clock, MapPin, Package, PackageCheck, Star, Truck, Wallet, XCircle } from "lucide-react";
+import { ArrowLeft, Check, Clock, MapPin, Package, PackageCheck, Plane, Ship, Star, Truck, Wallet, XCircle } from "lucide-react";
 import { OrdersListSkeleton } from "@/components/orders/orders-list-skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { getOrder, type OrderApi } from "@/lib/auth/api";
@@ -72,6 +72,13 @@ export function OrderTrackingView({ reference }: { reference: string }) {
   const currentIndex = STAGE_INDEX[order.status] ?? 0;
   const eventAtByStatus: Record<string, string> = {};
   for (const e of order.events ?? []) eventAtByStatus[e.status] = e.at;
+
+  // One order, possibly several shipments (hub + carrier). Fall back to a single
+  // implicit group if the API didn't send shipments.
+  const shipments =
+    order.shipments && order.shipments.length
+      ? order.shipments
+      : [{ warehouse: "", carrier: "", label: "", eta: "", subtotal: order.total, items: order.items }];
   const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
   const carrierEta =
     order.carrier === "air" ? "Estimated ~2 weeks (Air)" : order.carrier === "sea" ? "Estimated ~2 months (Sea)" : null;
@@ -180,31 +187,53 @@ export function OrderTrackingView({ reference }: { reference: string }) {
         {/* Items + total */}
         <section style={{ animationDelay: "220ms" }} className={`reveal-up ${CARD} p-4`}>
           <p className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">
+            {shipments.length > 1 ? `${shipments.length} shipments · ` : ""}
             {itemCount} item{itemCount > 1 ? "s" : ""}
           </p>
-          <div className="space-y-2.5">
-            {order.items.map((item, idx) => (
-              <div key={`${item.title}-${idx}`} className="flex items-center gap-3">
-                <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800">
-                  <Image src={item.image} alt="" width={48} height={48} unoptimized className="h-10 w-10 object-contain" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-slate-800 dark:text-zinc-200">{item.title}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                    Qty {item.quantity} · {money(item.price)}
-                  </p>
+          <div className="space-y-3">
+            {shipments.map((sh, si) => {
+              const CarrierIcon = sh.carrier === "air" ? Plane : sh.carrier === "sea" ? Ship : Truck;
+              return (
+                <div
+                  key={`${sh.label}-${si}`}
+                  className={sh.label ? "rounded-xl border border-slate-200 p-3 dark:border-zinc-800" : ""}
+                >
+                  {sh.label ? (
+                    <div className="mb-2.5 flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-slate-700 dark:text-zinc-200">
+                        <CarrierIcon className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+                        {sh.label}
+                      </span>
+                      {sh.eta ? <span className="text-[11px] text-slate-400 dark:text-zinc-500">{sh.eta}</span> : null}
+                    </div>
+                  ) : null}
+                  <div className="space-y-2.5">
+                    {sh.items.map((item, idx) => (
+                      <div key={`${item.title}-${idx}`} className="flex items-center gap-3">
+                        <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800">
+                          <Image src={item.image} alt="" width={48} height={48} unoptimized className="h-10 w-10 object-contain" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-slate-800 dark:text-zinc-200">{item.title}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                            Qty {item.quantity} · {money(item.price)}
+                          </p>
+                        </div>
+                        {item.reviewable && item.slug && item.categorySlug ? (
+                          <Link
+                            href={`/category/${item.categorySlug}/product/${item.slug}/reviews-rating`}
+                            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-600 transition-transform active:scale-95 dark:text-indigo-400"
+                          >
+                            <Star className="h-3.5 w-3.5" />
+                            Review
+                          </Link>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                {item.reviewable && item.slug && item.categorySlug ? (
-                  <Link
-                    href={`/category/${item.categorySlug}/product/${item.slug}/reviews-rating`}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-600 transition-transform active:scale-95 dark:text-indigo-400"
-                  >
-                    <Star className="h-3.5 w-3.5" />
-                    Review
-                  </Link>
-                ) : null}
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-zinc-800">
             <span className="text-[12px] text-slate-500 dark:text-zinc-400">Total (shipping incl.)</span>

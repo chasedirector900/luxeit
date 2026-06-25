@@ -55,14 +55,22 @@ class Command(BaseCommand):
                 # Pick a rotating window of products for this order's items.
                 start = (idx * 2) % len(catalogue)
                 chosen = [catalogue[(start + j) % len(catalogue)] for j in range(n_items)]
-                for product in chosen:
+                for j, product in enumerate(chosen):
+                    wh = product.warehouse or "china"
+                    if wh != "china":
+                        method, price = "local", product.price
+                    elif product.air_price is not None and j % 2 == 1:
+                        method, price = "air", product.air_price  # mix in some air
+                    else:
+                        method, price = "sea", product.price
                     OrderItem.objects.create(
                         order=order,
                         product=product,
                         title=product.title,
                         image=product.image,
-                        warehouse=product.warehouse or "china",
-                        unit_price=product.price,
+                        warehouse=wh,
+                        shipping_method=method,
+                        unit_price=price,
                         quantity=1,
                     )
                 order.recalculate_total()

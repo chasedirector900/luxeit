@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from products.models import Product
-from .models import Carrier, Order, OrderItem, OrderStatus
+from .models import Carrier, ItemCarrier, Order, OrderItem, OrderStatus
 from .serializers import OrderSerializer
 
 # Reused prefetch: load items with their product+category to build review links
@@ -94,28 +94,37 @@ def _create_order(request):
         except (TypeError, ValueError):
             continue
 
+        # Per-item carrier: the line's own choice, falling back to the order-level
+        # carrier. This lets one order ship some China items by air, others by sea.
+        requested = str(it.get("shippingMethod") or carrier or "").lower()
         product = products_by_slug.get(it.get("slug"))
+
         if product is not None:
-            # SERVER-AUTHORITATIVE: never trust client-sent price/title for a known
-            # product — a tampered payload can't change what the order really costs.
-            # China dual-shipping goods are priced by the chosen carrier (air costs
-            # more); everything else uses the standard price.
             title = product.title
             image = product.image
-            warehouse = product.warehouse or ""
-            if product.has_dual_shipping and carrier == Carrier.AIR:
-                unit_price = product.air_price
-            else:
-                unit_price = product.price
+            warehouse = product.warehouse or "china"
         else:
-            # Unknown product (mock/legacy item) — fall back to the client snapshot.
+            title = str(it.get("title") or "Item")[:200]
+            image = str(it.get("image") or "")[:2048]
+            warehouse = str(it.get("warehouse") or "china")[:10]
+
+        # Resolve the shipping method (server-authoritative): Zambia is always
+        # local; China can only go air if the product actually offers it.
+        if warehouse != "china":
+            method = ItemCarrier.LOCAL
+        elif requested == "air" and (product is None or product.has_dual_shipping):
+            method = ItemCarrier.AIR
+        else:
+            method = ItemCarrier.SEA
+
+        # Price (server-authoritative for known products; air costs the air price).
+        if product is not None:
+            unit_price = product.air_price if (method == ItemCarrier.AIR and product.has_dual_shipping) else product.price
+        else:
             try:
                 unit_price = float(it.get("price") or 0)
             except (TypeError, ValueError):
                 continue
-            title = str(it.get("title") or "Item")[:200]
-            image = str(it.get("image") or "")[:2048]
-            warehouse = str(it.get("warehouse") or "")[:10]
 
         OrderItem.objects.create(
             order=order,
@@ -123,6 +132,7 @@ def _create_order(request):
             title=title,
             image=image,
             warehouse=warehouse,
+            shipping_method=method,
             unit_price=unit_price,
             quantity=qty,
         )
