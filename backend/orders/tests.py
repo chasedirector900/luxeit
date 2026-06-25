@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from .models import Order, OrderItem, OrderStatus
+from .models import Order, OrderItem, OrderStatus, Shipment
 
 User = get_user_model()
 
@@ -9,6 +9,9 @@ User = get_user_model()
 class OrderModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(email="buyer@example.com")
+
+    def _shipment(self, order, warehouse="china", carrier="sea", status=OrderStatus.QUEUE):
+        return Shipment.objects.create(order=order, warehouse=warehouse, carrier=carrier, status=status)
 
     def test_reference_is_generated(self):
         order = Order.objects.create(user=self.user)
@@ -25,28 +28,40 @@ class OrderModelTests(TestCase):
         order = Order.objects.create(user=self.user, status=OrderStatus.SOURCING)
         self.assertEqual(order.bucket, "queue")
 
-    def test_set_status_posts_inbox_update(self):
-        order = Order.objects.create(user=self.user, status=OrderStatus.QUEUE)
-        order.set_status(OrderStatus.TRANSIT)
-        self.assertEqual(order.status, OrderStatus.TRANSIT)
+    def test_shipment_set_status_posts_inbox_update(self):
+        order = Order.objects.create(user=self.user)
+        sh = self._shipment(order, status=OrderStatus.QUEUE)
+        sh.set_status(OrderStatus.TRANSIT)
+        self.assertEqual(sh.status, OrderStatus.TRANSIT)
         thread = self.user.threads.get(slug=f"order-{order.reference.lower()}")
         self.assertTrue(thread.messages.filter(body__icontains="on its way").exists())
 
-    def test_set_status_logs_a_timeline_event(self):
-        order = Order.objects.create(user=self.user, status=OrderStatus.QUEUE)
-        order.set_status(OrderStatus.SOURCING)
-        self.assertTrue(order.events.filter(status=OrderStatus.SOURCING).exists())
+    def test_shipment_set_status_logs_a_timeline_event(self):
+        order = Order.objects.create(user=self.user)
+        sh = self._shipment(order, status=OrderStatus.QUEUE)
+        sh.set_status(OrderStatus.SOURCING)
+        self.assertTrue(sh.events.filter(status=OrderStatus.SOURCING).exists())
+
+    def test_order_status_rolls_up_to_least_advanced_shipment(self):
+        order = Order.objects.create(user=self.user)
+        self._shipment(order, carrier="air", status=OrderStatus.DELIVERED)
+        sea = self._shipment(order, carrier="sea", status=OrderStatus.QUEUE)
+        order.recalculate_status()
+        self.assertEqual(order.status, OrderStatus.QUEUE)  # not "delivered" until all are
+        sea.set_status(OrderStatus.DELIVERED)
+        self.assertEqual(Order.objects.get(pk=order.pk).status, OrderStatus.DELIVERED)
 
     def test_order_updates_preference_is_honored(self):
         from users.models import NotificationPreferences
 
         NotificationPreferences.objects.update_or_create(user=self.user, defaults={"order_updates": False})
-        order = Order.objects.create(user=self.user, status=OrderStatus.QUEUE)
-        order.set_status(OrderStatus.TRANSIT)
+        order = Order.objects.create(user=self.user)
+        sh = self._shipment(order, status=OrderStatus.QUEUE)
+        sh.set_status(OrderStatus.TRANSIT)
         # No inbox message posted...
         self.assertFalse(self.user.threads.filter(slug=f"order-{order.reference.lower()}").exists())
-        # ...but the timeline event is still recorded (order data, not a notification).
-        self.assertTrue(order.events.filter(status=OrderStatus.TRANSIT).exists())
+        # ...but the timeline event is still recorded (data, not a notification).
+        self.assertTrue(sh.events.filter(status=OrderStatus.TRANSIT).exists())
 
 
 class OrderApiTests(TestCase):
@@ -73,10 +88,11 @@ class OrderApiTests(TestCase):
         self.assertEqual(body["status"], "queue")  # payment present -> paid -> queue
         self.assertEqual(body["total"], 77.98)
         self.assertEqual(body["shippingAddress"], "Plot 1, Lusaka")
-        # A paid order is placed and queued -> two timeline events.
-        statuses = [e["status"] for e in body["events"]]
+        # A paid order is placed and queued -> the shipment has both timeline events.
+        statuses = [e["status"] for e in body["shipments"][0]["events"]]
         self.assertIn("pending", statuses)
         self.assertIn("queue", statuses)
+        self.assertEqual(body["shipments"][0]["status"], "queue")
 
     def test_price_is_server_authoritative_for_known_products(self):
         from products.models import Product

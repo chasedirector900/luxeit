@@ -262,8 +262,12 @@ export type OrderApiShipment = {
   carrier: string; // air | sea | local
   label: string; // "China Hub · Air"
   eta: string;
+  status: string; // pending | queue | sourcing | transit | delivered | cancelled
+  statusLabel: string;
+  statusDescription: string;
   subtotal: number;
   items: OrderApiItem[];
+  events?: Array<{ status: string; at: string }>;
 };
 export type OrderApi = {
   id: string; // reference, e.g. "LX-2041"

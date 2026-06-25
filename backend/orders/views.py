@@ -6,12 +6,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from products.models import Product
-from .models import Carrier, ItemCarrier, Order, OrderItem, OrderStatus
+from .models import Carrier, ItemCarrier, Order, OrderItem, OrderStatus, Shipment
 from .serializers import OrderSerializer
 
-# Reused prefetch: load items with their product+category to build review links
-# without N+1 queries.
-_ITEMS_PREFETCH = Prefetch("items", queryset=OrderItem.objects.select_related("product__category"))
+# Reused prefetches: load items (with product+category for review links) and
+# shipments (with their own items + events) without N+1 queries.
+_ITEMS_QS = OrderItem.objects.select_related("product__category")
+_ITEMS_PREFETCH = Prefetch("items", queryset=_ITEMS_QS)
+_SHIPMENTS_PREFETCH = Prefetch(
+    "shipments",
+    queryset=Shipment.objects.prefetch_related(Prefetch("items", queryset=_ITEMS_QS), "events"),
+)
+_ORDER_PREFETCH = (_ITEMS_PREFETCH, _SHIPMENTS_PREFETCH)
 
 # Reverse of BUCKET_BY_STATUS: a tab maps to the statuses it contains.
 BUCKET_STATUSES = {
@@ -31,7 +37,7 @@ def orders(request):
     if request.method == "POST":
         return _create_order(request)
 
-    qs = request.user.orders.prefetch_related(_ITEMS_PREFETCH, "events")
+    qs = request.user.orders.prefetch_related(*_ORDER_PREFETCH)
     bucket = request.query_params.get("bucket")
     if bucket in BUCKET_STATUSES:
         qs = qs.filter(status__in=BUCKET_STATUSES[bucket])
@@ -43,7 +49,7 @@ def orders(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def order_detail(request, reference):
-    order = get_object_or_404(request.user.orders.prefetch_related(_ITEMS_PREFETCH, "events"), reference=reference)
+    order = get_object_or_404(request.user.orders.prefetch_related(*_ORDER_PREFETCH), reference=reference)
     return Response(OrderSerializer(order).data)
 
 
@@ -86,6 +92,10 @@ def _create_order(request):
     slugs = [it.get("slug") for it in items if isinstance(it, dict) and it.get("slug")]
     products_by_slug = {p.slug: p for p in Product.objects.filter(slug__in=slugs)} if slugs else {}
 
+    # Resolve every line server-authoritatively, then group into shipments by
+    # (hub, carrier). One order/payment, possibly several parcels.
+    groups: dict = {}
+    group_order: list = []
     for it in items:
         if not isinstance(it, dict):
             continue
@@ -94,8 +104,6 @@ def _create_order(request):
         except (TypeError, ValueError):
             continue
 
-        # Per-item carrier: the line's own choice, falling back to the order-level
-        # carrier. This lets one order ship some China items by air, others by sea.
         requested = str(it.get("shippingMethod") or carrier or "").lower()
         product = products_by_slug.get(it.get("slug"))
 
@@ -108,8 +116,7 @@ def _create_order(request):
             image = str(it.get("image") or "")[:2048]
             warehouse = str(it.get("warehouse") or "china")[:10]
 
-        # Resolve the shipping method (server-authoritative): Zambia is always
-        # local; China can only go air if the product actually offers it.
+        # Zambia is always local; China can only go air if the product offers it.
         if warehouse != "china":
             method = ItemCarrier.LOCAL
         elif requested == "air" and (product is None or product.has_dual_shipping):
@@ -117,7 +124,6 @@ def _create_order(request):
         else:
             method = ItemCarrier.SEA
 
-        # Price (server-authoritative for known products; air costs the air price).
         if product is not None:
             unit_price = product.air_price if (method == ItemCarrier.AIR and product.has_dual_shipping) else product.price
         else:
@@ -126,21 +132,67 @@ def _create_order(request):
             except (TypeError, ValueError):
                 continue
 
-        OrderItem.objects.create(
-            order=order,
-            product=product,
-            title=title,
-            image=image,
-            warehouse=warehouse,
-            shipping_method=method,
-            unit_price=unit_price,
-            quantity=qty,
+        key = (warehouse, method)
+        if key not in groups:
+            groups[key] = []
+            group_order.append(key)
+        groups[key].append(
+            {"product": product, "title": title, "image": image, "warehouse": warehouse,
+             "method": method, "unit_price": unit_price, "quantity": qty}
         )
 
+    if not group_order:
+        order.delete()
+        return Response({"detail": "Your cart is empty."}, status=http_status.HTTP_400_BAD_REQUEST)
+
+    for key in group_order:
+        warehouse, method = key
+        shipment = Shipment.objects.create(
+            order=order, warehouse=warehouse, carrier=method, status=new_status, placed_at=order.placed_at,
+        )
+        for spec in groups[key]:
+            OrderItem.objects.create(
+                order=order,
+                shipment=shipment,
+                product=spec["product"],
+                title=spec["title"],
+                image=spec["image"],
+                warehouse=spec["warehouse"],
+                shipping_method=spec["method"],
+                unit_price=spec["unit_price"],
+                quantity=spec["quantity"],
+            )
+        # Per-shipment timeline: placed (pending), then queued if already paid.
+        shipment.log_event(OrderStatus.PENDING, at=order.placed_at)
+        if new_status != OrderStatus.PENDING:
+            shipment.log_event(new_status, at=order.placed_at)
+
     order.recalculate_total()
-    # Timeline events: the order was placed, and (if paid) immediately queued.
-    order.log_event(OrderStatus.PENDING, at=order.placed_at)
-    if order.status != OrderStatus.PENDING:
-        order.log_event(order.status, at=order.placed_at)
-    order._notify_status_change()  # post the initial order update to the inbox
+    order.recalculate_status()
+    _notify_order_placed(order)
     return Response(OrderSerializer(order).data, status=http_status.HTTP_201_CREATED)
+
+
+def _notify_order_placed(order):
+    """A single inbox confirmation when an order is placed (per-shipment updates
+    come later as each parcel advances)."""
+    from messaging.services import post_message, wants_notification
+    from messaging.models import ThreadKind
+
+    if not wants_notification(order.user, "order_updates"):
+        return
+    ref = order.reference
+    n = order.shipments.count()
+    parcels = "1 shipment" if n == 1 else f"{n} shipments"
+    tail = (
+        "We've received payment and queued it to be sourced."
+        if order.status != OrderStatus.PENDING
+        else "It's awaiting payment."
+    )
+    post_message(
+        user=order.user,
+        kind=ThreadKind.ORDER,
+        slug=f"order-{ref.lower()}",
+        name=f"Order {ref}",
+        body=f"Order {ref} placed — shipping in {parcels}. {tail}",
+    )

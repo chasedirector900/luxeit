@@ -36,35 +36,37 @@ def _item_dict(item: OrderItem, *, reviewable: bool = False) -> dict:
     return data
 
 
+def _shipment_dict(shipment, *, reviewable: bool) -> dict:
+    return {
+        "warehouse": shipment.warehouse,
+        "carrier": shipment.carrier,
+        "label": shipment.label,
+        "eta": shipment.eta,
+        "status": shipment.status,
+        "statusLabel": shipment.status_label,
+        "statusDescription": shipment.status_description,
+        "subtotal": float(shipment.subtotal()),
+        "items": [_item_dict(i, reviewable=reviewable) for i in shipment.items.all()],
+        # Per-shipment timeline (its own dated steps).
+        "events": [{"status": e.status, "at": _event_label(e.created_at)} for e in shipment.events.all()],
+    }
+
+
 class OrderSerializer(serializers.BaseSerializer):
     def to_representation(self, order: Order) -> dict:
         reviewable = order.status == OrderStatus.DELIVERED
         data = {
             "id": order.reference,
             "placedOn": _placed_label(order.placed_at),
-            "status": order.status,
+            "status": order.status,  # rolled up from the shipments
             "bucket": order.bucket,
             "statusLabel": order.status_label,
             "statusDescription": order.status_description,
             "total": float(order.total),
             "items": [_item_dict(i, reviewable=reviewable) for i in order.items.all()],
-            # Fulfilment shipments: one order/payment split by hub + carrier.
-            "shipments": [
-                {
-                    "warehouse": s["warehouse"],
-                    "carrier": s["carrier"],
-                    "label": s["label"],
-                    "eta": s["eta"],
-                    "subtotal": float(s["subtotal"]),
-                    "items": [_item_dict(i, reviewable=reviewable) for i in s["items"]],
-                }
-                for s in order.shipments()
-            ],
-            # Per-step timestamps for the tracking timeline.
-            "events": [{"status": e.status, "at": _event_label(e.created_at)} for e in order.events.all()],
+            # Each fulfilment shipment with its OWN status + timeline.
+            "shipments": [_shipment_dict(s, reviewable=reviewable) for s in order.shipments.all()],
         }
-        if order.carrier:
-            data["carrier"] = order.carrier
         address = ", ".join(p for p in [order.ship_line1, order.ship_city, order.ship_area] if p)
         if address:
             data["shippingAddress"] = address

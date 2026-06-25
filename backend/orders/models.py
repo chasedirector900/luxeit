@@ -59,6 +59,16 @@ STATUS_META = {
     OrderStatus.CANCELLED: ("Cancelled", "Order cancelled"),
 }
 
+# Progression order — used to roll several shipment statuses up to one order
+# status (the order is only as far along as its least-advanced shipment).
+STATUS_RANK = {
+    OrderStatus.PENDING: 0,
+    OrderStatus.QUEUE: 1,
+    OrderStatus.SOURCING: 2,
+    OrderStatus.TRANSIT: 3,
+    OrderStatus.DELIVERED: 4,
+}
+
 
 class Order(models.Model):
     """A customer order and its current fulfilment state.
@@ -122,79 +132,123 @@ class Order(models.Model):
         self.total = agg["total"] or 0
         self.save(update_fields=["total"])
 
-    def shipments(self) -> list:
-        """Group the order's items into fulfilment shipments by (hub, carrier).
+    def recalculate_status(self) -> None:
+        """Roll the shipment statuses up to one order status: the order is only
+        as far along as its least-advanced (non-cancelled) shipment. With no
+        shipments left active, the order is cancelled."""
+        statuses = [s.status for s in self.shipments.all()]
+        if not statuses:
+            return
+        active = [s for s in statuses if s != OrderStatus.CANCELLED]
+        rollup = min(active, key=lambda s: STATUS_RANK.get(s, 0)) if active else OrderStatus.CANCELLED
+        if rollup != self.status:
+            self.status = rollup
+            self.save(update_fields=["status", "updated_at"])
 
-        One order, one payment — but it may ship as several parcels: e.g. a
-        China-air parcel, a China-sea parcel, and a Lusaka-local parcel.
-        """
-        groups: dict = {}
-        order_keys: list = []
-        for item in self.items.all():
-            wh = item.warehouse or "china"
-            method = item.shipping_method or ("local" if wh == "zambia" else "sea")
-            key = (wh, method)
-            if key not in groups:
-                groups[key] = []
-                order_keys.append(key)
-            groups[key].append(item)
 
-        result = []
-        for key in order_keys:
-            wh, method = key
-            items = groups[key]
-            result.append({
-                "warehouse": wh,
-                "carrier": method,
-                "label": SHIPMENT_LABEL.get(key, f"{wh} · {method}"),
-                "eta": SHIPMENT_ETA.get(key, ""),
-                "subtotal": sum((i.line_total for i in items), 0),
-                "items": items,
-            })
-        return result
+class Shipment(models.Model):
+    """A fulfilment parcel within an order: a (hub, carrier) group of items that
+    moves through its own status timeline. China-air can be delivered while
+    China-sea is still in transit — all under one order/payment."""
+
+    order = models.ForeignKey(Order, related_name="shipments", on_delete=models.CASCADE)
+    warehouse = models.CharField(max_length=10)  # china / zambia
+    carrier = models.CharField(max_length=6, choices=ItemCarrier.choices)  # air / sea / local
+    status = models.CharField(max_length=12, choices=OrderStatus.choices, default=OrderStatus.PENDING)
+    placed_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.order.reference} · {self.label}"
+
+    @property
+    def key(self) -> tuple:
+        return (self.warehouse, self.carrier)
+
+    @property
+    def label(self) -> str:
+        return SHIPMENT_LABEL.get(self.key, f"{self.warehouse} · {self.carrier}")
+
+    @property
+    def eta(self) -> str:
+        return SHIPMENT_ETA.get(self.key, "")
+
+    @property
+    def bucket(self) -> str:
+        return BUCKET_BY_STATUS.get(self.status, "pending")
+
+    @property
+    def status_label(self) -> str:
+        return STATUS_META.get(self.status, (self.status, ""))[0]
+
+    @property
+    def status_description(self) -> str:
+        return STATUS_META.get(self.status, ("", ""))[1]
+
+    def subtotal(self):
+        return sum((i.line_total for i in self.items.all()), 0)
 
     def set_status(self, status: str) -> None:
-        """Transition the order, timestamp it, and notify the customer's inbox."""
+        """Advance this shipment, timestamp it, notify the customer, and roll the
+        parent order's status up."""
         if status == self.status:
             return
         self.status = status
         self.save(update_fields=["status", "updated_at"])
         self.log_event(status)
-        self._notify_status_change()
+        self._notify()
+        self.order.recalculate_status()
 
-    def log_event(self, status: str, at=None) -> "OrderEvent":
-        """Record that the order entered `status` at a point in time."""
+    def log_event(self, status: str, at=None) -> "ShipmentEvent":
         return self.events.create(status=status, created_at=at or timezone.now())
 
-    def _notify_status_change(self) -> None:
-        # Posted as an "order" thread message so the customer sees live updates.
-        # Respects the user's 'Order updates' notification preference.
+    def _notify(self) -> None:
+        # One inbox update per shipment transition (respects the user's pref).
         from messaging.services import post_message, wants_notification
         from messaging.models import ThreadKind
 
-        if not wants_notification(self.user, "order_updates"):
+        if not wants_notification(self.order.user, "order_updates"):
             return
-
-        label, _desc = STATUS_META.get(self.status, (self.get_status_display(), ""))
+        ref = self.order.reference
         bodies = {
-            OrderStatus.QUEUE: f"Payment received for order {self.reference}. It's now in the queue to be sourced.",
-            OrderStatus.SOURCING: f"Good news — we're sourcing the items in order {self.reference} from our China hub.",
-            OrderStatus.TRANSIT: f"Order {self.reference} is on its way to you.",
-            OrderStatus.DELIVERED: f"Order {self.reference} has been delivered. Thanks for shopping with Luxeit!",
-            OrderStatus.CANCELLED: f"Order {self.reference} has been cancelled. Contact support if you have questions.",
-            OrderStatus.PENDING: f"Order {self.reference} is awaiting payment.",
+            OrderStatus.QUEUE: f"Payment received — your {self.label} ({ref}) is queued to be sourced.",
+            OrderStatus.SOURCING: f"We're sourcing your {self.label} items in order {ref}.",
+            OrderStatus.TRANSIT: f"Your {self.label} shipment for order {ref} is on its way.",
+            OrderStatus.DELIVERED: f"Your {self.label} shipment for order {ref} has been delivered.",
+            OrderStatus.CANCELLED: f"Your {self.label} shipment for order {ref} was cancelled.",
+            OrderStatus.PENDING: f"Order {ref} is awaiting payment.",
         }
         post_message(
-            user=self.user,
+            user=self.order.user,
             kind=ThreadKind.ORDER,
-            slug=f"order-{self.reference.lower()}",
-            name=f"Order {self.reference}",
-            body=bodies.get(self.status, f"Order {self.reference} is now {label}."),
+            slug=f"order-{ref.lower()}",
+            name=f"Order {ref}",
+            body=bodies.get(self.status, f"Your {self.label} ({ref}) is now {self.status_label}."),
         )
+
+
+class ShipmentEvent(models.Model):
+    """A timestamped shipment transition — powers the per-shipment timeline."""
+
+    shipment = models.ForeignKey(Shipment, related_name="events", on_delete=models.CASCADE)
+    status = models.CharField(max_length=12, choices=OrderStatus.choices)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        indexes = [models.Index(fields=["shipment", "created_at"])]
+
+    def __str__(self):
+        return f"{self.shipment_id}: {self.status}"
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
+    shipment = models.ForeignKey(Shipment, related_name="items", on_delete=models.CASCADE, null=True, blank=True)
     # Optional link to the catalogue product; snapshots below keep the line stable.
     product = models.ForeignKey(
         "products.Product", related_name="order_items", on_delete=models.SET_NULL, null=True, blank=True
@@ -217,18 +271,3 @@ class OrderItem(models.Model):
     @property
     def line_total(self):
         return self.unit_price * self.quantity
-
-
-class OrderEvent(models.Model):
-    """A timestamped status transition — powers the tracking timeline dates."""
-
-    order = models.ForeignKey(Order, related_name="events", on_delete=models.CASCADE)
-    status = models.CharField(max_length=12, choices=OrderStatus.choices)
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        ordering = ["created_at", "id"]
-        indexes = [models.Index(fields=["order", "created_at"])]
-
-    def __str__(self):
-        return f"{self.order.reference}: {self.status}"

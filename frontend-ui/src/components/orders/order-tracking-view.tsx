@@ -7,18 +7,18 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Clock, MapPin, Package, PackageCheck, Plane, Ship, Star, Truck, Wallet, XCircle } from "lucide-react";
 import { OrdersListSkeleton } from "@/components/orders/orders-list-skeleton";
 import { useAuth } from "@/hooks/use-auth";
-import { getOrder, type OrderApi } from "@/lib/auth/api";
+import { getOrder, type OrderApi, type OrderApiShipment } from "@/lib/auth/api";
 
 const CARD =
   "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
 
-// The fulfilment journey, in order. Matches the backend order statuses.
+// The fulfilment journey, in order. Matches the backend statuses.
 const STAGES = [
   { key: "pending", label: "Order placed", desc: "We received your order", icon: Wallet },
   { key: "queue", label: "Payment confirmed", desc: "Paid — queued to be sourced", icon: Clock },
-  { key: "sourcing", label: "Sourcing", desc: "Buying your items from our China hub", icon: Package },
+  { key: "sourcing", label: "Sourcing", desc: "Preparing your items", icon: Package },
   { key: "transit", label: "In transit", desc: "On its way to you", icon: Truck },
-  { key: "delivered", label: "Delivered", desc: "Order completed", icon: PackageCheck },
+  { key: "delivered", label: "Delivered", desc: "Completed", icon: PackageCheck },
 ] as const;
 
 const STAGE_INDEX: Record<string, number> = { pending: 0, queue: 1, sourcing: 2, transit: 3, delivered: 4 };
@@ -43,12 +43,8 @@ export function OrderTrackingView({ reference }: { reference: string }) {
     if (status !== "authenticated") return;
     let cancelled = false;
     getOrder(reference)
-      .then((o) => {
-        if (!cancelled) setOrder(o);
-      })
-      .catch(() => {
-        if (!cancelled) setMissing(true);
-      });
+      .then((o) => !cancelled && setOrder(o))
+      .catch(() => !cancelled && setMissing(true));
     return () => {
       cancelled = true;
     };
@@ -69,26 +65,33 @@ export function OrderTrackingView({ reference }: { reference: string }) {
 
   const cancelled = order.status === "cancelled";
   const delivered = order.status === "delivered";
-  const currentIndex = STAGE_INDEX[order.status] ?? 0;
-  const eventAtByStatus: Record<string, string> = {};
-  for (const e of order.events ?? []) eventAtByStatus[e.status] = e.at;
 
-  // One order, possibly several shipments (hub + carrier). Fall back to a single
-  // implicit group if the API didn't send shipments.
-  const shipments =
+  // Each shipment tracks itself. Fall back to a single implicit shipment if the
+  // API somehow didn't send any.
+  const shipments: OrderApiShipment[] =
     order.shipments && order.shipments.length
       ? order.shipments
-      : [{ warehouse: "", carrier: "", label: "", eta: "", subtotal: order.total, items: order.items }];
-  const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
-  const carrierEta =
-    order.carrier === "air" ? "Estimated ~2 weeks (Air)" : order.carrier === "sea" ? "Estimated ~2 months (Sea)" : null;
+      : [
+          {
+            warehouse: "",
+            carrier: "",
+            label: "Your order",
+            eta: "",
+            status: order.status,
+            statusLabel: order.statusLabel,
+            statusDescription: order.statusDescription,
+            subtotal: order.total,
+            items: order.items,
+            events: [],
+          },
+        ];
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 pb-6 pt-5 text-slate-900 dark:bg-black dark:text-zinc-100">
       <div className="mx-auto w-full max-w-md space-y-5">
         <BackHeader reference={reference} />
 
-        {/* Current status banner */}
+        {/* Order status banner (rolled up from the shipments) */}
         <section
           style={{ animationDelay: "60ms" }}
           className={`reveal-up overflow-hidden rounded-2xl p-4 text-white shadow-lg ${
@@ -103,77 +106,13 @@ export function OrderTrackingView({ reference }: { reference: string }) {
           <h1 className="mt-1 text-xl font-black leading-tight">{order.statusLabel}</h1>
           <p className="mt-1 text-[13px] text-white/90">
             {cancelled ? "This order was cancelled." : order.statusDescription}
-            {carrierEta && !cancelled && !delivered ? ` · ${carrierEta}` : ""}
+            {shipments.length > 1 ? ` · ${shipments.length} shipments` : ""}
           </p>
-        </section>
-
-        {/* Timeline */}
-        <section style={{ animationDelay: "120ms" }} className={`reveal-up ${CARD} p-5`}>
-          {cancelled ? (
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
-                <XCircle className="h-5 w-5" />
-              </span>
-              <p className="text-sm font-semibold text-slate-800 dark:text-zinc-200">Order cancelled</p>
-            </div>
-          ) : (
-            <ol className="relative">
-              {STAGES.map((stage, i) => {
-                const Icon = stage.icon;
-                const done = i < currentIndex || delivered;
-                const current = i === currentIndex && !delivered;
-                const isLast = i === STAGES.length - 1;
-                const at = eventAtByStatus[stage.key];
-                return (
-                  <li key={stage.key} className="relative flex gap-4 pb-6 last:pb-0">
-                    {!isLast ? (
-                      <span
-                        className={`absolute left-[15px] top-9 h-[calc(100%-1.5rem)] w-0.5 ${
-                          i < currentIndex || delivered ? "bg-emerald-500" : "bg-slate-200 dark:bg-zinc-800"
-                        }`}
-                      />
-                    ) : null}
-                    <span
-                      className={`relative z-10 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                        done
-                          ? "bg-emerald-500 text-white"
-                          : current
-                            ? "bg-indigo-500 text-white ring-4 ring-indigo-500/20"
-                            : "bg-slate-100 text-slate-400 dark:bg-zinc-800 dark:text-zinc-500"
-                      }`}
-                    >
-                      {done ? <Check className="h-[18px] w-[18px]" strokeWidth={3} /> : <Icon className="h-[16px] w-[16px]" />}
-                    </span>
-                    <div className="min-w-0 flex-1 pt-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p
-                          className={`text-sm font-bold ${
-                            done || current ? "text-slate-900 dark:text-zinc-100" : "text-slate-400 dark:text-zinc-500"
-                          }`}
-                        >
-                          {stage.label}
-                        </p>
-                        {at ? (
-                          <span className="shrink-0 text-[11px] font-medium text-slate-400 dark:text-zinc-500">{at}</span>
-                        ) : null}
-                      </div>
-                      <p className="mt-0.5 text-[12px] text-slate-500 dark:text-zinc-400">{stage.desc}</p>
-                      {current ? (
-                        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
-                          In progress
-                        </span>
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          )}
         </section>
 
         {/* Shipping address */}
         {order.shippingAddress ? (
-          <section style={{ animationDelay: "180ms" }} className={`reveal-up ${CARD} flex items-start gap-3 p-4`}>
+          <section style={{ animationDelay: "100ms" }} className={`reveal-up ${CARD} flex items-start gap-3 p-4`}>
             <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400">
               <MapPin className="h-[18px] w-[18px]" />
             </span>
@@ -184,61 +123,76 @@ export function OrderTrackingView({ reference }: { reference: string }) {
           </section>
         ) : null}
 
-        {/* Items + total */}
-        <section style={{ animationDelay: "220ms" }} className={`reveal-up ${CARD} p-4`}>
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">
-            {shipments.length > 1 ? `${shipments.length} shipments · ` : ""}
-            {itemCount} item{itemCount > 1 ? "s" : ""}
-          </p>
-          <div className="space-y-3">
-            {shipments.map((sh, si) => {
-              const CarrierIcon = sh.carrier === "air" ? Plane : sh.carrier === "sea" ? Ship : Truck;
-              return (
-                <div
-                  key={`${sh.label}-${si}`}
-                  className={sh.label ? "rounded-xl border border-slate-200 p-3 dark:border-zinc-800" : ""}
+        {/* One tracking card per shipment, each with its own timeline */}
+        {shipments.map((sh, si) => {
+          const CarrierIcon = sh.carrier === "air" ? Plane : sh.carrier === "sea" ? Ship : Truck;
+          const shDelivered = sh.status === "delivered";
+          const shCancelled = sh.status === "cancelled";
+          return (
+            <section key={`${sh.label}-${si}`} style={{ animationDelay: `${140 + si * 60}ms` }} className={`reveal-up ${CARD} p-4`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 text-sm font-extrabold text-slate-900 dark:text-zinc-100">
+                  <CarrierIcon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                  {sh.label || "Your order"}
+                </span>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                    shDelivered
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : shCancelled
+                        ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                        : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                  }`}
                 >
-                  {sh.label ? (
-                    <div className="mb-2.5 flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-slate-700 dark:text-zinc-200">
-                        <CarrierIcon className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-                        {sh.label}
-                      </span>
-                      {sh.eta ? <span className="text-[11px] text-slate-400 dark:text-zinc-500">{sh.eta}</span> : null}
+                  {sh.statusLabel}
+                </span>
+              </div>
+              {sh.eta && !shDelivered && !shCancelled ? (
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-zinc-500">{sh.eta}</p>
+              ) : null}
+
+              <div className="mt-3.5">
+                <ShipmentTimeline events={sh.events ?? []} currentStatus={sh.status} />
+              </div>
+
+              {/* Items in this shipment */}
+              <div className="mt-3 space-y-2.5 border-t border-slate-100 pt-3 dark:border-zinc-800">
+                {sh.items.map((item, idx) => (
+                  <div key={`${item.title}-${idx}`} className="flex items-center gap-3">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800">
+                      <Image src={item.image} alt="" width={44} height={44} unoptimized className="h-9 w-9 object-contain" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-800 dark:text-zinc-200">{item.title}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                        Qty {item.quantity} · {money(item.price)}
+                      </p>
                     </div>
-                  ) : null}
-                  <div className="space-y-2.5">
-                    {sh.items.map((item, idx) => (
-                      <div key={`${item.title}-${idx}`} className="flex items-center gap-3">
-                        <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800">
-                          <Image src={item.image} alt="" width={48} height={48} unoptimized className="h-10 w-10 object-contain" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-slate-800 dark:text-zinc-200">{item.title}</p>
-                          <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                            Qty {item.quantity} · {money(item.price)}
-                          </p>
-                        </div>
-                        {item.reviewable && item.slug && item.categorySlug ? (
-                          <Link
-                            href={`/category/${item.categorySlug}/product/${item.slug}/reviews-rating`}
-                            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-600 transition-transform active:scale-95 dark:text-indigo-400"
-                          >
-                            <Star className="h-3.5 w-3.5" />
-                            Review
-                          </Link>
-                        ) : null}
-                      </div>
-                    ))}
+                    {item.reviewable && item.slug && item.categorySlug ? (
+                      <Link
+                        href={`/category/${item.categorySlug}/product/${item.slug}/reviews-rating`}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-600 transition-transform active:scale-95 dark:text-indigo-400"
+                      >
+                        <Star className="h-3.5 w-3.5" />
+                        Review
+                      </Link>
+                    ) : null}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-zinc-800">
-            <span className="text-[12px] text-slate-500 dark:text-zinc-400">Total (shipping incl.)</span>
-            <span className="text-sm font-extrabold text-slate-900 dark:text-zinc-100">{money(order.total)}</span>
-          </div>
+                ))}
+              </div>
+
+              <div className="mt-3 flex items-center justify-between text-[12px]">
+                <span className="text-slate-500 dark:text-zinc-400">Shipment subtotal</span>
+                <span className="font-bold text-slate-900 dark:text-zinc-100">{money(sh.subtotal)}</span>
+              </div>
+            </section>
+          );
+        })}
+
+        {/* Order total */}
+        <section style={{ animationDelay: "320ms" }} className={`reveal-up ${CARD} flex items-center justify-between p-4`}>
+          <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">Order total (shipping incl.)</span>
+          <span className="text-lg font-black text-slate-900 dark:text-zinc-100">{money(order.total)}</span>
         </section>
 
         <Link
@@ -249,6 +203,69 @@ export function OrderTrackingView({ reference }: { reference: string }) {
         </Link>
       </div>
     </main>
+  );
+}
+
+function ShipmentTimeline({ events, currentStatus }: { events: Array<{ status: string; at: string }>; currentStatus: string }) {
+  if (currentStatus === "cancelled") {
+    return (
+      <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+        <XCircle className="h-4 w-4" />
+        <span className="text-[13px] font-semibold">Shipment cancelled</span>
+      </div>
+    );
+  }
+  const delivered = currentStatus === "delivered";
+  const currentIndex = STAGE_INDEX[currentStatus] ?? 0;
+  const at: Record<string, string> = {};
+  for (const e of events) at[e.status] = e.at;
+
+  return (
+    <ol className="relative">
+      {STAGES.map((stage, i) => {
+        const Icon = stage.icon;
+        const done = i < currentIndex || delivered;
+        const current = i === currentIndex && !delivered;
+        const isLast = i === STAGES.length - 1;
+        const stamp = at[stage.key];
+        return (
+          <li key={stage.key} className="relative flex gap-4 pb-5 last:pb-0">
+            {!isLast ? (
+              <span
+                className={`absolute left-[13px] top-8 h-[calc(100%-1.25rem)] w-0.5 ${
+                  done ? "bg-emerald-500" : "bg-slate-200 dark:bg-zinc-800"
+                }`}
+              />
+            ) : null}
+            <span
+              className={`relative z-10 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                done
+                  ? "bg-emerald-500 text-white"
+                  : current
+                    ? "bg-indigo-500 text-white ring-4 ring-indigo-500/20"
+                    : "bg-slate-100 text-slate-400 dark:bg-zinc-800 dark:text-zinc-500"
+              }`}
+            >
+              {done ? <Check className="h-4 w-4" strokeWidth={3} /> : <Icon className="h-[14px] w-[14px]" />}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className={`text-[13px] font-bold ${done || current ? "text-slate-900 dark:text-zinc-100" : "text-slate-400 dark:text-zinc-500"}`}>
+                  {stage.label}
+                </p>
+                {stamp ? <span className="shrink-0 text-[11px] font-medium text-slate-400 dark:text-zinc-500">{stamp}</span> : null}
+              </div>
+              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-zinc-400">{stage.desc}</p>
+              {current ? (
+                <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                  In progress
+                </span>
+              ) : null}
+            </div>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 

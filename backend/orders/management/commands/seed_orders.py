@@ -1,6 +1,7 @@
-"""Seed a spread of demo orders (one per status) for users who have none, so the
-account "My Orders" tabs show realistic data. Items are drawn from real seeded
-products. Idempotent: only seeds users with zero existing orders.
+"""Seed demo orders with per-shipment tracking for users who have none, so the
+account "My Orders" tabs + tracking timelines show realistic data — including an
+order whose China-air parcel is delivered while its China-sea parcel is still in
+transit. Idempotent: only seeds users with zero existing orders.
 """
 from datetime import timedelta
 
@@ -8,106 +9,81 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from orders.models import Carrier, Order, OrderItem, OrderStatus
+from orders.models import Order, OrderItem, OrderStatus, Shipment
 from products.models import Product
 
 User = get_user_model()
 
-# (status, carrier, days_ago, number_of_items)
+STAGES = [OrderStatus.PENDING, OrderStatus.QUEUE, OrderStatus.SOURCING, OrderStatus.TRANSIT, OrderStatus.DELIVERED]
+
+# Each order: (days_ago, paid, [ (warehouse, carrier, status, n_items), ... ]).
 PLAN = [
-    (OrderStatus.PENDING, "", 1, 1),
-    (OrderStatus.QUEUE, Carrier.AIR, 4, 2),
-    (OrderStatus.SOURCING, Carrier.SEA, 9, 1),
-    (OrderStatus.TRANSIT, Carrier.AIR, 16, 1),
-    (OrderStatus.DELIVERED, Carrier.SEA, 30, 2),
+    (1, False, [("china", "sea", OrderStatus.PENDING, 1)]),
+    (4, True, [("china", "sea", OrderStatus.QUEUE, 1)]),
+    (9, True, [("china", "sea", OrderStatus.SOURCING, 2)]),
+    (16, True, [("china", "air", OrderStatus.TRANSIT, 1)]),
+    # Premium showcase: one order, two parcels at different stages.
+    (30, True, [("china", "air", OrderStatus.DELIVERED, 1), ("china", "sea", OrderStatus.TRANSIT, 1)]),
+    (44, True, [("zambia", "local", OrderStatus.DELIVERED, 1)]),
 ]
 
 
 class Command(BaseCommand):
-    help = "Seed demo orders for users that have none."
+    help = "Seed demo orders (with per-shipment tracking) for users that have none."
 
     def handle(self, *args, **options):
-        catalogue = list(Product.objects.filter(is_active=True).order_by("id"))
-        if not catalogue:
-            self.stdout.write(self.style.WARNING("No products found — run seed_products / seed_car_catalog first."))
+        china_air = list(Product.objects.filter(is_active=True, warehouse="china", air_price__isnull=False).order_by("id"))
+        china_any = list(Product.objects.filter(is_active=True, warehouse="china").order_by("id"))
+        zambia = list(Product.objects.filter(is_active=True, warehouse="zambia").order_by("id"))
+        if not china_any:
+            self.stdout.write(self.style.WARNING("No products — run seed_products / seed_car_catalog first."))
             return
 
-        seeded_orders = 0
-        seeded_users = 0
+        def pick(warehouse, carrier, n, offset):
+            pool = zambia if warehouse == "zambia" else (china_air if carrier == "air" else china_any)
+            pool = pool or china_any
+            return [pool[(offset + i) % len(pool)] for i in range(n)]
+
+        now = timezone.now()
+        seeded_orders = seeded_users = 0
         for user in User.objects.filter(is_active=True):
             if user.orders.exists():
                 continue
             seeded_users += 1
-            for idx, (status, carrier, days_ago, n_items) in enumerate(PLAN):
+            for oi, (days_ago, paid, shipment_specs) in enumerate(PLAN):
+                placed = now - timedelta(days=days_ago)
                 order = Order.objects.create(
                     user=user,
-                    status=status,
-                    carrier=carrier,
+                    status=OrderStatus.PENDING,
                     ship_name=user.full_name or "",
                     ship_line1=user.address_line1 or "Plot 123, Great East Rd",
                     ship_city=user.address_city or "Lusaka",
                     ship_area=user.address_area or "",
                     ship_phone=user.phone or "",
-                    payment_brand="" if status == OrderStatus.PENDING else "airtel",
-                    payment_detail="" if status == OrderStatus.PENDING else "••• 210",
-                    placed_at=timezone.now() - timedelta(days=days_ago),
+                    payment_brand="" if not paid else "airtel",
+                    payment_detail="" if not paid else "••• 210",
+                    placed_at=placed,
                 )
-                # Pick a rotating window of products for this order's items.
-                start = (idx * 2) % len(catalogue)
-                chosen = [catalogue[(start + j) % len(catalogue)] for j in range(n_items)]
-                for j, product in enumerate(chosen):
-                    wh = product.warehouse or "china"
-                    if wh != "china":
-                        method, price = "local", product.price
-                    elif product.air_price is not None and j % 2 == 1:
-                        method, price = "air", product.air_price  # mix in some air
-                    else:
-                        method, price = "sea", product.price
-                    OrderItem.objects.create(
-                        order=order,
-                        product=product,
-                        title=product.title,
-                        image=product.image,
-                        warehouse=wh,
-                        shipping_method=method,
-                        unit_price=price,
-                        quantity=1,
+                for si, (warehouse, carrier, status, n_items) in enumerate(shipment_specs):
+                    shipment = Shipment.objects.create(
+                        order=order, warehouse=warehouse, carrier=carrier, status=status, placed_at=placed,
                     )
+                    for product in pick(warehouse, carrier, n_items, oi * 2 + si):
+                        price = product.air_price if (carrier == "air" and product.air_price is not None) else product.price
+                        OrderItem.objects.create(
+                            order=order, shipment=shipment, product=product,
+                            title=product.title, image=product.image, warehouse=warehouse,
+                            shipping_method=carrier, unit_price=price, quantity=1,
+                        )
+                    # Backfill this shipment's timeline up to its current status.
+                    ci = STAGES.index(status) if status in STAGES else 0
+                    span = now - placed
+                    for j in range(ci + 1):
+                        at = placed + (span * (j / ci) if ci else span * 0)
+                        shipment.events.create(status=STAGES[j], created_at=at)
+
                 order.recalculate_total()
+                order.recalculate_status()
                 seeded_orders += 1
 
-        # Backfill tracking events for any order that has none (incl. legacy ones),
-        # spreading them realistically between placed_at and now.
-        backfilled = self._backfill_events()
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Seeded {seeded_orders} orders for {seeded_users} user(s); "
-                f"backfilled events for {backfilled} order(s)."
-            )
-        )
-
-    def _backfill_events(self) -> int:
-        # The progression order, by status, up to a given order's current status.
-        STAGES = [
-            OrderStatus.PENDING,
-            OrderStatus.QUEUE,
-            OrderStatus.SOURCING,
-            OrderStatus.TRANSIT,
-            OrderStatus.DELIVERED,
-        ]
-        now = timezone.now()
-        count = 0
-        for order in Order.objects.filter(events__isnull=True).distinct():
-            if order.status == OrderStatus.CANCELLED:
-                order.log_event(OrderStatus.PENDING, at=order.placed_at)
-                order.log_event(OrderStatus.CANCELLED, at=order.placed_at + timedelta(days=1))
-                count += 1
-                continue
-            ci = STAGES.index(order.status) if order.status in STAGES else 0
-            span = now - order.placed_at
-            for j in range(ci + 1):
-                at = order.placed_at + (span * (j / ci) if ci else span * 0)
-                order.log_event(STAGES[j], at=at)
-            count += 1
-        return count
+        self.stdout.write(self.style.SUCCESS(f"Seeded {seeded_orders} orders for {seeded_users} user(s)."))
