@@ -15,6 +15,9 @@ export type CartItem = {
   deliveryEstimate?: string | null;
   /** Which hub fulfils this item — drives checkout grouping + delivery time. */
   warehouse?: Warehouse;
+  /** China dual-shipping: per-method unit prices, so checkout can re-price when
+   *  the carrier is switched. Absent for single-price (Zambia / sea-only) items. */
+  shippingPrices?: { air: number; sea: number };
 };
 
 export type AddCartItemInput = Omit<CartItem, "quantity"> & {

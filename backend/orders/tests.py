@@ -97,6 +97,31 @@ class OrderApiTests(TestCase):
         self.assertEqual(body["items"][0]["price"], 50.0)
         self.assertEqual(body["items"][0]["title"], "Real Part")
 
+    def test_air_carrier_uses_air_price_server_side(self):
+        from products.models import Category, Product
+
+        cat = Category.objects.create(slug="cp", name="Car Parts")
+        Product.objects.create(
+            slug="filter", title="Filter", category=cat, price=40, air_price=58,
+            warehouse="china", product_type="car_part",
+        )
+        # Sea -> sea price.
+        sea = self.client.post(
+            "/api/orders",
+            data={"items": [{"slug": "filter", "title": "x", "price": 1, "quantity": 1}], "carrier": "sea",
+                  "payment": {"brand": "mtn", "detail": "1"}},
+            content_type="application/json",
+        ).json()
+        self.assertEqual(sea["total"], 40.0)
+        # Air -> air price (server-authoritative, regardless of client price).
+        air = self.client.post(
+            "/api/orders",
+            data={"items": [{"slug": "filter", "title": "x", "price": 1, "quantity": 1}], "carrier": "air",
+                  "payment": {"brand": "mtn", "detail": "1"}},
+            content_type="application/json",
+        ).json()
+        self.assertEqual(air["total"], 58.0)
+
     def test_create_without_payment_is_pending(self):
         res = self.client.post(
             "/api/orders",

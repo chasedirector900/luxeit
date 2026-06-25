@@ -88,6 +88,10 @@ export type Product = {
   notices?: string[];
   ratings?: ProductRatings;
   price: number;
+  /** China-hub air-freight price (the pricier option); `price` is the sea price. */
+  airPrice?: number;
+  /** Per-method price options for China-hub dual shipping. */
+  shippingOptions?: Array<{ method: ProductShippingMethod; label: string; price: number; eta: string }>;
   preorder?: boolean;
   importTag?: string;
   warehouse?: Warehouse;

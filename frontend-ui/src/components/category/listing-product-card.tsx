@@ -88,6 +88,9 @@ export function ListingProductCard({ product, detailHrefBase }: ListingProductCa
 
         <div className="mt-2.5 flex items-end justify-between gap-1.5">
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+            {product.airPrice ? (
+              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-zinc-500">From</span>
+            ) : null}
             <span className="text-[17px] font-black leading-none text-slate-900 dark:text-zinc-100">
               {formatKwacha(product.price)}
             </span>
@@ -114,9 +117,13 @@ export function ListingProductCard({ product, detailHrefBase }: ListingProductCa
                 image: product.image,
                 price: product.price,
                 quantity: 1,
-                selectedShippingMethod: "air",
+                // Default to sea (the cheaper "From" price shown on the card).
+                selectedShippingMethod: "sea",
                 deliveryEstimate: null,
                 warehouse: "china",
+                shippingPrices: product.airPrice
+                  ? { sea: product.price, air: product.airPrice }
+                  : undefined,
               });
               setAdded(true);
             }}

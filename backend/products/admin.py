@@ -35,7 +35,7 @@ class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ("rating_average", "rating_count", "rating_breakdown", "created_at", "updated_at")
     fieldsets = (
         (None, {"fields": ("title", "slug", "product_type", "category", "sub_category", "description", "is_active")}),
-        ("Pricing", {"fields": ("price", "original_price")}),
+        ("Pricing", {"fields": ("price", "original_price", "air_price"), "description": "China hub: 'price' is the sea price; set 'air price' to also offer faster air freight."}),
         ("Fulfilment hub", {"fields": ("warehouse", "origin", "shipping_method", "delivery_estimate", "import_tag", "preorder")}),
         ("Media", {"fields": ("image", "video", "video_thumbnail"), "description": "Thumbnail is required; add gallery images below. Video is optional."}),
         ("Sales & search", {"fields": ("units_sold", "searchable_text")}),

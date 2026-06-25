@@ -42,10 +42,20 @@ function ItemThumbs({ items }: { items: CartItem[] }) {
   );
 }
 
+// Unit price for the chosen carrier: China dual-shipping items re-price by
+// carrier; everything else uses its stored price.
+function unitPriceFor(item: CartItem, carrier: ShippingMethod): number {
+  if (item.shippingPrices && (item.warehouse ?? "china") === "china") {
+    return item.shippingPrices[carrier];
+  }
+  return item.price;
+}
+
 export function CheckoutClient() {
-  const { items, cartCount, cartSubtotal, clearCart } = useCart();
+  const { items, cartCount, clearCart } = useCart();
   const { updateProfile } = useAuth();
-  const [carrier, setCarrier] = useState<ShippingMethod>("air");
+  // Default to sea (the cheaper "From" price shown across the app).
+  const [carrier, setCarrier] = useState<ShippingMethod>("sea");
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [placed, setPlaced] = useState(false);
   const [placing, setPlacing] = useState(false);
@@ -89,6 +99,17 @@ export function CheckoutClient() {
   const isLusaka = (selectedAddress?.city ?? "").trim().toLowerCase().includes("lusaka");
   const zambiaEta = isLusaka ? "Within 24 hours" : "About 48 hours";
   const chinaEta = carrier === "air" ? "About 2 weeks (Air)" : "About 2 months (Sea)";
+
+  // Carrier-aware order total — flipping Air/Sea re-prices the China items.
+  const subtotal = useMemo(
+    () => items.reduce((sum, item) => sum + unitPriceFor(item, carrier) * item.quantity, 0),
+    [items, carrier],
+  );
+  // Does switching carrier actually change anything? (Any dual-priced item.)
+  const hasDualItems = useMemo(
+    () => items.some((item) => item.shippingPrices && item.shippingPrices.air !== item.shippingPrices.sea),
+    [items],
+  );
 
   function persistPrimaryAddress(addr: { line1: string; city: string; area: string }) {
     // Mirror the chosen address to the account profile + backend so it's saved
@@ -380,16 +401,21 @@ export function CheckoutClient() {
       <section style={{ animationDelay: "240ms" }} className={`reveal-up ${CARD} p-4`}>
         <div className="flex items-center justify-between text-sm">
           <span className="text-slate-500 dark:text-zinc-400">Items ({cartCount})</span>
-          <span className="font-semibold text-slate-900 dark:text-zinc-100">{formatKwacha(cartSubtotal)}</span>
+          <span className="font-semibold text-slate-900 dark:text-zinc-100">{formatKwacha(subtotal)}</span>
         </div>
         <div className="mt-2 flex items-center justify-between text-sm">
-          <span className="text-slate-500 dark:text-zinc-400">Delivery</span>
+          <span className="text-slate-500 dark:text-zinc-400">Delivery ({carrier === "air" ? "Air" : "Sea"})</span>
           <span className="font-semibold text-emerald-600 dark:text-emerald-400">Included</span>
         </div>
+        {hasDualItems ? (
+          <p className="mt-2 text-[11px] text-slate-400 dark:text-zinc-500">
+            China items are priced for {carrier === "air" ? "air (faster)" : "sea (cheaper)"} — switch the carrier above to compare.
+          </p>
+        ) : null}
         <div className="my-3 border-t border-slate-200 dark:border-zinc-800" />
         <div className="flex items-end justify-between">
           <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">Total</span>
-          <span className="text-2xl font-black leading-none text-slate-900 dark:text-zinc-100">{formatKwacha(cartSubtotal)}</span>
+          <span className="text-2xl font-black leading-none text-slate-900 dark:text-zinc-100">{formatKwacha(subtotal)}</span>
         </div>
       </section>
 
@@ -400,7 +426,7 @@ export function CheckoutClient() {
           disabled={!canPlace || placing}
           className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
         >
-          {placing ? "Placing order…" : `Place order · ${formatKwacha(cartSubtotal)}`}
+          {placing ? "Placing order…" : `Place order · ${formatKwacha(subtotal)}`}
         </button>
         {placeError ? (
           <p className="text-center text-[12px] font-semibold text-rose-600 dark:text-rose-400">{placeError}</p>

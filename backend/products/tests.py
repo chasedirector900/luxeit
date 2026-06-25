@@ -98,6 +98,32 @@ class CarCatalogSeedTests(TestCase):
         self.assertEqual(Product.objects.count(), before)
 
 
+class DualShippingPriceTests(TestCase):
+    def test_china_product_exposes_air_price_and_options(self):
+        from django.test import Client
+
+        cat = Category.objects.create(slug="c", name="C")
+        Product.objects.create(
+            slug="part", title="Part", category=cat, price=40, air_price=58,
+            warehouse="china", product_type=ProductType.CAR_PART,
+        )
+        data = Client().get("/api/products/part/").json()
+        self.assertEqual(data["price"], 40.0)
+        self.assertEqual(data["airPrice"], 58.0)
+        methods = {o["method"]: o["price"] for o in data["shippingOptions"]}
+        self.assertEqual(methods, {"sea": 40.0, "air": 58.0})
+
+    def test_air_price_rejected_for_zambia_or_below_sea(self):
+        from django.core.exceptions import ValidationError
+
+        zambia = Product(slug="z", title="Z", price=40, air_price=58, warehouse="zambia")
+        with self.assertRaises(ValidationError):
+            zambia.full_clean()
+        cheap_air = Product(slug="ca", title="CA", price=40, air_price=30, warehouse="china")
+        with self.assertRaises(ValidationError):
+            cheap_air.full_clean()
+
+
 class CategoryApiTests(TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -88,9 +88,15 @@ class Product(models.Model):
     subtitle = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True, help_text="Full description shown on the product detail page.")
 
-    # Pricing
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    # Pricing. For China-hub goods, `price` is the SEA (standard, cheaper) price
+    # and `air_price` is the faster, pricier air-freight option. Zambia-hub goods
+    # use `price` only (already local — no shipping choice).
+    price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Sea/standard price (China hub) or the local price (Zambia hub).")
     original_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    air_price = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True,
+        help_text="China hub only: price when shipped by air. Leave blank if only sea shipping is offered.",
+    )
 
     # Media — thumbnail (required) + relational gallery (ProductImage) + optional video.
     # Wide enough to hold a self-contained SVG data-URI placeholder, not just a URL.
@@ -140,14 +146,44 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+    # ETA labels for the two China-hub freight methods.
+    SEA_ETA = "About 2 months (Sea)"
+    AIR_ETA = "About 2 weeks (Air)"
+
     def clean(self):
         # Physical goods ship from a hub; digital goods don't.
         if self.product_type != ProductType.DIGITAL and not self.warehouse:
             raise ValidationError({"warehouse": "Physical products must specify a hub (China or Zambia)."})
+        # Air pricing only makes sense for China-hub goods, and air should cost
+        # at least as much as sea (it's the premium option).
+        if self.air_price is not None:
+            if self.warehouse != Warehouse.CHINA:
+                raise ValidationError({"air_price": "Air price applies to China-hub products only."})
+            if self.air_price < self.price:
+                raise ValidationError({"air_price": "Air price should be greater than or equal to the sea price."})
 
     @property
     def is_digital(self) -> bool:
         return self.product_type == ProductType.DIGITAL
+
+    @property
+    def has_dual_shipping(self) -> bool:
+        """China-hub product offering both sea and air freight at different prices."""
+        return self.warehouse == Warehouse.CHINA and self.air_price is not None
+
+    @property
+    def display_price(self):
+        """Headline price = the cheapest a customer can pay (sea for dual-ship)."""
+        return self.price
+
+    def shipping_options(self) -> list:
+        """Per-method price options for the storefront. Empty unless dual-shipping."""
+        if not self.has_dual_shipping:
+            return []
+        return [
+            {"method": "sea", "label": "Sea", "price": float(self.price), "eta": self.SEA_ETA},
+            {"method": "air", "label": "Air", "price": float(self.air_price), "eta": self.AIR_ETA},
+        ]
 
     def record_sale(self, quantity: int = 1) -> None:
         """Atomically increase the sold counter (call when an order is paid)."""

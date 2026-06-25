@@ -9,7 +9,9 @@ import {
   ArrowLeft,
   Check,
   Minus,
+  Plane,
   Plus,
+  Ship,
   ShoppingCart,
   Star,
   Truck,
@@ -59,7 +61,14 @@ export function SearchProductDetailClient({
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const [addState, setAddState] = useState<"idle" | "adding" | "added">("idle");
   const [showAddSuccess, setShowAddSuccess] = useState(false);
-  const selectedShipping = product.shippingMethod ?? "air";
+  // China-hub goods can offer sea (cheaper, default) + air (pricier). The chosen
+  // option drives the price the customer pays.
+  const shippingOptions = product.shippingOptions ?? [];
+  const isDualShipping = shippingOptions.length > 1;
+  const [selectedShipping, setSelectedShipping] = useState<"air" | "sea">(
+    isDualShipping ? "sea" : (product.shippingMethod ?? "air"),
+  );
+  const effectivePrice = shippingOptions.find((o) => o.method === selectedShipping)?.price ?? product.price;
   const ratings = product.ratings;
   const warehouse = product.warehouse ? WAREHOUSE_META[product.warehouse] : null;
   const deliveryInfo = product.warehouse
@@ -88,8 +97,8 @@ export function SearchProductDetailClient({
 
   const activeMedia = resolvedMedia[selectedMediaIndex] ?? resolvedMedia[0];
 
-  const priceRangeMin = Math.max(1, product.price * 0.9);
-  const priceRangeMax = product.price * 1.2;
+  const priceRangeMin = Math.max(1, effectivePrice * 0.9);
+  const priceRangeMax = effectivePrice * 1.2;
 
   const productDescription = `${product.title} is curated for fast-moving import catalogs. Designed for quality checks, reliable supply lanes, and quick resell listing turnaround across regional marketplaces.`;
 
@@ -156,9 +165,15 @@ export function SearchProductDetailClient({
       slug: product.slug,
       title: product.title,
       image: product.image,
-      price: product.price,
+      price: effectivePrice,
       quantity,
       selectedShippingMethod: selectedShipping,
+      shippingPrices: isDualShipping
+        ? {
+            sea: shippingOptions.find((o) => o.method === "sea")?.price ?? effectivePrice,
+            air: shippingOptions.find((o) => o.method === "air")?.price ?? effectivePrice,
+          }
+        : undefined,
       deliveryEstimate: product.deliveryEstimate ?? shippingMeta.eta,
       warehouse: product.warehouse,
     });
@@ -279,7 +294,14 @@ export function SearchProductDetailClient({
 
           <div className="space-y-3.5 p-4">
             <div>
-              <p className="text-[1.75rem] font-black leading-none">{formatKwacha(product.price)}</p>
+              <div className="flex items-baseline gap-1.5">
+                {isDualShipping ? (
+                  <span className="text-[13px] font-bold uppercase tracking-wide text-slate-400 dark:text-zinc-500">
+                    {selectedShipping === "air" ? "Air" : "Sea"}
+                  </span>
+                ) : null}
+                <p className="text-[1.75rem] font-black leading-none">{formatKwacha(effectivePrice)}</p>
+              </div>
               <p className="mt-1.5 text-[12px] text-slate-500 dark:text-zinc-400">
                 Range: {formatKwacha(priceRangeMin)} - {formatKwacha(priceRangeMax)}
               </p>
@@ -314,6 +336,42 @@ export function SearchProductDetailClient({
                 <p className="text-[12px] leading-snug text-slate-600 dark:text-zinc-300">
                   <span className="font-bold text-slate-900 dark:text-zinc-100">Ships from {warehouse.label}</span> · {deliveryInfo}
                 </p>
+              </div>
+            ) : null}
+
+            {/* Shipping option — China dual freight (sea vs air), drives the price */}
+            {isDualShipping ? (
+              <div>
+                <p className="mb-2 text-[12px] font-semibold text-slate-500 dark:text-zinc-400">Choose shipping</p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {shippingOptions.map((opt) => {
+                    const active = selectedShipping === opt.method;
+                    const Icon = opt.method === "air" ? Plane : Ship;
+                    return (
+                      <button
+                        key={opt.method}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setSelectedShipping(opt.method)}
+                        className={`rounded-xl border p-3 text-left transition-transform active:scale-[0.98] ${
+                          active
+                            ? "border-indigo-500/60 bg-indigo-500/10 dark:border-indigo-400/50 dark:bg-indigo-500/15"
+                            : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <Icon className={`h-4 w-4 ${active ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-zinc-400"}`} />
+                          <span className={`text-sm font-bold ${active ? "text-indigo-700 dark:text-indigo-300" : "text-slate-900 dark:text-zinc-100"}`}>{opt.label}</span>
+                          {opt.method === "sea" ? (
+                            <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">Cheapest</span>
+                          ) : null}
+                        </div>
+                        <p className="mt-1.5 text-[15px] font-black leading-none text-slate-900 dark:text-zinc-100">{formatKwacha(opt.price)}</p>
+                        <p className="mt-1 text-[11px] text-slate-500 dark:text-zinc-400">{opt.eta}</p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             ) : null}
 
@@ -599,7 +657,7 @@ export function SearchProductDetailClient({
           >
             {addState === "added" ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
             {addState === "adding" ? "Adding..." : addState === "added" ? "Added" : "Add to Cart"}
-            <span className="text-xs font-semibold opacity-80">{formatKwacha(product.price * quantity)}</span>
+            <span className="text-xs font-semibold opacity-80">{formatKwacha(effectivePrice * quantity)}</span>
           </button>
         </div>
       </div>

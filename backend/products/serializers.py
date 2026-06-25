@@ -30,6 +30,9 @@ class ListingProductSerializer(serializers.BaseSerializer):
             data["originalPrice"] = float(obj.original_price)
             pct = round((1 - float(obj.price) / float(obj.original_price)) * 100)
             data["badge"] = {"label": f"-{pct}%", "tone": "sale"}
+        if obj.has_dual_shipping:
+            # Signals "From {price}" on cards + the higher air option.
+            data["airPrice"] = float(obj.air_price)
         return data
 
 
@@ -120,6 +123,8 @@ class ProductListSerializer(serializers.BaseSerializer):
         }
         if obj.original_price is not None:
             data["originalPrice"] = float(obj.original_price)
+        if obj.has_dual_shipping:
+            data["airPrice"] = float(obj.air_price)
         if obj.category_id:
             data["category"] = obj.category.name
         if obj.units_sold:
@@ -160,6 +165,9 @@ class ProductDetailSerializer(serializers.BaseSerializer):
             data["description"] = obj.description
         if obj.original_price is not None:
             data["originalPrice"] = float(obj.original_price)
+        if obj.has_dual_shipping:
+            data["airPrice"] = float(obj.air_price)
+            data["shippingOptions"] = obj.shipping_options()
         if obj.units_sold:
             data["popularityLabel"] = _sold_label(obj.units_sold)
 

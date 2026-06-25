@@ -98,10 +98,15 @@ def _create_order(request):
         if product is not None:
             # SERVER-AUTHORITATIVE: never trust client-sent price/title for a known
             # product — a tampered payload can't change what the order really costs.
+            # China dual-shipping goods are priced by the chosen carrier (air costs
+            # more); everything else uses the standard price.
             title = product.title
             image = product.image
             warehouse = product.warehouse or ""
-            unit_price = product.price
+            if product.has_dual_shipping and carrier == Carrier.AIR:
+                unit_price = product.air_price
+            else:
+                unit_price = product.price
         else:
             # Unknown product (mock/legacy item) — fall back to the client snapshot.
             try:

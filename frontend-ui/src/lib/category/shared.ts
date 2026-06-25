@@ -20,6 +20,8 @@ export type ListingProduct = {
   subCategory: string;
   price: number;
   originalPrice?: number;
+  /** China-hub air-freight price; when set, cards show "From {price}". */
+  airPrice?: number;
   badge?: ListingBadge;
   /** Inline SVG data URI — self-contained, no network, valid cart image. */
   image: string;

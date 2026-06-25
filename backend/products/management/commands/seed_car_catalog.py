@@ -91,6 +91,11 @@ def short_label(name: str) -> str:
     return " ".join(name.upper().split()[:2])
 
 
+def air_of(price: float) -> float:
+    # Air freight runs ~45% above the sea price.
+    return round(price * 1.45, 2)
+
+
 class Command(BaseCommand):
     help = "Seed car-brand categories, a universal car-parts category, and products."
 
@@ -132,6 +137,7 @@ class Command(BaseCommand):
                         "subtitle": f"Fits {brand['name']} {model}",
                         "price": price,
                         "original_price": original,
+                        "air_price": air_of(price),
                         "image": listing_image(short_label(name), c_from, c_to),
                         "warehouse": Warehouse.CHINA,
                         "origin": Origin.CHINA,
@@ -184,6 +190,7 @@ class Command(BaseCommand):
                     "subtitle": "Universal fit",
                     "price": price,
                     "original_price": original,
+                    "air_price": air_of(price),
                     "image": listing_image(short_label(name), c_from, c_to),
                     "warehouse": Warehouse.CHINA,
                     "origin": Origin.CHINA,
