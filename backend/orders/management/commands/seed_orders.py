@@ -16,6 +16,19 @@ User = get_user_model()
 
 STAGES = [OrderStatus.PENDING, OrderStatus.QUEUE, OrderStatus.SOURCING, OrderStatus.TRANSIT, OrderStatus.DELIVERED]
 
+# A plausible demo variant per product type, so the fulfilment board shows the
+# buyer what to source (real variants come from the customer's selection).
+DEMO_VARIANTS = {
+    "footwear": [{"Size": "42", "Colour": "Black"}, {"Size": "44", "Colour": "White"}],
+    "watch": [{"Strap": "Leather, Brown"}, {"Strap": "Steel"}],
+    "general": [{"Colour": "Black"}, {"Colour": "Blue"}],
+}
+
+
+def demo_variant(product, n: int) -> dict:
+    pool = DEMO_VARIANTS.get(product.product_type)
+    return pool[n % len(pool)] if pool else {}
+
 # Each order: (days_ago, paid, [ (warehouse, carrier, status, n_items), ... ]).
 PLAN = [
     (1, False, [("china", "sea", OrderStatus.PENDING, 1)]),
@@ -72,12 +85,13 @@ class Command(BaseCommand):
                     shipment = Shipment.objects.create(
                         order=order, warehouse=warehouse, carrier=carrier, status=status, placed_at=placed,
                     )
-                    for product in pick(warehouse, carrier, n_items, oi * 2 + si):
+                    for pi, product in enumerate(pick(warehouse, carrier, n_items, oi * 2 + si)):
                         price = product.air_price if (carrier == "air" and product.air_price is not None) else product.price
                         OrderItem.objects.create(
                             order=order, shipment=shipment, product=product,
                             title=product.title, image=product.image, warehouse=warehouse,
-                            shipping_method=carrier, unit_price=price, quantity=1,
+                            shipping_method=carrier, variant=demo_variant(product, oi + pi),
+                            unit_price=price, quantity=1,
                         )
                     # Backfill this shipment's timeline up to its current status.
                     ci = STAGES.index(status) if status in STAGES else 0

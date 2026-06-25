@@ -1,10 +1,9 @@
 from datetime import date
 
 from django.contrib import admin, messages
-from django.db.models import Sum
-from django.db.models.functions import TruncDate
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
+from django.utils import timezone
 
 from .models import Order, OrderItem, OrderStatus, Shipment
 
@@ -12,8 +11,12 @@ from .models import Order, OrderItem, OrderStatus, Shipment
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    fields = ("title", "warehouse", "shipping_method", "unit_price", "quantity", "line_total")
-    readonly_fields = ("line_total",)
+    fields = ("title", "variant_summary", "warehouse", "shipping_method", "unit_price", "quantity", "line_total")
+    readonly_fields = ("variant_summary", "line_total")
+
+    @admin.display(description="Variant")
+    def variant_summary(self, obj):
+        return obj.variant_label or "—"
 
 
 class ShipmentInline(admin.TabularInline):
@@ -131,32 +134,40 @@ class ShipmentAdmin(admin.ModelAdmin):
     @staticmethod
     def _aggregate(*, status_in, warehouse):
         """Group demand into (day, carrier) batches, each listing the actual
-        products (thumbnail, title, qty, and a deep-link to the catalogue page so
-        the buyer can see specs/gallery and source it)."""
-        rows = (
+        products to buy — thumbnail, title, the chosen variant (size/colour),
+        qty, and a deep-link to the catalogue page. Distinct variants of the same
+        product are separate buy-lines, since each is its own purchase. Aggregated
+        in Python because the variant snapshot is JSON."""
+        items = (
             OrderItem.objects.filter(shipment__status__in=status_in, warehouse=warehouse)
-            .annotate(day=TruncDate("shipment__order__placed_at"))
-            .values("day", "shipping_method", "title", "image", "product_id")
-            .annotate(qty=Sum("quantity"))
-            .order_by("-day", "shipping_method", "-qty", "title")
+            .select_related("shipment__order")
         )
         batches: list = []
-        index: dict = {}
-        for r in rows:
-            key = (r["day"], r["shipping_method"])
-            group = index.get(key)
+        bindex: dict = {}
+        lindex: dict = {}
+        for it in items:
+            day = timezone.localdate(it.shipment.order.placed_at)
+            bkey = (day, it.shipping_method)
+            group = bindex.get(bkey)
             if group is None:
-                group = {"day": r["day"], "carrier": r["shipping_method"], "items": [], "total": 0}
-                index[key] = group
+                group = {"day": day, "carrier": it.shipping_method, "items": [], "total": 0}
+                bindex[bkey] = group
                 batches.append(group)
-            url = (
-                reverse("admin:products_product_change", args=[r["product_id"]])
-                if r["product_id"] else ""
-            )
-            group["items"].append(
-                {"title": r["title"], "qty": r["qty"], "image": r["image"], "url": url}
-            )
-            group["total"] += r["qty"]
+            variant = it.variant_label
+            lkey = (bkey, it.product_id, it.title, variant)
+            line = lindex.get(lkey)
+            if line is None:
+                url = reverse("admin:products_product_change", args=[it.product_id]) if it.product_id else ""
+                line = {"title": it.title, "image": it.image, "url": url, "variant": variant, "qty": 0}
+                lindex[lkey] = line
+                group["items"].append(line)
+            line["qty"] += it.quantity
+            group["total"] += it.quantity
+        # Newest day first; carrier asc within a day; busiest line first.
+        batches.sort(key=lambda b: b["carrier"])
+        batches.sort(key=lambda b: b["day"], reverse=True)
+        for b in batches:
+            b["items"].sort(key=lambda r: (-r["qty"], r["title"]))
         return batches
 
     def _advance_batch(self, request):

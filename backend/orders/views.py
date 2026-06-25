@@ -53,6 +53,20 @@ def order_detail(request, reference):
     return Response(OrderSerializer(order).data)
 
 
+def _clean_variant(raw) -> dict:
+    """Sanitise the customer's selected options into a {label: value} snapshot:
+    strings only, trimmed, length-capped, at most a handful of attributes."""
+    if not isinstance(raw, dict):
+        return {}
+    out: dict = {}
+    for key, value in list(raw.items())[:12]:
+        label = str(key)[:40].strip()
+        val = str(value)[:80].strip()
+        if label and val:
+            out[label] = val
+    return out
+
+
 def _create_order(request):
     data = request.data
     items = data.get("items") or []
@@ -132,13 +146,15 @@ def _create_order(request):
             except (TypeError, ValueError):
                 continue
 
+        variant = _clean_variant(it.get("selectedOptions") or it.get("variant"))
+
         key = (warehouse, method)
         if key not in groups:
             groups[key] = []
             group_order.append(key)
         groups[key].append(
             {"product": product, "title": title, "image": image, "warehouse": warehouse,
-             "method": method, "unit_price": unit_price, "quantity": qty}
+             "method": method, "variant": variant, "unit_price": unit_price, "quantity": qty}
         )
 
     if not group_order:
@@ -159,6 +175,7 @@ def _create_order(request):
                 image=spec["image"],
                 warehouse=spec["warehouse"],
                 shipping_method=spec["method"],
+                variant=spec["variant"],
                 unit_price=spec["unit_price"],
                 quantity=spec["quantity"],
             )

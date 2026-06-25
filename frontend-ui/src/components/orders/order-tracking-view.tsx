@@ -164,6 +164,9 @@ export function OrderTrackingView({ reference }: { reference: string }) {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-slate-800 dark:text-zinc-200">{item.title}</p>
+                      {item.variantLabel ? (
+                        <p className="truncate text-[11px] font-medium text-slate-600 dark:text-zinc-300">{item.variantLabel}</p>
+                      ) : null}
                       <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                         Qty {item.quantity} · {money(item.price)}
                       </p>

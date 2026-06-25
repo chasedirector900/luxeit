@@ -27,6 +27,10 @@ def _item_dict(item: OrderItem, *, reviewable: bool = False) -> dict:
         "warehouse": item.warehouse or "china",
         "shippingMethod": item.shipping_method or "",
     }
+    # Chosen variant (size/colour/…) — shown on the order + sourcing board.
+    if item.variant:
+        data["variant"] = item.variant
+        data["variantLabel"] = item.variant_label
     # Linked catalogue product -> let the app deep-link to its review page.
     if item.product_id:
         data["slug"] = item.product.slug

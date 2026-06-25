@@ -45,6 +45,9 @@
                   {% else %}
                     {{ it.title }}
                   {% endif %}
+                  {% if it.variant %}
+                    <div style="margin-top:2px;font-size:.82rem;font-weight:600;color:#b45309;">{{ it.variant }}</div>
+                  {% endif %}
                 </td>
                 <td><strong>{{ it.qty }}</strong></td>
               </tr>

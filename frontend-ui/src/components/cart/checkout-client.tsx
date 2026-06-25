@@ -168,6 +168,7 @@ export function CheckoutClient() {
           warehouse: it.warehouse,
           slug: it.slug,
           shippingMethod: methodFor(it), // per-item: air / sea / local
+          selectedOptions: it.selectedOptions, // chosen variant (size/colour/…)
         })),
         address: { line1: selectedAddress.line1, city: selectedAddress.city, area: selectedAddress.area },
         payment: selectedMethod ? { brand: selectedMethod.brand, detail: selectedMethod.detail } : null,

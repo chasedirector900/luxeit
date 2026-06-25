@@ -265,6 +265,9 @@ class OrderItem(models.Model):
     # How THIS line ships (air/sea for China, local for Zambia). Lets one order
     # carry, e.g., 2 China items by air and the rest by sea.
     shipping_method = models.CharField(max_length=6, choices=ItemCarrier.choices, blank=True)
+    # The variant the customer chose, snapshotted as {label: value}, e.g.
+    # {"Size": "42", "Colour": "Red"} — so the buyer sources the exact item.
+    variant = models.JSONField(default=dict, blank=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
@@ -277,3 +280,10 @@ class OrderItem(models.Model):
     @property
     def line_total(self):
         return self.unit_price * self.quantity
+
+    @property
+    def variant_label(self) -> str:
+        """Human-readable variant, e.g. 'Size: 42 · Colour: Red'. Empty if none."""
+        if not isinstance(self.variant, dict) or not self.variant:
+            return ""
+        return " · ".join(f"{k}: {v}" for k, v in self.variant.items())

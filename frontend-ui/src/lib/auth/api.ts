@@ -252,6 +252,8 @@ export type OrderApiItem = {
   price: number;
   warehouse?: string;
   shippingMethod?: string; // air | sea | local
+  variant?: Record<string, string>; // chosen options, e.g. { Size: "42" }
+  variantLabel?: string; // "Size: 42 · Colour: Red"
   slug?: string;
   categorySlug?: string;
   reviewable?: boolean; // true on delivered orders for catalogue products
@@ -294,6 +296,7 @@ export type CreateOrderInput = {
     warehouse?: string;
     slug?: string;
     shippingMethod?: string; // air | sea | local (per item)
+    selectedOptions?: Record<string, string>; // chosen variant (size/colour/…)
   }>;
   carrier?: string;
   address?: { line1: string; city: string; area: string } | null;
