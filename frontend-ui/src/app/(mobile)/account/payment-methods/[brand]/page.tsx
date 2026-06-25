@@ -2,11 +2,6 @@ import { notFound } from "next/navigation";
 import { AddPaymentMethodView } from "@/components/account/add-payment-method-view";
 import { PAYMENT_BRANDS, type PaymentBrand } from "@/lib/payments/payment-methods";
 
-// Pre-render one static page per payment brand (visa, mastercard, bank, ...).
-export function generateStaticParams() {
-  return PAYMENT_BRANDS.map(({ brand }) => ({ brand }));
-}
-
 const VALID_BRANDS = new Set<string>(PAYMENT_BRANDS.map((b) => b.brand));
 
 export default async function AddPaymentMethodPage({
