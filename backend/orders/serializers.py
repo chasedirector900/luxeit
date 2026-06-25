@@ -4,7 +4,7 @@ Order.id is the human reference; placedOn is a preformatted label.
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Order, OrderItem
+from .models import Order, OrderItem, OrderStatus
 
 
 def _placed_label(dt) -> str:
@@ -18,13 +18,20 @@ def _event_label(dt) -> str:
     return f"{local.strftime('%b')} {local.day}"
 
 
-def _item_dict(item: OrderItem) -> dict:
-    return {
+def _item_dict(item: OrderItem, *, reviewable: bool = False) -> dict:
+    data = {
         "title": item.title,
         "image": item.image,
         "quantity": item.quantity,
         "price": float(item.unit_price),
     }
+    # Linked catalogue product -> let the app deep-link to its review page.
+    if item.product_id:
+        data["slug"] = item.product.slug
+        if item.product.category_id:
+            data["categorySlug"] = item.product.category.slug
+        data["reviewable"] = reviewable
+    return data
 
 
 class OrderSerializer(serializers.BaseSerializer):
@@ -37,7 +44,7 @@ class OrderSerializer(serializers.BaseSerializer):
             "statusLabel": order.status_label,
             "statusDescription": order.status_description,
             "total": float(order.total),
-            "items": [_item_dict(i) for i in order.items.all()],
+            "items": [_item_dict(i, reviewable=order.status == OrderStatus.DELIVERED) for i in order.items.all()],
             # Per-step timestamps for the tracking timeline.
             "events": [{"status": e.status, "at": _event_label(e.created_at)} for e in order.events.all()],
         }

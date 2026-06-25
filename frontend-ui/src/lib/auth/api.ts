@@ -234,7 +234,15 @@ export async function getThread(slug: string): Promise<InboxThread> {
 }
 
 // ── Orders ──────────────────────────────────────────────────────────────────
-export type OrderApiItem = { title: string; image: string; quantity: number; price: number };
+export type OrderApiItem = {
+  title: string;
+  image: string;
+  quantity: number;
+  price: number;
+  slug?: string;
+  categorySlug?: string;
+  reviewable?: boolean; // true on delivered orders for catalogue products
+};
 export type OrderApi = {
   id: string; // reference, e.g. "LX-2041"
   placedOn: string;
@@ -276,6 +284,32 @@ export async function createOrder(input: CreateOrderInput): Promise<OrderApi> {
   const { status, data } = await apiFetch<OrderApi>("/api/orders", { method: "POST", body: input });
   if ((status === 201 || status === 200) && data) return data;
   throw new ApiError(detail(data, "Couldn't place your order."), status);
+}
+
+// ── Product reviews (verified purchase) ─────────────────────────────────────
+export type MyReviewData = { rating: number; text: string; date: string };
+export type MyReview = {
+  canReview: boolean;
+  hasReviewed: boolean;
+  review: MyReviewData | null;
+};
+
+/** Whether the signed-in user can review this product, and their existing review. */
+export async function getMyReview(slug: string): Promise<MyReview> {
+  const { status, data } = await apiFetch<MyReview>(`/api/products/${encodeURIComponent(slug)}/review`);
+  if (status === 200 && data) return data;
+  if (status === 401 || status === 403) return { canReview: false, hasReviewed: false, review: null };
+  throw new ApiError(detail(data, "Couldn't load your review."), status);
+}
+
+/** Create or update the user's review (server enforces verified purchase). */
+export async function submitReview(slug: string, input: { rating: number; text: string }): Promise<MyReviewData> {
+  const { status, data } = await apiFetch<{ review: MyReviewData }>(`/api/products/${encodeURIComponent(slug)}/review`, {
+    method: "POST",
+    body: input,
+  });
+  if ((status === 201 || status === 200) && data?.review) return data.review;
+  throw new ApiError(detail(data, "Couldn't submit your review."), status);
 }
 
 // ── Notification preferences ────────────────────────────────────────────────

@@ -22,10 +22,11 @@ export default async function CategoryListingReviewsPage({ params }: CategoryRev
     return <ReviewsRatingView title={mapped.title} ratings={mapped.ratings} backHref={backHref} />;
   }
 
-  // Backend-driven categories (car brands + universal parts).
-  const product = await fetchProductDetail(slug);
+  // Backend-driven categories (car brands + universal parts). Fetch fresh so a
+  // just-posted review appears immediately after the client calls router.refresh().
+  const product = await fetchProductDetail(slug, { fresh: true });
   if (!product?.ratings) {
     notFound();
   }
-  return <ReviewsRatingView title={product.title} ratings={product.ratings} backHref={backHref} />;
+  return <ReviewsRatingView title={product.title} ratings={product.ratings} backHref={backHref} productSlug={slug} />;
 }

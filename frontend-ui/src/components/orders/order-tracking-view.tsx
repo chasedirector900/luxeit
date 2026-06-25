@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Clock, MapPin, Package, PackageCheck, Truck, Wallet, XCircle } from "lucide-react";
+import { ArrowLeft, Check, Clock, MapPin, Package, PackageCheck, Star, Truck, Wallet, XCircle } from "lucide-react";
 import { OrdersListSkeleton } from "@/components/orders/orders-list-skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { getOrder, type OrderApi } from "@/lib/auth/api";
@@ -194,6 +194,15 @@ export function OrderTrackingView({ reference }: { reference: string }) {
                     Qty {item.quantity} · {money(item.price)}
                   </p>
                 </div>
+                {item.reviewable && item.slug && item.categorySlug ? (
+                  <Link
+                    href={`/category/${item.categorySlug}/product/${item.slug}/reviews-rating`}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-600 transition-transform active:scale-95 dark:text-indigo-400"
+                  >
+                    <Star className="h-3.5 w-3.5" />
+                    Review
+                  </Link>
+                ) : null}
               </div>
             ))}
           </div>

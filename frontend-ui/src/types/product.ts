@@ -45,6 +45,7 @@ export type ProductReview = {
   date: string;
   text: string;
   helpfulCount: number;
+  verified?: boolean;
   images?: string[];
   sellerReply?: {
     author: string;

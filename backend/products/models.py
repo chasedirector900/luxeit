@@ -203,6 +203,8 @@ class ProductReview(models.Model):
     text = models.TextField(blank=True)
     date = models.DateField(default=timezone.now)
     helpful_count = models.PositiveIntegerField(default=0)
+    # True when written by a customer who actually bought the product.
+    verified = models.BooleanField(default=False)
     images = models.JSONField(default=list, blank=True)
     # LUXEIT admin/seller reply — leave reply_text blank for no reply.
     reply_text = models.TextField(blank=True)

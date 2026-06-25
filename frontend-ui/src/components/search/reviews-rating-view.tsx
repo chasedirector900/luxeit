@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Check, Search, Star, X } from "lucide-react";
+import { ArrowLeft, Check, Search, ShieldCheck, Star, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { WriteReviewCard } from "@/components/search/write-review-card";
 import type { ProductRatings } from "@/types/product";
 
 const CARD_CLASS =
@@ -21,9 +22,11 @@ type ReviewsRatingViewProps = {
   title: string;
   ratings: ProductRatings;
   backHref: string;
+  /** When set, verified buyers can write/edit their review (backend products). */
+  productSlug?: string;
 };
 
-export function ReviewsRatingView({ title, ratings, backHref }: ReviewsRatingViewProps) {
+export function ReviewsRatingView({ title, ratings, backHref, productSlug }: ReviewsRatingViewProps) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("relevant");
   const [ratingFilter, setRatingFilter] = useState<number | null>(null);
@@ -199,6 +202,9 @@ export function ReviewsRatingView({ title, ratings, backHref }: ReviewsRatingVie
           </div>
         </section>
 
+        {/* Write a review — only rendered for verified buyers */}
+        {productSlug ? <WriteReviewCard productSlug={productSlug} /> : null}
+
         {/* Results header */}
         <div className="flex items-center justify-between px-1">
           <p className="text-[12px] text-slate-500 dark:text-zinc-400">
@@ -230,7 +236,15 @@ export function ReviewsRatingView({ title, ratings, backHref }: ReviewsRatingVie
                       {review.avatarInitial ?? review.userName.charAt(0)}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold">{review.userName}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="truncate text-sm font-bold">{review.userName}</p>
+                        {review.verified ? (
+                          <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                            <ShieldCheck className="h-2.5 w-2.5" />
+                            Verified
+                          </span>
+                        ) : null}
+                      </div>
                       <div className="mt-0.5 flex items-center gap-1.5">
                         <div className="flex items-center gap-0.5">
                           {Array.from({ length: 5 }).map((_, idx) => (

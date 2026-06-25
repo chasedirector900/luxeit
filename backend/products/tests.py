@@ -1,7 +1,64 @@
+from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase
 
-from .models import Category, Product, ProductType
+from .models import Category, Product, ProductReview, ProductType
+
+User = get_user_model()
+
+
+class ProductReviewApiTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email="buyer@example.com")
+        self.client.force_login(self.user)
+        self.product = Product.objects.create(slug="widget", title="Widget", price=20, warehouse="china")
+
+    def _buy(self, status="delivered"):
+        from orders.models import Order, OrderItem
+
+        order = Order.objects.create(user=self.user, status=status)
+        OrderItem.objects.create(order=order, product=self.product, title="Widget", unit_price=20, quantity=1)
+
+    def test_cannot_review_without_purchase(self):
+        self.assertFalse(self.client.get("/api/products/widget/review").json()["canReview"])
+        res = self.client.post(
+            "/api/products/widget/review",
+            data={"rating": 5, "text": "great"},
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(self.product.reviews.count(), 0)
+
+    def test_pending_order_does_not_grant_review(self):
+        self._buy(status="pending")
+        self.assertFalse(self.client.get("/api/products/widget/review").json()["canReview"])
+
+    def test_buyer_can_review_and_it_is_verified(self):
+        self._buy()
+        self.assertTrue(self.client.get("/api/products/widget/review").json()["canReview"])
+        res = self.client.post(
+            "/api/products/widget/review",
+            data={"rating": 4, "text": "solid"},
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 201)
+        review = self.product.reviews.get()
+        self.assertTrue(review.verified)
+        self.assertEqual(review.rating, 4)
+        self.product.refresh_from_db()
+        self.assertEqual(float(self.product.rating_average), 4.0)
+
+    def test_reposting_updates_not_duplicates(self):
+        self._buy()
+        self.client.post("/api/products/widget/review", data={"rating": 3, "text": "ok"}, content_type="application/json")
+        self.client.post("/api/products/widget/review", data={"rating": 5, "text": "better"}, content_type="application/json")
+        self.assertEqual(self.product.reviews.count(), 1)
+        self.assertEqual(self.product.reviews.get().rating, 5)
+
+    def test_rating_must_be_valid(self):
+        self._buy()
+        res = self.client.post("/api/products/widget/review", data={"rating": 9}, content_type="application/json")
+        self.assertEqual(res.status_code, 400)
 
 
 class CarCatalogSeedTests(TestCase):

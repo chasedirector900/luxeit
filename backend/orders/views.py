@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import status as http_status
 from rest_framework.decorators import api_view, permission_classes
@@ -7,6 +8,10 @@ from rest_framework.response import Response
 from products.models import Product
 from .models import Carrier, Order, OrderItem, OrderStatus
 from .serializers import OrderSerializer
+
+# Reused prefetch: load items with their product+category to build review links
+# without N+1 queries.
+_ITEMS_PREFETCH = Prefetch("items", queryset=OrderItem.objects.select_related("product__category"))
 
 # Reverse of BUCKET_BY_STATUS: a tab maps to the statuses it contains.
 BUCKET_STATUSES = {
@@ -26,7 +31,7 @@ def orders(request):
     if request.method == "POST":
         return _create_order(request)
 
-    qs = request.user.orders.prefetch_related("items", "events")
+    qs = request.user.orders.prefetch_related(_ITEMS_PREFETCH, "events")
     bucket = request.query_params.get("bucket")
     if bucket in BUCKET_STATUSES:
         qs = qs.filter(status__in=BUCKET_STATUSES[bucket])
@@ -38,7 +43,7 @@ def orders(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def order_detail(request, reference):
-    order = get_object_or_404(request.user.orders.prefetch_related("items", "events"), reference=reference)
+    order = get_object_or_404(request.user.orders.prefetch_related(_ITEMS_PREFETCH, "events"), reference=reference)
     return Response(OrderSerializer(order).data)
 
 

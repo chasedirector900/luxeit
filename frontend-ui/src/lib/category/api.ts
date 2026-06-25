@@ -20,11 +20,14 @@ export async function fetchCategoryListing(slug: string): Promise<CategoryConfig
   }
 }
 
-/** A single product in the rich detail shape used by the product page. */
-export async function fetchProductDetail(slug: string): Promise<Product | null> {
+/** A single product in the rich detail shape used by the product page.
+ *  Pass { fresh: true } to bypass the cache — used by the reviews page so a
+ *  newly posted review shows immediately after router.refresh(). */
+export async function fetchProductDetail(slug: string, opts?: { fresh?: boolean }): Promise<Product | null> {
   try {
     const res = await fetch(`${BACKEND_ORIGIN}/api/products/${slug}/`, {
-      next: { revalidate: REVALIDATE_SECONDS },
+      cache: opts?.fresh ? "no-store" : undefined,
+      next: opts?.fresh ? undefined : { revalidate: REVALIDATE_SECONDS },
     });
     if (!res.ok) return null;
     return (await res.json()) as Product;

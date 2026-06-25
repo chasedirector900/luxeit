@@ -87,6 +87,7 @@ def _review_dict(review: ProductReview) -> dict:
         "date": review.date.isoformat(),
         "text": review.text,
         "helpfulCount": review.helpful_count,
+        "verified": review.verified,
     }
     if review.avatar_initial:
         data["avatarInitial"] = review.avatar_initial
