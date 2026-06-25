@@ -150,6 +150,21 @@ class FulfilmentBoardViewTests(TestCase):
         thread = self.customer.threads.get(slug=f"order-{self.order.reference.lower()}")
         self.assertTrue(thread.messages.filter(body__icontains="Shoes").exists())
 
+    def test_ship_stage_moves_sourced_to_transit_and_notifies(self):
+        from django.urls import reverse
+
+        self.item.status = OrderStatus.SOURCING
+        self.item.save(update_fields=["status"])
+        self.sh.status = OrderStatus.SOURCING
+        self.sh.save(update_fields=["status"])
+        url = reverse("admin:orders_shipment_fulfilment_batch", args=["ship", self.day, "air"])
+        self.assertEqual(self.client.get(url).status_code, 200)  # shows in "To ship"
+        self.client.post(url, data={"line": "__all__"})
+        self.item.refresh_from_db()
+        self.assertEqual(self.item.status, OrderStatus.TRANSIT)
+        thread = self.customer.threads.get(slug=f"order-{self.order.reference.lower()}")
+        self.assertTrue(thread.messages.filter(body__icontains="left the China hub").exists())
+
 
 class OrderApiTests(TestCase):
     def setUp(self):

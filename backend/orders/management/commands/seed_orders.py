@@ -34,8 +34,10 @@ def demo_variant(product, n: int) -> dict:
 PLAN = [
     (1, False, [("china", "sea", OrderStatus.PENDING, 1)]),
     # To-source batches on the fulfilment board (paid, awaiting purchase).
-    (2, True, [("china", "air", OrderStatus.QUEUE, 1)]),
+    # One order, same day, both carriers — shows Air + Sea on the one day.
+    (2, True, [("china", "air", OrderStatus.QUEUE, 1), ("china", "sea", OrderStatus.QUEUE, 1)]),
     (4, True, [("china", "sea", OrderStatus.QUEUE, 1)]),
+    # Sourced & purchased — these sit in the "To ship" stage.
     (9, True, [("china", "sea", OrderStatus.SOURCING, 2)]),
     (16, True, [("china", "air", OrderStatus.TRANSIT, 1)]),
     # Premium showcase: one order, two parcels at different stages.

@@ -106,11 +106,17 @@ class ShipmentAdmin(admin.ModelAdmin):
             "action": "Mark sourced & purchased", "done": "sourced & purchased",
             "hint": "Paid orders waiting to be bought from the China hub.",
         },
+        "ship": {
+            "title": "To ship", "warehouse": "china",
+            "statuses": [OrderStatus.SOURCING], "target": OrderStatus.TRANSIT,
+            "action": "Mark shipped (left China)", "done": "shipped",
+            "hint": "Sourced & purchased. Mark a product shipped once it leaves China — customers are told it's on its way.",
+        },
         "arrive": {
             "title": "Arrivals", "warehouse": "china",
-            "statuses": [OrderStatus.SOURCING, OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
+            "statuses": [OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
             "action": "Mark arrived (ready for collection)", "done": "arrived (ready for collection)",
-            "hint": "Sourced goods in transit. Mark a product arrived when it lands.",
+            "hint": "In transit from China. Mark a product arrived when it lands.",
         },
         "deliver": {
             "title": "Lusaka local", "warehouse": "zambia",

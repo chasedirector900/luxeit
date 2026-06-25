@@ -21,7 +21,11 @@ def _notify_items(order, items, status) -> None:
     if status == OrderStatus.SOURCING:
         body = f"Good news — we've sourced & purchased your {names} (order {ref}). It's being prepared for shipping."
     elif status == OrderStatus.TRANSIT:
-        body = f"Your {names} (order {ref}) is on its way."
+        body = (
+            f"Your {names} (order {ref}) has shipped and left the China hub — it's on its way."
+            if warehouse == "china"
+            else f"Your {names} (order {ref}) is on its way."
+        )
     elif status == OrderStatus.DELIVERED:
         body = (
             f"Your {names} (order {ref}) has arrived and is ready for collection."
