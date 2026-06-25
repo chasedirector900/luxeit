@@ -1,0 +1,21 @@
+{% extends 'admin/base.html' %}
+
+{# Live "waiting to source" badge on the Fulfilment board link (top bar + sidebar). #}
+{% block extrajs %}{{ block.super }}
+<script>
+(function () {
+  var n = {{ to_source_count|default:0 }};
+  if (!n) return;
+  // Matches both the top-bar topmenu link and the sidebar custom link.
+  var links = document.querySelectorAll('a[href$="/orders/shipment/fulfilment/"]');
+  links.forEach(function (a) {
+    if (a.querySelector('.fulfilment-badge')) return;
+    var b = document.createElement('span');
+    b.className = 'fulfilment-badge badge text-bg-warning ms-1';
+    b.title = n + ' batch' + (n === 1 ? '' : 'es') + ' waiting to be sourced';
+    b.textContent = n;
+    a.appendChild(b);
+  });
+})();
+</script>
+{% endblock %}
