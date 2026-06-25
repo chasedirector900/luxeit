@@ -365,35 +365,48 @@ export function CheckoutClient() {
           </div>
           <ItemThumbs items={chinaItems} />
 
-          <p className="mb-2 mt-4 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Carrier</p>
-          <div className="grid grid-cols-2 gap-2.5">
-            {([
-              { key: "air", label: "Air", note: "~2 weeks", icon: Plane },
-              { key: "sea", label: "Sea", note: "~2 months", icon: Ship },
-            ] as const).map(({ key, label, note, icon: Icon }) => {
-              const active = carrier === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setCarrier(key)}
-                  className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-transform active:scale-[0.98] ${
-                    active
-                      ? "border-indigo-500/60 bg-indigo-500/10 dark:border-indigo-400/50 dark:bg-indigo-500/15"
-                      : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
-                  }`}
-                >
-                  <Icon className={`h-5 w-5 shrink-0 ${active ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-zinc-400"}`} />
-                  <span className="min-w-0">
-                    <span className={`block text-sm font-bold ${active ? "text-indigo-700 dark:text-indigo-300" : "text-slate-900 dark:text-zinc-100"}`}>{label}</span>
-                    <span className="block text-[11px] text-slate-500 dark:text-zinc-400">{note}</span>
-                  </span>
-                  {active ? <Check className="ml-auto h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" /> : null}
-                </button>
-              );
-            })}
-          </div>
+          {/* Carrier choice only when the cart has air-eligible items; otherwise
+              these goods are sea-only and we say so. */}
+          {hasDualItems ? (
+            <>
+              <p className="mb-2 mt-4 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Carrier</p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {([
+                  { key: "sea", label: "Sea", note: "~2 months · cheaper", icon: Ship },
+                  { key: "air", label: "Air", note: "~2 weeks · faster", icon: Plane },
+                ] as const).map(({ key, label, note, icon: Icon }) => {
+                  const active = carrier === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setCarrier(key)}
+                      className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-transform active:scale-[0.98] ${
+                        active
+                          ? "border-indigo-500/60 bg-indigo-500/10 dark:border-indigo-400/50 dark:bg-indigo-500/15"
+                          : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+                      }`}
+                    >
+                      <Icon className={`h-5 w-5 shrink-0 ${active ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-zinc-400"}`} />
+                      <span className="min-w-0">
+                        <span className={`block text-sm font-bold ${active ? "text-indigo-700 dark:text-indigo-300" : "text-slate-900 dark:text-zinc-100"}`}>{label}</span>
+                        <span className="block text-[11px] text-slate-500 dark:text-zinc-400">{note}</span>
+                      </span>
+                      {active ? <Check className="ml-auto h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" /> : null}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[11px] text-slate-400 dark:text-zinc-500">
+                Air applies only to air-eligible items — sea-only items always ship by sea.
+              </p>
+            </>
+          ) : (
+            <p className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-600 dark:text-zinc-300">
+              <Ship className="h-3.5 w-3.5" /> Sea freight · about 2 months
+            </p>
+          )}
         </section>
       ) : null}
 
