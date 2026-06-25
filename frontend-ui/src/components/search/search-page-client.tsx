@@ -7,14 +7,12 @@ import { ArrowLeft, Clock3, Search, Tag, TrendingUp } from "lucide-react";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductCardSkeleton } from "@/components/product/product-card-skeleton";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { MOCK_PRODUCTS, POPULAR_SEARCH_TERMS, RECENT_SEARCH_TERMS } from "@/lib/products/mock-products";
+import { searchProducts } from "@/lib/auth/api";
+import { POPULAR_SEARCH_TERMS, RECENT_SEARCH_TERMS } from "@/lib/products/mock-products";
+import type { Product } from "@/types/product";
 
 function normalizeText(value: string) {
   return value.trim().toLowerCase();
-}
-
-function matchProduct(query: string, text: string) {
-  return text.includes(query);
 }
 
 type SearchFilter = "all" | "china" | "air" | "sea" | "popular" | "under25";
@@ -58,29 +56,42 @@ export function SearchPageClient({
 
   const debouncedQuery = useDebouncedValue(query, 250);
   const normalizedDebouncedQuery = normalizeText(debouncedQuery);
-  const isSearching = normalizeText(query) !== normalizedDebouncedQuery;
+
+  // Server-side search: the backend matches the query; the chips below filter the
+  // returned set client-side. An empty query returns a default list (recommended).
+  const [products, setProducts] = useState<Product[]>([]);
+  const [fetching, setFetching] = useState(true);
+  useEffect(() => {
+    let cancelled = false;
+    setFetching(true);
+    searchProducts(debouncedQuery)
+      .then((data) => !cancelled && setProducts(data))
+      .catch(() => !cancelled && setProducts([]))
+      .finally(() => !cancelled && setFetching(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuery]);
+
+  const isSearching = normalizeText(query) !== normalizedDebouncedQuery || fetching;
 
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       if (activeFilter === "all") return true;
-      if (activeFilter === "china") return product.origin === "China";
-      if (activeFilter === "air") return product.shippingMethod === "air";
+      if (activeFilter === "china") return product.origin === "China" || product.warehouse === "china";
+      if (activeFilter === "air") return product.shippingMethod === "air" || Boolean(product.airPrice);
       if (activeFilter === "sea") return product.shippingMethod === "sea";
       if (activeFilter === "popular") return Boolean(product.popularityLabel);
       if (activeFilter === "under25") return product.price < 25;
       return true;
     });
-  }, [activeFilter]);
+  }, [products, activeFilter]);
 
-  const results = useMemo(() => {
-    if (!normalizedDebouncedQuery) return [];
-    return filteredProducts.filter((product) => {
-      const haystack = normalizeText(
-        `${product.title} ${product.category ?? ""} ${product.searchableText ?? ""}`,
-      );
-      return matchProduct(normalizedDebouncedQuery, haystack);
-    });
-  }, [normalizedDebouncedQuery, filteredProducts]);
+  // The server already matched the query; just hand back the chip-filtered set.
+  const results = useMemo(
+    () => (normalizedDebouncedQuery ? filteredProducts : []),
+    [normalizedDebouncedQuery, filteredProducts],
+  );
 
   const showSuggestions = normalizedDebouncedQuery.length === 0;
   const recommended = filteredProducts.slice(0, 6);

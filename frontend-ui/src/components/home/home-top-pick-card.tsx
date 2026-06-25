@@ -92,9 +92,10 @@ export function HomeTopPickCard({ product }: HomeTopPickCardProps) {
                 image: product.image,
                 price: product.price,
                 quantity: 1,
-                selectedShippingMethod: product.shippingMethod ?? "air",
+                selectedShippingMethod: product.airPrice ? "sea" : (product.shippingMethod ?? "air"),
                 deliveryEstimate: product.deliveryEstimate ?? null,
                 warehouse: product.warehouse,
+                shippingPrices: product.airPrice ? { sea: product.price, air: product.airPrice } : undefined,
               });
               setAdded(true);
             }}

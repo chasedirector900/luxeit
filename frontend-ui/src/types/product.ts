@@ -99,6 +99,7 @@ export type Product = {
   deliveryEstimate?: string;
   shippingMethod?: ProductShippingMethod;
   category?: string;
+  categorySlug?: string;
   popularityLabel?: string;
   searchableText?: string;
 };

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { SearchProductDetailClient } from "@/components/search/search-product-detail-client";
-import { MOCK_PRODUCTS } from "@/lib/products/mock-products";
+import { fetchProductDetail, fetchRelated } from "@/lib/category/api";
 
 type ExploreSearchProductDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -8,13 +8,13 @@ type ExploreSearchProductDetailPageProps = {
 
 export default async function ExploreSearchProductDetailPage({ params }: ExploreSearchProductDetailPageProps) {
   const { slug } = await params;
-  const product = MOCK_PRODUCTS.find((item) => item.slug === slug);
+  const product = await fetchProductDetail(slug);
 
   if (!product) {
     notFound();
   }
 
-  const related = MOCK_PRODUCTS.filter((item) => item.slug !== slug).slice(0, 4);
+  const related = await fetchRelated(product.categorySlug, slug);
 
   return <SearchProductDetailClient product={product} related={related} />;
 }

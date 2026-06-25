@@ -20,6 +20,27 @@ export async function fetchCategoryListing(slug: string): Promise<CategoryConfig
   }
 }
 
+/** A filtered list of products (card shape). Query params mirror the API:
+ *  category, type, warehouse, sub, q. Server-side, cached. */
+export async function fetchProducts(params?: Record<string, string>): Promise<Product[]> {
+  const qs = params && Object.keys(params).length ? `?${new URLSearchParams(params).toString()}` : "";
+  try {
+    const res = await fetch(`${BACKEND_ORIGIN}/api/products${qs}`, {
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as Product[];
+  } catch {
+    return [];
+  }
+}
+
+/** Related products for a detail page: same category, excluding the current one. */
+export async function fetchRelated(categorySlug: string | undefined, excludeSlug: string, limit = 4): Promise<Product[]> {
+  const list = await fetchProducts(categorySlug ? { category: categorySlug } : undefined);
+  return list.filter((p) => p.slug !== excludeSlug).slice(0, limit);
+}
+
 /** A single product in the rich detail shape used by the product page.
  *  Pass { fresh: true } to bypass the cache — used by the reviews page so a
  *  newly posted review shows immediately after router.refresh(). */

@@ -3,7 +3,7 @@ import { ArrowRight, SearchX, Tag, Truck } from "lucide-react";
 import { HomeTopPickCard } from "@/components/home/home-top-pick-card";
 import { MobileHomeHeader } from "@/components/home/mobile-home-header";
 import { InlineSearchInput } from "@/components/search/inline-search-input";
-import { MOCK_PRODUCTS } from "@/lib/products/mock-products";
+import { fetchProducts } from "@/lib/category/api";
 
 type HomePageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -12,20 +12,12 @@ type HomePageProps = {
 export default async function HomePage({ searchParams }: HomePageProps) {
   const { q } = await searchParams;
   const query = (q ?? "").trim();
-  const normalized = query.toLowerCase();
   const isSearching = query.length > 0;
 
-  // Search filters the main catalog in place, server-side — the URL (?q=) is the
-  // source of truth, so results are SSR'd and the home stays a server component.
-  const results = normalized
-    ? MOCK_PRODUCTS.filter((product) =>
-        `${product.title} ${product.category ?? ""} ${product.searchableText ?? ""}`
-          .toLowerCase()
-          .includes(normalized),
-      )
-    : [];
-
-  const topPicks = MOCK_PRODUCTS.slice(0, 4);
+  // Search hits the backend catalogue server-side — the URL (?q=) is the source
+  // of truth, so results are SSR'd and the home stays a server component.
+  const results = isSearching ? await fetchProducts({ q: query }) : [];
+  const topPicks = (await fetchProducts()).slice(0, 4);
 
   return (
     <main className="min-h-screen bg-slate-50 px-3 pb-6 pt-3 text-slate-900 dark:bg-black dark:text-zinc-100">

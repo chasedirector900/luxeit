@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { CartButton } from "@/components/layout/cart-button";
 import { ProductCard } from "@/components/product/product-card";
-import { MOCK_PRODUCTS } from "@/lib/products/mock-products";
+import { fetchProducts } from "@/lib/category/api";
 
 type IconType = ComponentType<{ className?: string; strokeWidth?: number }>;
 
@@ -75,8 +75,8 @@ function SectionHeader({ title, href }: { title: string; href?: string }) {
   );
 }
 
-export default function CategoryPage() {
-  const recommended = MOCK_PRODUCTS.slice(0, 2);
+export default async function CategoryPage() {
+  const recommended = (await fetchProducts()).slice(0, 2);
 
   return (
     <main className="min-h-screen bg-slate-50 px-3 pb-4 pt-4 text-slate-950 dark:bg-black dark:text-zinc-100">

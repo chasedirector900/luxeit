@@ -1,3 +1,5 @@
+import type { Product } from "@/types/product";
+
 // Thin client for the Django passwordless-auth API.
 //
 // All requests send credentials (the httpOnly `luxeit_session` cookie set by
@@ -231,6 +233,15 @@ export async function getThread(slug: string): Promise<InboxThread> {
   const { status, data } = await apiFetch<InboxThread>(`/api/inbox/threads/${slug}`);
   if (status === 200 && data) return data;
   throw new ApiError(detail(data, "Couldn't open this conversation."), status);
+}
+
+// ── Product search (client-side, public) ────────────────────────────────────
+/** Search the catalogue. Empty query returns a default list (for "recommended"). */
+export async function searchProducts(query: string): Promise<Product[]> {
+  const q = query.trim();
+  const path = q ? `/api/products?q=${encodeURIComponent(q)}` : "/api/products";
+  const { status, data } = await apiFetch<Product[]>(path);
+  return status === 200 && data ? data : [];
 }
 
 // ── Orders ──────────────────────────────────────────────────────────────────

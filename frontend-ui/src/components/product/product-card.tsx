@@ -138,9 +138,11 @@ function ProductCardBase({
                   image: product.image,
                   price: product.price,
                   quantity: 1,
-                  selectedShippingMethod: product.shippingMethod ?? "air",
+                  // Dual-shipping items default to sea (the headline "From" price).
+                  selectedShippingMethod: product.airPrice ? "sea" : (product.shippingMethod ?? "air"),
                   deliveryEstimate: product.deliveryEstimate ?? null,
                   warehouse: product.warehouse,
+                  shippingPrices: product.airPrice ? { sea: product.price, air: product.airPrice } : undefined,
                 });
                 setAdded(true);
               }}

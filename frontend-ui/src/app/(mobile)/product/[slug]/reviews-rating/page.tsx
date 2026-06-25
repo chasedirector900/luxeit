@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ReviewsRatingView } from "@/components/search/reviews-rating-view";
-import { MOCK_PRODUCTS } from "@/lib/products/mock-products";
+import { fetchProductDetail } from "@/lib/category/api";
 
 type ProductReviewsRatingPageProps = {
   params: Promise<{ slug: string }>;
@@ -8,11 +8,13 @@ type ProductReviewsRatingPageProps = {
 
 export default async function ProductReviewsRatingPage({ params }: ProductReviewsRatingPageProps) {
   const { slug } = await params;
-  const product = MOCK_PRODUCTS.find((item) => item.slug === slug);
+  const product = await fetchProductDetail(slug, { fresh: true });
 
   if (!product || !product.ratings) {
     notFound();
   }
 
-  return <ReviewsRatingView title={product.title} ratings={product.ratings} backHref={`/product/${slug}`} />;
+  return (
+    <ReviewsRatingView title={product.title} ratings={product.ratings} backHref={`/product/${slug}`} productSlug={slug} />
+  );
 }

@@ -14,8 +14,9 @@ import {
 } from "lucide-react";
 import { HeaderCartButton } from "@/components/layout/header-cart-button";
 import { ProductCard } from "@/components/product/product-card";
-import { MOCK_PRODUCTS } from "@/lib/products/mock-products";
+import { fetchProducts } from "@/lib/category/api";
 import { formatKwacha } from "@/lib/currency";
+import type { Product } from "@/types/product";
 
 const categoryChips = [
   { label: "All", href: "/explore", icon: Sparkles },
@@ -58,7 +59,7 @@ function ProductSection({
 }: {
   title: string;
   href: string;
-  products: typeof MOCK_PRODUCTS;
+  products: Product[];
   delay: number;
 }) {
   return (
@@ -73,14 +74,15 @@ function ProductSection({
   );
 }
 
-export default function ExplorePage() {
-  const topPicks = MOCK_PRODUCTS.slice(0, 4);
-  const newImports = MOCK_PRODUCTS.filter((p) => p.importTag || p.preorder).slice(0, 4);
-  const fastAir = MOCK_PRODUCTS.filter((p) => p.shippingMethod === "air").slice(0, 4);
-  const popular = [...MOCK_PRODUCTS]
+export default async function ExplorePage() {
+  const all = await fetchProducts();
+  const topPicks = all.slice(0, 4);
+  const newImports = all.filter((p) => p.importTag || p.preorder).slice(0, 4);
+  const fastAir = all.filter((p) => p.shippingMethod === "air" || p.airPrice).slice(0, 4);
+  const popular = [...all]
     .sort((a, b) => Number.parseFloat(b.popularityLabel ?? "0") - Number.parseFloat(a.popularityLabel ?? "0"))
     .slice(0, 4);
-  const dealsOfDay = [...MOCK_PRODUCTS].sort((a, b) => a.price - b.price).slice(0, 6);
+  const dealsOfDay = [...all].sort((a, b) => a.price - b.price).slice(0, 6);
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 pb-6 pt-5 text-slate-900 dark:bg-black dark:text-zinc-100">
