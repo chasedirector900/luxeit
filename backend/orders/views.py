@@ -176,6 +176,7 @@ def _create_order(request):
                 warehouse=spec["warehouse"],
                 shipping_method=spec["method"],
                 variant=spec["variant"],
+                status=new_status,  # item-level truth; shipment/order roll up from it
                 unit_price=spec["unit_price"],
                 quantity=spec["quantity"],
             )

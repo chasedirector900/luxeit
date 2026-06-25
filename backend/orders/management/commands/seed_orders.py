@@ -105,7 +105,7 @@ class Command(BaseCommand):
                             order=order, shipment=shipment, product=product,
                             title=product.title, image=product.image, warehouse=warehouse,
                             shipping_method=carrier, variant=demo_variant(product, oi + pi),
-                            unit_price=price, quantity=1,
+                            status=status, unit_price=price, quantity=1,
                         )
                     # Backfill this shipment's timeline up to its current status.
                     ci = STAGES.index(status) if status in STAGES else 0

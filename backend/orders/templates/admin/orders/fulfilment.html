@@ -11,56 +11,24 @@
 {% block content %}
 <div id="content-main">
   <p style="margin-bottom:1.5rem;max-width:62rem;">
-    The whole operation at a glance — paid orders batched by <strong>day</strong> and <strong>carrier</strong>.
-    Each button advances every shipment in that batch and notifies its customer automatically.
+    Orders pile up across each day into one batch. Open a day to see its
+    <strong>Air</strong> &amp; <strong>Sea</strong> (or local) parcels, then drill into a carrier to
+    source each product and notify those customers.
   </p>
 
   {% for section in sections %}
     <h1 style="margin:1.75rem 0 .25rem;">{{ section.title }}</h1>
     <p class="help" style="margin-bottom:1rem;">{{ section.hint }}</p>
 
-    {% for batch in section.batches %}
-      <div class="module" style="margin-bottom:1.25rem;">
-        <h2>
-          {{ batch.day }}
-          {% if section.show_carrier %}&middot; {{ batch.carrier|upper }}{% endif %}
-          &mdash; {{ batch.total }} unit{{ batch.total|pluralize }}
+    {% for day in section.days %}
+      <div class="module" style="margin-bottom:.75rem;">
+        <h2 style="display:flex;justify-content:space-between;align-items:center;">
+          <a href="{{ day.url }}" style="color:inherit;">{{ day.day }} &mdash; {{ day.total }} unit{{ day.total|pluralize }}</a>
+          <a href="{{ day.url }}" class="button">Open day &rsaquo;</a>
         </h2>
-        <table style="width:100%;">
-          <thead>
-            <tr><th style="width:4rem;"></th><th>Product</th><th style="width:6rem;">Qty</th></tr>
-          </thead>
-          <tbody>
-            {% for it in batch.items %}
-              <tr class="{% cycle 'row1' 'row2' %}">
-                <td>
-                  {% if it.image %}
-                    <img src="{{ it.image }}" alt="" loading="lazy"
-                         style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid rgba(0,0,0,.1);">
-                  {% endif %}
-                </td>
-                <td>
-                  {% if it.url %}
-                    <a href="{{ it.url }}" target="_blank" rel="noopener" title="Open the product to view specs, gallery &amp; source it">{{ it.title }}</a>
-                  {% else %}
-                    {{ it.title }}
-                  {% endif %}
-                  {% if it.variant %}
-                    <div style="margin-top:2px;font-size:.82rem;font-weight:600;color:#b45309;">{{ it.variant }}</div>
-                  {% endif %}
-                </td>
-                <td><strong>{{ it.qty }}</strong></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        <form method="post" style="padding:.75rem 1rem;">
-          {% csrf_token %}
-          <input type="hidden" name="section" value="{{ section.key }}">
-          <input type="hidden" name="day" value="{{ batch.day|date:'Y-m-d' }}">
-          <input type="hidden" name="carrier" value="{{ batch.carrier }}">
-          <button type="submit" class="button default">{{ section.action }}</button>
-        </form>
+        <p style="padding:.5rem 1rem;margin:0;color:#6b7280;">
+          {% for c in day.carriers %}<strong>{{ c.label }}</strong> {{ c.qty }}{% if not forloop.last %} &nbsp;·&nbsp; {% endif %}{% endfor %}
+        </p>
       </div>
     {% empty %}
       <p class="help" style="margin-bottom:1rem;">Nothing here right now.</p>

@@ -1,0 +1,74 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:orders_shipment_changelist' %}">Shipments</a>
+    &rsaquo; <a href="{% url 'admin:orders_shipment_fulfilment' %}">Fulfilment board</a>
+    &rsaquo; <a href="{{ back_url }}">{{ stage_title }} · {{ day }}</a>
+    &rsaquo; {{ carrier_label }}
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <p style="margin-bottom:1rem;">
+    <a href="{{ back_url }}" class="button">&lsaquo; Back to {{ day }}</a>
+    &nbsp; <strong>{{ stage_title }}</strong> · {{ day }} · <strong>{{ carrier_label }}</strong>
+    — {{ total }} unit{{ total|pluralize }} to handle.
+  </p>
+
+  {% if lines %}
+    <div class="module">
+      <h2 style="display:flex;justify-content:space-between;align-items:center;">
+        Products
+        <form method="post" style="margin:0;">
+          {% csrf_token %}
+          <input type="hidden" name="line" value="__all__">
+          <button type="submit" class="button default">{{ action_label }} — whole carrier</button>
+        </form>
+      </h2>
+      <table style="width:100%;">
+        <thead>
+          <tr>
+            <th style="width:3.5rem;"></th>
+            <th>Product</th>
+            <th style="width:5rem;">Qty</th>
+            <th style="width:7rem;">Customers</th>
+            <th style="width:16rem;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in lines %}
+            <tr class="{% cycle 'row1' 'row2' %}">
+              <td>
+                {% if line.image %}
+                  <img src="{{ line.image }}" alt="" loading="lazy"
+                       style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid rgba(0,0,0,.1);">
+                {% endif %}
+              </td>
+              <td>
+                {% if line.url %}
+                  <a href="{{ line.url }}" target="_blank" rel="noopener" title="View specs, gallery &amp; source it">{{ line.title }}</a>
+                {% else %}{{ line.title }}{% endif %}
+                {% if line.variant %}<div style="margin-top:2px;font-size:.82rem;font-weight:600;color:#b45309;">{{ line.variant }}</div>{% endif %}
+              </td>
+              <td><strong>{{ line.qty }}</strong></td>
+              <td>{{ line.customers }}</td>
+              <td>
+                <form method="post" style="margin:0;">
+                  {% csrf_token %}
+                  <input type="hidden" name="line" value="{{ line.key }}">
+                  <button type="submit" class="button">{{ action_label }}</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="help">Nothing left here — every product has moved on.</p>
+  {% endif %}
+</div>
+{% endblock %}

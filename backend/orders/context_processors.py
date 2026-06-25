@@ -3,16 +3,16 @@ daily batches are waiting — without opening the board. Cheap: one DISTINCT
 count query, only for staff on admin pages."""
 from django.db.models.functions import TruncDate
 
-from .models import OrderStatus, Shipment
+from .models import OrderItem, OrderStatus
 
 
 def _batch_count(status_in, warehouse) -> int:
     """Number of waiting (day × carrier) batches — one batch per day, exactly
-    how the board groups them."""
+    how the board groups them (from the item-level status)."""
     return (
-        Shipment.objects.filter(status__in=status_in, warehouse=warehouse)
+        OrderItem.objects.filter(status__in=status_in, warehouse=warehouse)
         .annotate(day=TruncDate("order__placed_at"))
-        .values("day", "carrier")
+        .values("day", "shipping_method")
         .distinct()
         .count()
     )

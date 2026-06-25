@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:orders_shipment_changelist' %}">Shipments</a>
+    &rsaquo; <a href="{{ back_url }}">Fulfilment board</a>
+    &rsaquo; {{ stage_title }} · {{ day }}
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <p style="margin-bottom:1.25rem;">
+    <a href="{{ back_url }}" class="button">&lsaquo; All days</a>
+    &nbsp; <strong>{{ stage_title }}</strong> — orders placed on <strong>{{ day }}</strong>, by carrier.
+  </p>
+
+  {% for c in carriers %}
+    <div class="module" style="margin-bottom:.75rem;">
+      <h2 style="display:flex;justify-content:space-between;align-items:center;">
+        <a href="{{ c.url }}" style="color:inherit;">{{ c.label }} &mdash; {{ c.qty }} unit{{ c.qty|pluralize }} · {{ c.products }} product{{ c.products|pluralize }}</a>
+        <a href="{{ c.url }}" class="button">Open &rsaquo;</a>
+      </h2>
+    </div>
+  {% empty %}
+    <p class="help">Nothing left for this day — it's all moved on.</p>
+  {% endfor %}
+</div>
+{% endblock %}

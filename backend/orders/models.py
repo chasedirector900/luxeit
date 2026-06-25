@@ -146,6 +146,15 @@ class Order(models.Model):
             self.save(update_fields=["status", "updated_at"])
 
 
+def _rollup(statuses) -> str:
+    """The least-advanced (non-cancelled) status of a group; all-cancelled ->
+    cancelled. Shared by Shipment (over items) and Order (over shipments)."""
+    active = [s for s in statuses if s != OrderStatus.CANCELLED]
+    if not active:
+        return OrderStatus.CANCELLED
+    return min(active, key=lambda s: STATUS_RANK.get(s, 0))
+
+
 class Shipment(models.Model):
     """A fulfilment parcel within an order: a (hub, carrier) group of items that
     moves through its own status timeline. China-air can be delivered while
@@ -193,15 +202,33 @@ class Shipment(models.Model):
         return sum((i.line_total for i in self.items.all()), 0)
 
     def set_status(self, status: str) -> None:
-        """Advance this shipment, timestamp it, notify the customer, and roll the
-        parent order's status up."""
+        """Advance the whole shipment (and all its items), timestamp it, notify
+        the customer, and roll the parent order's status up. Used by the bulk
+        changelist actions; the board advances individual items instead."""
         if status == self.status:
             return
+        self.items.update(status=status)  # the shipment moves as one unit
         self.status = status
         self.save(update_fields=["status", "updated_at"])
         self.log_event(status)
         self._notify()
         self.order.recalculate_status()
+
+    def recalculate_status(self) -> bool:
+        """Roll this shipment's status up from its items — it's only as far along
+        as its least-advanced item. Logs a timeline event on change (no notify;
+        the item-level advance notifies per product). Returns True if changed."""
+        statuses = [i.status for i in self.items.all()]
+        if not statuses:
+            return False
+        rollup = _rollup(statuses)
+        if rollup == self.status:
+            return False
+        self.status = rollup
+        self.save(update_fields=["status", "updated_at"])
+        self.log_event(rollup)
+        self.order.recalculate_status()
+        return True
 
     def log_event(self, status: str, at=None) -> "ShipmentEvent":
         return self.events.create(status=status, created_at=at or timezone.now())
@@ -268,6 +295,10 @@ class OrderItem(models.Model):
     # The variant the customer chose, snapshotted as {label: value}, e.g.
     # {"Size": "42", "Colour": "Red"} — so the buyer sources the exact item.
     variant = models.JSONField(default=dict, blank=True)
+    # Per-item fulfilment status: the source of truth the board advances. A
+    # parcel's shoes can be sourced while its bags are still queued; the shipment
+    # (and order) status roll up from these.
+    status = models.CharField(max_length=12, choices=OrderStatus.choices, default=OrderStatus.PENDING)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
@@ -287,3 +318,7 @@ class OrderItem(models.Model):
         if not isinstance(self.variant, dict) or not self.variant:
             return ""
         return " · ".join(f"{k}: {v}" for k, v in self.variant.items())
+
+    @property
+    def status_label(self) -> str:
+        return STATUS_META.get(self.status, (self.status, ""))[0]

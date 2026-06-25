@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.utils import timezone
 
 from .models import Order, OrderItem, OrderStatus, Shipment
 
@@ -62,6 +63,92 @@ class OrderModelTests(TestCase):
         self.assertFalse(self.user.threads.filter(slug=f"order-{order.reference.lower()}").exists())
         # ...but the timeline event is still recorded (data, not a notification).
         self.assertTrue(sh.events.filter(status=OrderStatus.TRANSIT).exists())
+
+
+class ItemLevelFulfilmentTests(TestCase):
+    """The board advances individual products; shipment + order roll up from items."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(email="buyer2@example.com")
+        self.order = Order.objects.create(user=self.user)
+        self.sh = Shipment.objects.create(
+            order=self.order, warehouse="china", carrier="air", status=OrderStatus.QUEUE
+        )
+        self.shoes = OrderItem.objects.create(
+            order=self.order, shipment=self.sh, title="Shoes", warehouse="china",
+            shipping_method="air", status=OrderStatus.QUEUE, unit_price=10, quantity=200,
+        )
+        self.bags = OrderItem.objects.create(
+            order=self.order, shipment=self.sh, title="Bags", warehouse="china",
+            shipping_method="air", status=OrderStatus.QUEUE, unit_price=20, quantity=100,
+        )
+
+    def test_advancing_one_product_leaves_shipment_at_least_advanced(self):
+        from .fulfilment import advance_items
+
+        customers, units = advance_items([self.shoes], OrderStatus.SOURCING)
+        self.assertEqual((customers, units), (1, 200))
+        self.shoes.refresh_from_db(); self.bags.refresh_from_db(); self.sh.refresh_from_db()
+        self.assertEqual(self.shoes.status, OrderStatus.SOURCING)
+        self.assertEqual(self.bags.status, OrderStatus.QUEUE)  # untouched
+        # Shipment is only as far along as its least-advanced item.
+        self.assertEqual(self.sh.status, OrderStatus.QUEUE)
+
+    def test_shipment_rolls_up_once_all_items_advance(self):
+        from .fulfilment import advance_items
+
+        advance_items([self.shoes, self.bags], OrderStatus.SOURCING)
+        self.sh.refresh_from_db()
+        self.assertEqual(self.sh.status, OrderStatus.SOURCING)
+        self.assertEqual(Order.objects.get(pk=self.order.pk).status, OrderStatus.SOURCING)
+
+    def test_advance_notifies_the_customer_about_the_product(self):
+        from .fulfilment import advance_items
+
+        advance_items([self.shoes], OrderStatus.SOURCING)
+        thread = self.user.threads.get(slug=f"order-{self.order.reference.lower()}")
+        self.assertTrue(thread.messages.filter(body__icontains="Shoes").exists())
+        self.assertTrue(thread.messages.filter(body__icontains="sourced").exists())
+
+
+class FulfilmentBoardViewTests(TestCase):
+    def setUp(self):
+        self.staff = User.objects.create_user(email="ops@example.com")
+        self.staff.is_staff = True
+        self.staff.is_superuser = True
+        self.staff.save()
+        self.client.force_login(self.staff)
+        self.customer = User.objects.create_user(email="cust@example.com")
+        self.order = Order.objects.create(user=self.customer)
+        self.sh = Shipment.objects.create(
+            order=self.order, warehouse="china", carrier="air", status=OrderStatus.QUEUE
+        )
+        self.item = OrderItem.objects.create(
+            order=self.order, shipment=self.sh, title="Shoes", warehouse="china",
+            shipping_method="air", status=OrderStatus.QUEUE, unit_price=10, quantity=200,
+        )
+        self.day = timezone.localdate(self.order.placed_at).isoformat()
+
+    def test_drilldown_pages_render(self):
+        from django.urls import reverse
+
+        for url in [
+            reverse("admin:orders_shipment_fulfilment"),
+            reverse("admin:orders_shipment_fulfilment_day", args=["source", self.day]),
+            reverse("admin:orders_shipment_fulfilment_batch", args=["source", self.day, "air"]),
+        ]:
+            self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_marking_a_product_advances_and_notifies(self):
+        from django.urls import reverse
+
+        url = reverse("admin:orders_shipment_fulfilment_batch", args=["source", self.day, "air"])
+        res = self.client.post(url, data={"line": "__all__"})
+        self.assertEqual(res.status_code, 302)  # redirects back to the batch
+        self.item.refresh_from_db()
+        self.assertEqual(self.item.status, OrderStatus.SOURCING)
+        thread = self.customer.threads.get(slug=f"order-{self.order.reference.lower()}")
+        self.assertTrue(thread.messages.filter(body__icontains="Shoes").exists())
 
 
 class OrderApiTests(TestCase):
