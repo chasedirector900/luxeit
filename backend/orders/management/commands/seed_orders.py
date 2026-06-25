@@ -21,6 +21,7 @@ STAGES = [OrderStatus.PENDING, OrderStatus.QUEUE, OrderStatus.SOURCING, OrderSta
 DEMO_VARIANTS = {
     "footwear": [{"Size": "42", "Colour": "Black"}, {"Size": "44", "Colour": "White"}],
     "watch": [{"Strap": "Leather, Brown"}, {"Strap": "Steel"}],
+    "car_part": [{"Side": "Left (driver)"}, {"Side": "Right (passenger)"}],
     "general": [{"Colour": "Black"}, {"Colour": "Blue"}],
 }
 
@@ -48,7 +49,20 @@ PLAN = [
 class Command(BaseCommand):
     help = "Seed demo orders (with per-shipment tracking) for users that have none."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--refresh",
+            action="store_true",
+            help="Delete every existing order first, then reseed — so all "
+                 "fulfilment-board sections repopulate. Dev-only; wipes all orders.",
+        )
+
     def handle(self, *args, **options):
+        if options["refresh"]:
+            deleted, _ = Order.objects.all().delete()
+            self.stdout.write(self.style.WARNING(f"Refresh: deleted {deleted} order-related row(s)."))
+
+
         china_air = list(Product.objects.filter(is_active=True, warehouse="china", air_price__isnull=False).order_by("id"))
         china_any = list(Product.objects.filter(is_active=True, warehouse="china").order_by("id"))
         zambia = list(Product.objects.filter(is_active=True, warehouse="zambia").order_by("id"))
