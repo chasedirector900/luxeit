@@ -287,6 +287,10 @@ CSRF_COOKIE_SECURE = not DEBUG
 # OTP delivery — in dev (DEBUG) codes are logged to the console instead of sent.
 OTP_DELIVERY_CONSOLE = env_bool("OTP_DELIVERY_CONSOLE", DEBUG)
 
+# Self-service data export (/api/auth/export). Off for now — data-copy requests
+# go through support (Privacy Policy §8). Flip the env var to re-enable.
+DATA_EXPORT_ENABLED = env_bool("DATA_EXPORT_ENABLED", False)
+
 # ── Email (login codes + security alerts) ────────────────────────────────────
 # Any SMTP provider works. With Resend: host smtp.resend.com, user "resend",
 # password = your API key. Unset EMAIL_HOST -> emails print to the console.

@@ -21,7 +21,7 @@ import { createPortal } from "react-dom";
 import { AccountSkeleton } from "@/components/auth/account-skeleton";
 import { ThemeModeChips } from "@/components/theme-mode-chips";
 import { useAuth } from "@/hooks/use-auth";
-import { exportData, getPreferences, updatePreferences, type NotificationPrefs } from "@/lib/auth/api";
+import { getPreferences, updatePreferences, type NotificationPrefs } from "@/lib/auth/api";
 
 const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
 const ROW_CLASS = "flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-slate-50 dark:active:bg-zinc-800/50";
@@ -59,7 +59,6 @@ export function SettingsView() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [prefs, setPrefs] = useState<NotificationPrefs | null>(null);
   const [savingKey, setSavingKey] = useState<string | null>(null);
-  const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,25 +86,6 @@ export function SettingsView() {
       setNotice("Couldn't save that — try again.");
     } finally {
       setSavingKey(null);
-    }
-  }
-
-  async function handleExport() {
-    setExporting(true);
-    setNotice(null);
-    try {
-      const data = await exportData();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "luxeit-data.json";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      setNotice("Couldn't export your data — try again.");
-    } finally {
-      setExporting(false);
     }
   }
 
@@ -197,15 +177,15 @@ export function SettingsView() {
               <span className="flex-1 text-sm font-semibold text-slate-800 dark:text-zinc-200">Privacy policy</span>
               <ChevronRight className="h-4 w-4 text-slate-300 dark:text-zinc-600" />
             </Link>
-            <button type="button" onClick={handleExport} disabled={exporting} className={`${ROW_CLASS} disabled:opacity-60`}>
-              <span className={ROW_ICON}>
-                {exporting ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : <Download className="h-[18px] w-[18px]" strokeWidth={2} />}
-              </span>
+            {/* Disabled for now — a copy of your data can be requested via support
+                (see Privacy Policy §8). Re-enable once the export flow is finalised. */}
+            <div className={`${ROW_CLASS} cursor-not-allowed opacity-50`} aria-disabled="true">
+              <span className={ROW_ICON}><Download className="h-[18px] w-[18px]" strokeWidth={2} /></span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold text-slate-800 dark:text-zinc-200">Export my data</span>
-                <span className="block text-[12px] text-slate-500 dark:text-zinc-400">Download a copy as JSON</span>
+                <span className="block text-[12px] text-slate-500 dark:text-zinc-400">Temporarily unavailable — contact support for a copy</span>
               </span>
-            </button>
+            </div>
           </div>
         </section>
 

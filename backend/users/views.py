@@ -275,7 +275,15 @@ def change_contact_verify(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def export_data(request):
-    """Export everything we hold for the user as JSON (GDPR-style)."""
+    """Export everything we hold for the user as JSON (GDPR-style).
+
+    Disabled for now (DATA_EXPORT_ENABLED) — data-copy requests go through
+    support instead, per Privacy Policy §8."""
+    if not getattr(settings, "DATA_EXPORT_ENABLED", False):
+        return Response(
+            {"detail": "Data export is temporarily unavailable. Contact support for a copy of your data."},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
     user = request.user
     threads = [
         {

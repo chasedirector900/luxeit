@@ -4,41 +4,117 @@ export const metadata = { title: "Privacy Policy · Luxeit" };
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="June 2026">
-      <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] font-medium text-amber-700 dark:text-amber-400">
-        Template policy — review with a qualified legal advisor before launch.
-      </p>
-
-      <LegalSection heading="What we collect">
+    <LegalPage title="Privacy Policy" updated="July 2026">
+      <LegalSection heading="1. Overview">
         <p>
-          Your contact (email or phone) used to sign in, your name and delivery address when you add them, your orders
-          and messages, and basic device info (browser, approximate IP) shown on the Security screen.
+          This policy explains what personal data Luxeit (&ldquo;we&rdquo;, &ldquo;us&rdquo;) collects when you use
+          our app and website, how we use and protect it, and the choices you have. We handle personal data in line
+          with the Data Protection Act, 2021 of Zambia. By using Luxeit you agree to this policy.
         </p>
       </LegalSection>
 
-      <LegalSection heading="How we use it">
+      <LegalSection heading="2. What we collect">
         <p>
-          To sign you in, process and deliver orders, send order and account notifications, provide support, and keep
-          your account secure (e.g. new-device alerts). We don&apos;t sell your personal data.
+          <span className="font-semibold text-slate-800 dark:text-zinc-200">Account details</span> — the email
+          address or phone number you sign in with, and your name and delivery address when you add them.
+        </p>
+        <p>
+          <span className="font-semibold text-slate-800 dark:text-zinc-200">Order &amp; activity data</span> — the
+          products you order, order status and history, saved items, reviews you write, and messages you exchange
+          with our support team.
+        </p>
+        <p>
+          <span className="font-semibold text-slate-800 dark:text-zinc-200">Payment records</span> — the payment
+          method type and a masked reference (for example the last digits of a card). Full card numbers and CVVs are
+          handled and stored by our licensed payment providers, never by Luxeit.
+        </p>
+        <p>
+          <span className="font-semibold text-slate-800 dark:text-zinc-200">Device &amp; security data</span> —
+          browser/device type and approximate IP address for each sign-in, shown to you on the Security screen and
+          used to detect suspicious activity.
         </p>
       </LegalSection>
 
-      <LegalSection heading="Payments">
+      <LegalSection heading="3. How we use your data">
+        <p>We use personal data only where we have a lawful basis to do so:</p>
         <p>
-          Card details are handled by our payment provider and tokenised — Luxeit never stores your full card number
-          or CVV.
+          To operate your account and sign you in; to process, deliver and update you about orders (performance of
+          our contract with you); to send security alerts such as new-device sign-ins and to prevent fraud
+          (legitimate interest and legal obligation); to respond to support requests; and — only if you keep the
+          preference switched on — to send promotional messages (consent, withdrawable any time under Settings &gt;
+          Notification preferences).
+        </p>
+        <p className="font-semibold text-slate-800 dark:text-zinc-200">We do not sell your personal data.</p>
+      </LegalSection>
+
+      <LegalSection heading="4. Who we share it with">
+        <p>
+          We share data only where needed to run the service: delivery and logistics partners (name, contact and
+          address, to deliver your order); payment providers (to process payments); and technology providers who
+          host our systems. These providers may only use your data to provide their service to us.
+        </p>
+        <p>
+          We may also disclose data where the law requires it — for example to law-enforcement or regulatory
+          authorities acting under legal authority — or to protect Luxeit, our customers or the public from fraud
+          or harm.
         </p>
       </LegalSection>
 
-      <LegalSection heading="Your choices">
+      <LegalSection heading="5. Where your data is stored">
         <p>
-          You control promotional messages under Settings &gt; Notifications, can export your data at any time, and can
-          permanently delete your account under Settings &gt; Danger zone.
+          Our systems run on reputable cloud infrastructure, which may process data outside Zambia. Where data
+          leaves Zambia we take steps required under the Data Protection Act, 2021 to ensure it remains protected to
+          an equivalent standard.
         </p>
       </LegalSection>
 
-      <LegalSection heading="Contact">
-        <p>Questions about your data? Reach us through live support in the app.</p>
+      <LegalSection heading="6. How long we keep it">
+        <p>
+          We keep your data while your account is active. Order and payment records may be kept for longer periods
+          where tax, accounting or other laws require it. When you delete your account, your profile, saved items
+          and messages are permanently removed; records we must keep by law are retained only as long as required.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="7. Security">
+        <p>
+          We protect your data with industry-standard measures: encrypted connections (HTTPS), passwordless one-time
+          sign-in codes with short expiry, session controls that let you sign out of any device remotely, and access
+          controls limiting who at Luxeit can view customer data. No system is 100% secure, so also keep the email or
+          phone you sign in with protected.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="8. Your rights">
+        <p>
+          Under the Data Protection Act, 2021 you have the right to access the personal data we hold about you, to
+          have inaccurate data corrected, to object to certain processing, and to request deletion. You can exercise
+          most of these directly in the app: edit your details under Account, control promotional messages under
+          Settings &gt; Notification preferences, and permanently delete your account under Settings &gt; Danger
+          zone. To request a copy of your data, contact us through in-app support and we will provide it within a
+          reasonable time.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="9. Children">
+        <p>
+          Luxeit is not directed at children. Users must be 18 or older, or use the service under a parent or
+          guardian&apos;s supervision. We do not knowingly collect personal data from children.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="10. Changes to this policy">
+        <p>
+          We may update this policy as the service evolves. The &ldquo;last updated&rdquo; date above shows the
+          current version, and material changes will be notified in the app.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="11. Contact">
+        <p>
+          Questions or requests about your data? Reach us through live support in the app (Account &gt; Help &amp;
+          support).
+        </p>
       </LegalSection>
     </LegalPage>
   );

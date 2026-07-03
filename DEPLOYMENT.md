@@ -84,6 +84,11 @@ Until then, testers' login codes appear in Render → **Logs**.
 - [ ] SMS OTP + SMS order notifications
 - [ ] Postgres backups verified (Render Basic has daily backups)
 - [ ] Sentry (or similar) error monitoring
+- [ ] Terms of Service + Privacy Policy reviewed by a Zambian lawyer
+      (drafted in-app; confirm consumer-protection and Data Protection
+      Act, 2021 compliance before launch)
+- [ ] Re-enable self-service data export (DATA_EXPORT_ENABLED=True) once
+      the flow is finalised, or keep the support-request process
 
 ## Local dev — nothing changes
 
