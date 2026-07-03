@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,6 +48,11 @@ ALLOWED_HOSTS = env_list(
     "DJANGO_ALLOWED_HOSTS",
     "localhost,127.0.0.1,.ngrok-free.dev,.ngrok-free.app",
 )
+
+# Render sets this to the service's public hostname — trust it automatically so
+# a fresh deploy works before any env vars are customised.
+if _render_host := os.getenv("RENDER_EXTERNAL_HOSTNAME"):
+    ALLOWED_HOSTS.append(_render_host)
 
 
 # Application definition
@@ -126,6 +132,9 @@ JAZZMIN_UI_TWEAKS = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Serves collected static files (admin/Jazzmin CSS) straight from Django —
+    # no separate web server needed on Render.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -160,12 +169,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+#
+# Local dev uses SQLite (zero setup). In production set DATABASE_URL to a
+# Postgres URL (e.g. from Render/Neon) — SQLite must NOT be used on PaaS hosts,
+# whose disks are wiped on every deploy.
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,          # persistent connections (ignored by SQLite)
+        conn_health_checks=True,
+    )
 }
 
 
@@ -204,6 +218,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # `collectstatic` target (deploy builds)
+
+# WhiteNoise: hashed filenames + gzip/brotli in production so static assets are
+# immutable and cacheable. Plain storage in dev (no manifest to rebuild).
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if not DEBUG
+            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+        ),
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -258,6 +286,20 @@ CSRF_COOKIE_SECURE = not DEBUG
 
 # OTP delivery — in dev (DEBUG) codes are logged to the console instead of sent.
 OTP_DELIVERY_CONSOLE = env_bool("OTP_DELIVERY_CONSOLE", DEBUG)
+
+# ── Email (login codes + security alerts) ────────────────────────────────────
+# Any SMTP provider works. With Resend: host smtp.resend.com, user "resend",
+# password = your API key. Unset EMAIL_HOST -> emails print to the console.
+if os.getenv("EMAIL_HOST"):
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.getenv("EMAIL_HOST")
+    EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+    EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Luxeit <onboarding@resend.dev>")
 
 
 # ---------------------------------------------------------------------------

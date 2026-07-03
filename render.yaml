@@ -1,0 +1,38 @@
+# Render blueprint — creates the Django API + Postgres in one click:
+# Render dashboard → New → Blueprint → point it at this repo.
+# The build command is inline (no build.sh) so Windows line endings can't break it.
+
+services:
+  - type: web
+    name: luxeit-api
+    runtime: python
+    rootDir: backend
+    plan: starter # always-on (~$7/mo). Use "free" to test — sleeps after 15 min idle.
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    startCommand: gunicorn config.wsgi:application
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.4
+      - key: DJANGO_SECRET_KEY
+        generateValue: true # Render generates a strong secret on first deploy
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_BEHIND_PROXY
+        value: "True" # Render terminates TLS and sets X-Forwarded-Proto
+      - key: DATABASE_URL
+        fromDatabase:
+          name: luxeit-db
+          property: connectionString
+      # Set these in the dashboard once you know the frontend URL:
+      #   DJANGO_ALLOWED_HOSTS      -> auto-includes the Render host; add a custom domain here later
+      #   DJANGO_CORS_ALLOWED_ORIGINS -> https://<your-app>.vercel.app
+      #   DJANGO_CSRF_TRUSTED_ORIGINS -> https://<your-app>.vercel.app
+      #   EMAIL_HOST / EMAIL_HOST_USER / EMAIL_HOST_PASSWORD / DEFAULT_FROM_EMAIL
+      #   OTP_DELIVERY_CONSOLE      -> "False" once email is configured
+
+databases:
+  - name: luxeit-db
+    plan: basic-256mb # ~$6/mo, durable. "free" works for 30 days then expires.
+    databaseName: luxeit
+    user: luxeit

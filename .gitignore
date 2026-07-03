@@ -11,6 +11,8 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Environment files (belt-and-suspenders; subfolders also ignore these)
+# Environment files (belt-and-suspenders; subfolders also ignore these).
+# The .env.example templates ARE committed — they hold no secrets.
 .env
 .env.*
+!.env.example
