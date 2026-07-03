@@ -21,6 +21,8 @@ export type AuthUser = {
   emailVerified: boolean;
   phoneVerified: boolean;
   address?: { line1: string; city: string; area: string } | null;
+  /** ISO date the account was created — drives "Member since …". */
+  joined?: string;
 };
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -52,6 +54,7 @@ function toAuthUser(u: ApiUser): AuthUser {
     emailVerified: u.email_verified,
     phoneVerified: u.phone_verified,
     address: u.address ?? null,
+    joined: u.date_joined,
   };
 }
 
