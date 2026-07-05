@@ -1,0 +1,123 @@
+{% extends "admin/base_site.html" %}
+{% load l10n %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:orders_order_changelist' %}">Orders</a>
+    &rsaquo; Analytics
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+  {# ── Period selector ── #}
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+    <span class="text-body-secondary me-1"><i class="fas fa-calendar-range me-1"></i>Showing:</span>
+    {% for value, label in period_choices %}
+      <a href="?period={{ value }}"
+         class="btn btn-sm {% if value == period %}btn-primary{% else %}btn-outline-secondary{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  {# ── KPI cards ── #}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="text-body-secondary small"><i class="fas fa-coins text-warning me-1"></i>Revenue (paid)</div>
+        <div class="fs-3 fw-bold mt-1" style="font-variant-numeric:tabular-nums;">K{{ kpis.revenue|floatformat:2 }}</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="text-body-secondary small"><i class="fas fa-receipt text-success me-1"></i>Paid orders</div>
+        <div class="fs-3 fw-bold mt-1">{{ kpis.paid }}<span class="fs-6 text-body-secondary fw-normal"> / {{ kpis.orders }}</span></div>
+      </div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="text-body-secondary small"><i class="fas fa-boxes-stacked text-primary me-1"></i>Units sold</div>
+        <div class="fs-3 fw-bold mt-1">{{ kpis.units }}</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="text-body-secondary small"><i class="fas fa-tag text-info me-1"></i>Avg. order value</div>
+        <div class="fs-3 fw-bold mt-1" style="font-variant-numeric:tabular-nums;">K{{ kpis.avg_order|floatformat:2 }}</div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    {# ── Top products ── #}
+    <div class="col-12 col-xl-7">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-transparent fw-bold py-3">
+          <i class="fas fa-fire text-danger me-1"></i>Best sellers <span class="text-body-secondary small fw-normal">· {{ period_label }}</span>
+        </div>
+        {% if top_products %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead><tr class="small text-body-secondary">
+                <th class="ps-3" style="width:2.5rem;">#</th><th>Product</th>
+                <th style="width:40%;">Units</th><th class="text-end pe-3">Revenue</th>
+              </tr></thead>
+              <tbody>
+                {% for p in top_products %}
+                  <tr>
+                    <td class="ps-3 text-body-secondary">{{ forloop.counter }}</td>
+                    <td class="fw-semibold">{{ p.title }}</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="progress flex-grow-1" style="height:8px;min-width:60px;">
+                          <div class="progress-bar bg-primary" style="width:{{ p.pct }}%"></div>
+                        </div>
+                        <span class="fw-bold">{{ p.qty }}</span>
+                      </div>
+                    </td>
+                    <td class="text-end pe-3" style="font-variant-numeric:tabular-nums;">K{{ p.revenue|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="card-body py-4 text-center text-body-secondary">No paid sales in this period yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── Breakdowns ── #}
+    <div class="col-12 col-xl-5">
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-transparent fw-bold py-3"><i class="fas fa-warehouse text-primary me-1"></i>By hub</div>
+        <div class="card-body">
+          {% for row in hub_split %}
+            <div class="d-flex justify-content-between small mb-1"><span>{{ row.label }}</span><span class="fw-bold">{{ row.qty }} · {{ row.pct }}%</span></div>
+            <div class="progress mb-3" style="height:8px;"><div class="progress-bar bg-primary" style="width:{{ row.pct }}%"></div></div>
+          {% empty %}<div class="text-body-secondary">No data.</div>{% endfor %}
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-transparent fw-bold py-3"><i class="fas fa-plane text-info me-1"></i>By carrier</div>
+        <div class="card-body">
+          {% for row in carrier_split %}
+            <div class="d-flex justify-content-between small mb-1"><span>{{ row.label }}</span><span class="fw-bold">{{ row.qty }} · {{ row.pct }}%</span></div>
+            <div class="progress mb-3" style="height:8px;"><div class="progress-bar bg-info" style="width:{{ row.pct }}%"></div></div>
+          {% empty %}<div class="text-body-secondary">No data.</div>{% endfor %}
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent fw-bold py-3"><i class="fas fa-list-check text-secondary me-1"></i>Orders by status</div>
+        <div class="card-body d-flex flex-wrap gap-2">
+          {% for row in status_rows %}
+            <span class="d-inline-flex align-items-center gap-1">{{ row.badge }} <span class="fw-bold">{{ row.count }}</span></span>
+          {% empty %}<div class="text-body-secondary">No orders in this period.</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

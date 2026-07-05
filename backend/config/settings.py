@@ -117,6 +117,7 @@ JAZZMIN_SETTINGS = {
     "custom_links": {
         "orders": [
             {"name": "Fulfilment board", "url": "admin:orders_shipment_fulfilment", "icon": "fas fa-clipboard-check"},
+            {"name": "Analytics", "url": "admin:orders_order_analytics", "icon": "fas fa-chart-line"},
         ],
     },
     "hide_apps": ["auth"],

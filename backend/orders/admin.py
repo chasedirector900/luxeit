@@ -1,6 +1,7 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib import admin, messages
+from django.db.models import Count, F, Sum
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from django.utils import timezone
@@ -36,6 +37,65 @@ def _kwacha(amount):
     return format_html('<span style="font-variant-numeric:tabular-nums;">K{}</span>', f"{amount:,.2f}")
 
 
+# ── Time-range filtering ────────────────────────────────────────────────────
+# Presets so the changelists never dump every record at once. Defaults to the
+# last 30 days; "All time" is always available, and the date drill-down handles
+# any custom period.
+PERIOD_CHOICES = [
+    ("today", "Today"),
+    ("7", "Last 7 days"),
+    ("30", "Last 30 days"),
+    ("90", "Last 3 months"),
+    ("180", "Last 6 months"),
+    ("all", "All time"),
+]
+PERIOD_DEFAULT = "30"
+PERIOD_LABEL = dict(PERIOD_CHOICES)
+
+
+def filter_by_period(qs, field, value):
+    """Restrict a queryset to a preset period on `field` (a datetime field)."""
+    value = value or PERIOD_DEFAULT
+    if value == "all":
+        return qs
+    if value == "today":
+        return qs.filter(**{f"{field}__date": timezone.localdate()})
+    try:
+        days = int(value)
+    except (TypeError, ValueError):
+        days = int(PERIOD_DEFAULT)
+    return qs.filter(**{f"{field}__gte": timezone.now() - timedelta(days=days)})
+
+
+class PeriodFilter(admin.SimpleListFilter):
+    """Sidebar preset periods, defaulting to the last 30 days. Backs off when the
+    user drills into a specific date via the date hierarchy."""
+
+    title = "period"
+    parameter_name = "period"
+    field = "placed_at"
+
+    def lookups(self, request, model_admin):
+        return PERIOD_CHOICES
+
+    def queryset(self, request, queryset):
+        # If a date-hierarchy drill-down is active and no period is chosen, let
+        # the drill-down define the range instead of forcing the 30-day default.
+        drilled = any(k.startswith(f"{self.field}__") for k in request.GET)
+        if drilled and not self.value():
+            return queryset
+        return filter_by_period(queryset, self.field, self.value())
+
+    def choices(self, changelist):
+        current = self.value() or PERIOD_DEFAULT
+        for value, label in PERIOD_CHOICES:
+            yield {
+                "selected": current == value,
+                "query_string": changelist.get_query_string({self.parameter_name: value}),
+                "display": label,
+            }
+
+
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
@@ -60,15 +120,79 @@ class ShipmentInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ("reference", "customer", "status_badge", "payment_badge", "total_display", "item_count", "placed_at")
-    list_filter = ("status", "placed_at")
+    list_filter = (PeriodFilter, "status")
+    date_hierarchy = "placed_at"
     search_fields = ("reference", "user__email", "user__phone", "ship_city")
     # status is rolled up from shipments — edit it on the shipments instead.
     readonly_fields = ("reference", "status", "total", "created_at", "updated_at")
     inlines = [ShipmentInline, OrderItemInline]
     list_per_page = 30
+    change_list_template = "admin/orders/order/change_list.html"
+
+    # Orders are created by the app (checkout) only — never added by hand here.
+    def has_add_permission(self, request):
+        return False
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("user").prefetch_related("items", "shipments")
+
+    # ── Analytics dashboard ─────────────────────────────────────────────────
+    def get_urls(self):
+        custom = [path("analytics/", self.admin_site.admin_view(self.analytics_view), name="orders_order_analytics")]
+        return custom + super().get_urls()
+
+    def analytics_view(self, request):
+        period = request.GET.get("period", PERIOD_DEFAULT)
+        if period not in PERIOD_LABEL:
+            period = PERIOD_DEFAULT
+        orders = filter_by_period(Order.objects.all(), "placed_at", period)
+        # "Paid" = a real payment was captured; exclude cancelled from revenue.
+        paid = orders.exclude(payment_brand="").exclude(status=OrderStatus.CANCELLED)
+        sold_items = OrderItem.objects.filter(order__in=paid)
+
+        kpis = {
+            "orders": orders.count(),
+            "paid": paid.count(),
+            "pending": orders.filter(status=OrderStatus.PENDING).count(),
+            "revenue": paid.aggregate(s=Sum("total"))["s"] or 0,
+            "units": sold_items.aggregate(s=Sum("quantity"))["s"] or 0,
+        }
+        kpis["avg_order"] = (kpis["revenue"] / kpis["paid"]) if kpis["paid"] else 0
+
+        top_products = list(
+            sold_items.values("title")
+            .annotate(qty=Sum("quantity"), revenue=Sum(F("unit_price") * F("quantity")))
+            .order_by("-qty")[:10]
+        )
+        top_max = max((p["qty"] for p in top_products), default=1)
+        for p in top_products:
+            p["pct"] = round(p["qty"] / top_max * 100)
+
+        def breakdown(field, labels):
+            rows = list(sold_items.values(field).annotate(qty=Sum("quantity")).order_by("-qty"))
+            total = sum(r["qty"] for r in rows) or 1
+            return [
+                {"label": labels.get(r[field], r[field] or "—"), "qty": r["qty"], "pct": round(r["qty"] / total * 100)}
+                for r in rows
+            ]
+
+        status_rows = []
+        for value, count in orders.values_list("status").annotate(c=Count("id")).order_by():
+            status_rows.append({"badge": _status_badge(value), "count": count})
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Order analytics",
+            "period": period,
+            "period_label": PERIOD_LABEL[period],
+            "period_choices": PERIOD_CHOICES,
+            "kpis": kpis,
+            "top_products": top_products,
+            "hub_split": breakdown("warehouse", {"china": "China hub", "zambia": "Lusaka hub"}),
+            "carrier_split": breakdown("shipping_method", {"air": "Air", "sea": "Sea", "local": "Local"}),
+            "status_rows": status_rows,
+        }
+        return render(request, "admin/orders/analytics.html", context)
 
     @admin.display(description="Customer")
     def customer(self, obj):
@@ -121,13 +245,17 @@ class ShipmentAdmin(admin.ModelAdmin):
 
     list_display = ("order_link", "customer", "carrier_badge", "items_summary", "status_badge", "board_link", "placed_at")
     list_display_links = ("order_link",)
-    list_filter = ("status", "warehouse", "carrier", "placed_at")
+    list_filter = (PeriodFilter, "status", "warehouse", "carrier")
     search_fields = ("order__reference", "order__user__email", "order__user__phone", "items__title")
     date_hierarchy = "placed_at"
     ordering = ("-placed_at",)
     actions = ["mark_sourcing", "mark_transit", "mark_delivered", "mark_cancelled"]
     change_list_template = "admin/orders/shipment/change_list.html"
     list_per_page = 30
+
+    # Shipments are created by the app when an order is placed — not by hand.
+    def has_add_permission(self, request):
+        return False
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("order", "order__user").prefetch_related("items")
