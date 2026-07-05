@@ -4,9 +4,36 @@ from django.contrib import admin, messages
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from django.utils import timezone
+from django.utils.html import format_html
 
 from .fulfilment import advance_items
 from .models import Order, OrderItem, OrderStatus, Shipment
+
+# ── Shared display helpers (Bootstrap 5 + FontAwesome, from Jazzmin) ─────────
+# Each status maps to a contextual colour + icon so the changelists read at a
+# glance, matching the Fulfilment board.
+_STATUS_BADGE = {
+    OrderStatus.PENDING: ("secondary", "fa-hourglass-half"),
+    OrderStatus.QUEUE: ("warning", "fa-clock"),
+    OrderStatus.SOURCING: ("info", "fa-cart-shopping"),
+    OrderStatus.TRANSIT: ("primary", "fa-truck-fast"),
+    OrderStatus.DELIVERED: ("success", "fa-circle-check"),
+    OrderStatus.CANCELLED: ("danger", "fa-ban"),
+}
+_CARRIER_ICON = {"air": "fa-plane", "sea": "fa-ship", "local": "fa-truck"}
+
+
+def _status_badge(status):
+    color, icon = _STATUS_BADGE.get(status, ("secondary", "fa-circle"))
+    try:
+        label = OrderStatus(status).label
+    except ValueError:
+        label = status
+    return format_html('<span class="badge text-bg-{}"><i class="fas {} me-1"></i>{}</span>', color, icon, label)
+
+
+def _kwacha(amount):
+    return format_html('<span style="font-variant-numeric:tabular-nums;">K{}</span>', f"{amount:,.2f}")
 
 
 class OrderItemInline(admin.TabularInline):
@@ -32,12 +59,13 @@ class ShipmentInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("reference", "customer", "status", "total", "item_count", "placed_at")
-    list_filter = ("status",)
+    list_display = ("reference", "customer", "status_badge", "payment_badge", "total_display", "item_count", "placed_at")
+    list_filter = ("status", "placed_at")
     search_fields = ("reference", "user__email", "user__phone", "ship_city")
     # status is rolled up from shipments — edit it on the shipments instead.
     readonly_fields = ("reference", "status", "total", "created_at", "updated_at")
     inlines = [ShipmentInline, OrderItemInline]
+    list_per_page = 30
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("user").prefetch_related("items", "shipments")
@@ -46,9 +74,27 @@ class OrderAdmin(admin.ModelAdmin):
     def customer(self, obj):
         return obj.user.email or obj.user.phone or f"user #{obj.user_id}"
 
+    @admin.display(description="Status", ordering="status")
+    def status_badge(self, obj):
+        return _status_badge(obj.status)
+
+    @admin.display(description="Payment")
+    def payment_badge(self, obj):
+        if obj.payment_brand:
+            return format_html(
+                '<span class="badge text-bg-success"><i class="fas fa-check me-1"></i>Paid · {}</span>',
+                obj.payment_brand,
+            )
+        return format_html('<span class="badge text-bg-light border text-body-secondary">Unpaid</span>')
+
+    @admin.display(description="Total", ordering="total")
+    def total_display(self, obj):
+        return _kwacha(obj.total)
+
     @admin.display(description="Items")
     def item_count(self, obj):
-        return sum(i.quantity for i in obj.items.all())
+        units = sum(i.quantity for i in obj.items.all())
+        return format_html('<span class="badge text-bg-light border">{} unit{}</span>', units, "" if units == 1 else "s")
 
     def save_formset(self, request, form, formset, change):
         """When a shipment's status is edited inline, notify + log + roll up."""
@@ -73,28 +119,61 @@ class ShipmentAdmin(admin.ModelAdmin):
     """Advance individual parcels — China-air can be delivered while China-sea
     is still in transit. Each change notifies the customer and rolls the order up."""
 
-    list_display = ("order_ref", "customer", "label", "items_summary", "status", "placed_at")
-    list_filter = ("status", "warehouse", "carrier")
+    list_display = ("order_link", "customer", "carrier_badge", "items_summary", "status_badge", "board_link", "placed_at")
+    list_display_links = ("order_link",)
+    list_filter = ("status", "warehouse", "carrier", "placed_at")
     search_fields = ("order__reference", "order__user__email", "order__user__phone", "items__title")
     date_hierarchy = "placed_at"
     ordering = ("-placed_at",)
     actions = ["mark_sourcing", "mark_transit", "mark_delivered", "mark_cancelled"]
     change_list_template = "admin/orders/shipment/change_list.html"
+    list_per_page = 30
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("order", "order__user").prefetch_related("items")
 
-    @admin.display(description="Order")
-    def order_ref(self, obj):
-        return obj.order.reference
+    @admin.display(description="Order", ordering="order__reference")
+    def order_link(self, obj):
+        url = reverse("admin:orders_order_change", args=[obj.order_id])
+        return format_html('<a href="{}"><strong>{}</strong></a>', url, obj.order.reference)
 
     @admin.display(description="Customer")
     def customer(self, obj):
         return obj.order.user.email or obj.order.user.phone or f"user #{obj.order.user_id}"
 
+    @admin.display(description="Parcel", ordering="carrier")
+    def carrier_badge(self, obj):
+        icon = _CARRIER_ICON.get(obj.carrier, "fa-box")
+        return format_html('<span class="badge text-bg-light border"><i class="fas {} me-1"></i>{}</span>', icon, obj.label)
+
+    @admin.display(description="Status", ordering="status")
+    def status_badge(self, obj):
+        return _status_badge(obj.status)
+
     @admin.display(description="Items")
     def items_summary(self, obj):
         return ", ".join(f"{i.quantity}× {i.title}" for i in obj.items.all()[:3]) or "—"
+
+    @staticmethod
+    def _board_stage(obj):
+        """Which Fulfilment-board stage this parcel currently sits in (or None
+        if it's done, cancelled or unpaid)."""
+        if obj.status in (OrderStatus.DELIVERED, OrderStatus.CANCELLED, OrderStatus.PENDING):
+            return None
+        if obj.warehouse == "zambia":
+            return "deliver"
+        return {OrderStatus.QUEUE: "source", OrderStatus.SOURCING: "ship", OrderStatus.TRANSIT: "arrive"}.get(obj.status)
+
+    @admin.display(description="On board")
+    def board_link(self, obj):
+        stage = self._board_stage(obj)
+        if not stage:
+            return format_html('<span class="text-body-secondary">—</span>')
+        day = timezone.localdate(obj.placed_at).isoformat()
+        url = reverse("admin:orders_shipment_fulfilment_batch", args=[stage, day, obj.carrier])
+        return format_html(
+            '<a class="badge text-bg-primary" href="{}"><i class="fas fa-clipboard-check me-1"></i>Open batch</a>', url
+        )
 
     # ── Fulfilment board: drill down day → carrier → product ────────────────
     # Each stage filters items by status + hub; the board advances individual
