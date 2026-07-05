@@ -12,63 +12,104 @@
 
 {% block content %}
 <div id="content-main">
-  <p style="margin-bottom:1rem;">
-    <a href="{{ back_url }}" class="button">&lsaquo; Back to {{ day }}</a>
-    &nbsp; <strong>{{ stage_title }}</strong> · {{ day }} · <strong>{{ carrier_label }}</strong>
-    — {{ total }} unit{{ total|pluralize }} to handle.
-  </p>
 
-  {% if lines %}
-    <div class="module">
-      <h2 style="display:flex;justify-content:space-between;align-items:center;">
-        Products
-        <form method="post" style="margin:0;">
+  {# ── Batch context header ── #}
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+      <a href="{{ back_url }}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back
+      </a>
+      <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-{{ stage_color }} bg-opacity-25 text-{{ stage_color }}"
+            style="width:46px;height:46px;font-size:1.1rem;">
+        <i class="fas {{ carrier_icon }}"></i>
+      </span>
+      <span class="me-auto">
+        <span class="d-block fw-bold">{{ stage_title }} · {{ carrier_label }}</span>
+        <span class="d-block text-body-secondary small mt-1">Orders placed {{ day|date:"l, j F Y" }}</span>
+      </span>
+      <span class="badge text-bg-{{ stage_color }} fs-6">{{ total }} unit{{ total|pluralize }}</span>
+      <span class="badge text-bg-light border fs-6">
+        <i class="far fa-user me-1"></i>{{ customers_total }} customer{{ customers_total|pluralize }}
+      </span>
+      {% if lines %}
+        <form method="post" class="mb-0 ms-md-2">
           {% csrf_token %}
           <input type="hidden" name="line" value="__all__">
-          <button type="submit" class="button default">{{ action_label }} — whole carrier</button>
+          <button type="submit" class="btn btn-{{ stage_color }}"
+                  onclick="return confirm('{{ action_label|escapejs }} — ALL {{ total }} unit(s) in this batch? Every affected customer will be notified.');">
+            <i class="fas fa-check-double me-1"></i>{{ action_label }} — whole batch
+          </button>
         </form>
-      </h2>
-      <table style="width:100%;">
-        <thead>
-          <tr>
-            <th style="width:3.5rem;"></th>
-            <th>Product</th>
-            <th style="width:5rem;">Qty</th>
-            <th style="width:7rem;">Customers</th>
-            <th style="width:16rem;">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for line in lines %}
-            <tr class="{% cycle 'row1' 'row2' %}">
-              <td>
-                {% if line.image %}
-                  <img src="{{ line.image }}" alt="" loading="lazy"
-                       style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid rgba(0,0,0,.1);">
-                {% endif %}
-              </td>
-              <td>
-                {% if line.url %}
-                  <a href="{{ line.url }}" target="_blank" rel="noopener" title="View specs, gallery &amp; source it">{{ line.title }}</a>
-                {% else %}{{ line.title }}{% endif %}
-                {% if line.variant %}<div style="margin-top:2px;font-size:.82rem;font-weight:600;color:#b45309;">{{ line.variant }}</div>{% endif %}
-              </td>
-              <td><strong>{{ line.qty }}</strong></td>
-              <td>{{ line.customers }}</td>
-              <td>
-                <form method="post" style="margin:0;">
-                  {% csrf_token %}
-                  <input type="hidden" name="line" value="{{ line.key }}">
-                  <button type="submit" class="button">{{ action_label }}</button>
-                </form>
-              </td>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── Product lines ── #}
+  {% if lines %}
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="small text-body-secondary">
+              <th class="ps-3" style="width:56px;"></th>
+              <th>Product</th>
+              <th class="text-center">Qty to handle</th>
+              <th class="text-center d-none d-sm-table-cell">Customers</th>
+              <th class="text-end pe-3">Action</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for line in lines %}
+              <tr>
+                <td class="ps-3">
+                  {% if line.image %}
+                    <img src="{{ line.image }}" alt="" loading="lazy" class="rounded border"
+                         style="width:44px;height:44px;object-fit:cover;">
+                  {% else %}
+                    <span class="d-inline-flex align-items-center justify-content-center rounded border bg-body-secondary"
+                          style="width:44px;height:44px;"><i class="fas fa-box text-body-secondary"></i></span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if line.url %}
+                    <a href="{{ line.url }}" target="_blank" rel="noopener" class="fw-semibold text-decoration-none"
+                       title="Open the product — specs, gallery & supplier details">{{ line.title }}
+                      <i class="fas fa-arrow-up-right-from-square ms-1 small text-body-secondary"></i></a>
+                  {% else %}
+                    <span class="fw-semibold">{{ line.title }}</span>
+                  {% endif %}
+                  {% if line.variant %}
+                    <div class="mt-1">
+                      <span class="badge text-bg-warning bg-opacity-75">{{ line.variant }}</span>
+                    </div>
+                  {% endif %}
+                </td>
+                <td class="text-center"><span class="fs-5 fw-bold">{{ line.qty }}</span></td>
+                <td class="text-center d-none d-sm-table-cell">
+                  <i class="far fa-user me-1 text-body-secondary"></i>{{ line.customers }}
+                </td>
+                <td class="text-end pe-3">
+                  <form method="post" class="mb-0 d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="line" value="{{ line.key }}">
+                    <button type="submit" class="btn btn-sm btn-outline-{{ stage_color }} text-nowrap">
+                      <i class="fas fa-check me-1"></i>{{ action_label }}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   {% else %}
-    <p class="help">Nothing left here — every product has moved on.</p>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-4 text-center text-body-secondary">
+        <i class="fas fa-circle-check text-success me-2"></i>Nothing left here — every product has moved on.
+      </div>
+    </div>
   {% endif %}
+
 </div>
 {% endblock %}

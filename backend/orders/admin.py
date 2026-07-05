@@ -99,33 +99,39 @@ class ShipmentAdmin(admin.ModelAdmin):
     # ── Fulfilment board: drill down day → carrier → product ────────────────
     # Each stage filters items by status + hub; the board advances individual
     # product lines (one parcel's shoes can move while its bags wait).
+    # icon/color are Bootstrap 5 + FontAwesome tokens used by the board templates.
     STAGES = {
         "source": {
             "title": "To source", "warehouse": "china",
             "statuses": [OrderStatus.QUEUE], "target": OrderStatus.SOURCING,
             "action": "Mark sourced & purchased", "done": "sourced & purchased",
             "hint": "Paid orders waiting to be bought from the China hub.",
+            "icon": "fa-cart-shopping", "color": "warning",
         },
         "ship": {
             "title": "To ship", "warehouse": "china",
             "statuses": [OrderStatus.SOURCING], "target": OrderStatus.TRANSIT,
             "action": "Mark shipped (left China)", "done": "shipped",
-            "hint": "Sourced & purchased. Mark a product shipped once it leaves China — customers are told it's on its way.",
+            "hint": "Sourced & purchased — mark a product shipped once it leaves China.",
+            "icon": "fa-plane-departure", "color": "info",
         },
         "arrive": {
             "title": "Arrivals", "warehouse": "china",
             "statuses": [OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
             "action": "Mark arrived (ready for collection)", "done": "arrived (ready for collection)",
-            "hint": "In transit from China. Mark a product arrived when it lands.",
+            "hint": "In transit from China — mark a product arrived when it lands.",
+            "icon": "fa-warehouse", "color": "primary",
         },
         "deliver": {
             "title": "Lusaka local", "warehouse": "zambia",
             "statuses": [OrderStatus.QUEUE, OrderStatus.SOURCING, OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
             "action": "Mark delivered", "done": "delivered",
             "hint": "Local-stock orders ready for the rider.",
+            "icon": "fa-truck", "color": "success",
         },
     }
     CARRIER_LABEL = {"air": "Air", "sea": "Sea", "local": "Local"}
+    CARRIER_ICON = {"air": "fa-plane", "sea": "fa-ship", "local": "fa-truck"}
 
     def get_urls(self):
         v = self.admin_site.admin_view
@@ -164,18 +170,26 @@ class ShipmentAdmin(admin.ModelAdmin):
             days: dict = {}
             for it in self._stage_items(key):
                 day = timezone.localdate(it.order.placed_at)
-                d = days.setdefault(day, {"day": day, "total": 0, "carriers": {}})
+                d = days.setdefault(day, {"day": day, "total": 0, "carriers": {}, "lines": set()})
                 d["total"] += it.quantity
                 d["carriers"][it.shipping_method] = d["carriers"].get(it.shipping_method, 0) + it.quantity
+                d["lines"].add(self._line_key(it))
             day_list = []
             for day in sorted(days, reverse=True):
                 d = days[day]
                 day_list.append({
-                    "day": day, "total": d["total"],
-                    "carriers": [{"label": self.CARRIER_LABEL.get(c, c), "qty": q} for c, q in sorted(d["carriers"].items())],
+                    "day": day, "total": d["total"], "products": len(d["lines"]),
+                    "carriers": [
+                        {"label": self.CARRIER_LABEL.get(c, c), "icon": self.CARRIER_ICON.get(c, "fa-box"), "qty": q}
+                        for c, q in sorted(d["carriers"].items())
+                    ],
                     "url": reverse("admin:orders_shipment_fulfilment_day", args=[key, day.isoformat()]),
                 })
-            sections.append({"title": cfg["title"], "hint": cfg["hint"], "days": day_list})
+            sections.append({
+                "key": key, "title": cfg["title"], "hint": cfg["hint"],
+                "icon": cfg["icon"], "color": cfg["color"],
+                "units": sum(d["total"] for d in day_list), "days": day_list,
+            })
         context = {**self.admin_site.each_context(request), "title": "Fulfilment board", "sections": sections}
         return render(request, "admin/orders/fulfilment.html", context)
 
@@ -195,7 +209,8 @@ class ShipmentAdmin(admin.ModelAdmin):
             c["lines"].add(self._line_key(it))
         carrier_list = [
             {
-                "label": self.CARRIER_LABEL.get(c, c), "qty": info["qty"], "products": len(info["lines"]),
+                "label": self.CARRIER_LABEL.get(c, c), "icon": self.CARRIER_ICON.get(c, "fa-box"),
+                "qty": info["qty"], "products": len(info["lines"]),
                 "url": reverse("admin:orders_shipment_fulfilment_batch", args=[stage, day, c]),
             }
             for c, info in sorted(carriers.items())
@@ -203,7 +218,8 @@ class ShipmentAdmin(admin.ModelAdmin):
         context = {
             **self.admin_site.each_context(request),
             "title": f"{cfg['title']} · {day_d}",
-            "stage_title": cfg["title"], "day": day_d, "carriers": carrier_list,
+            "stage_title": cfg["title"], "stage_icon": cfg["icon"], "stage_color": cfg["color"],
+            "day": day_d, "carriers": carrier_list,
             "back_url": reverse("admin:orders_shipment_fulfilment"),
         }
         return render(request, "admin/orders/fulfilment_day.html", context)
@@ -222,6 +238,7 @@ class ShipmentAdmin(admin.ModelAdmin):
         cfg = self.STAGES[stage]
         index: dict = {}
         lines: list = []
+        all_orders: set = set()
         for it in self._stage_items(stage, day=day_d, carrier=carrier):
             key = self._line_key(it)
             line = index.get(key)
@@ -233,16 +250,20 @@ class ShipmentAdmin(admin.ModelAdmin):
                 lines.append(line)
             line["qty"] += it.quantity
             line["customers"].add(it.order_id)
+            all_orders.add(it.order_id)
         for line in lines:
             line["customers"] = len(line["customers"])
         lines.sort(key=lambda r: (-r["qty"], r["title"]))
         context = {
             **self.admin_site.each_context(request),
             "title": f"{cfg['title']} · {day_d} · {self.CARRIER_LABEL.get(carrier, carrier)}",
-            "stage_title": cfg["title"], "day": day_d,
+            "stage_title": cfg["title"], "stage_icon": cfg["icon"], "stage_color": cfg["color"],
+            "day": day_d,
             "carrier_label": self.CARRIER_LABEL.get(carrier, carrier),
+            "carrier_icon": self.CARRIER_ICON.get(carrier, "fa-box"),
             "action_label": cfg["action"], "lines": lines,
             "total": sum(line["qty"] for line in lines),
+            "customers_total": len(all_orders),
             "back_url": reverse("admin:orders_shipment_fulfilment_day", args=[stage, day]),
         }
         return render(request, "admin/orders/fulfilment_batch.html", context)
