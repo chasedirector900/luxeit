@@ -1,0 +1,106 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:messaging_message_changelist' %}">Messages</a>
+    &rsaquo; Send a promotion
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <form method="post" class="mx-auto" style="max-width:720px;">
+    {% csrf_token %}
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-warning bg-opacity-25 text-warning" style="width:42px;height:42px;">
+        <i class="fas fa-bullhorn"></i>
+      </span>
+      <div>
+        <div class="fw-bold fs-5 lh-1">Send a promotion</div>
+        <div class="text-body-secondary small mt-1">Lands in customers' Luxeit inbox. Anyone who opted out of promotions is skipped automatically.</div>
+      </div>
+    </div>
+
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+    {# ── 1 · The message ── #}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-bold py-3"><span class="badge text-bg-warning me-2">1</span>The message</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="promo-title">Title</label>
+          <input type="text" id="promo-title" name="title" class="form-control" maxlength="120"
+                 value="{{ posted.title|default:'Luxeit Promotions' }}">
+          <div class="form-text">Shown as the conversation name in the customer's inbox.</div>
+        </div>
+        <div>
+          <label class="form-label fw-semibold" for="promo-body">Message</label>
+          <textarea id="promo-body" name="body" rows="4" class="form-control" required
+                    placeholder="e.g. Weekend deal 🎉 — 20% off all Toyota parts until Sunday. Prices include delivery!">{{ posted.body|default:'' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    {# ── 2 · Who gets it ── #}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-bold py-3"><span class="badge text-bg-warning me-2">2</span>Who gets it</div>
+      <div class="card-body">
+        <label class="d-flex align-items-center gap-2 rounded-3 border p-3 mb-2" style="cursor:pointer;">
+          <input type="radio" name="audience" value="all" class="form-check-input" checked>
+          <span>
+            <span class="d-block fw-semibold">All customers</span>
+            <span class="d-block small text-body-secondary">{{ customer_count }} active customer{{ customer_count|pluralize }} (minus opt-outs)</span>
+          </span>
+        </label>
+        <label class="d-flex align-items-center gap-2 rounded-3 border p-3" style="cursor:pointer;">
+          <input type="radio" name="audience" value="specific" class="form-check-input">
+          <span>
+            <span class="d-block fw-semibold">Specific customers</span>
+            <span class="d-block small text-body-secondary">Pick one or more below</span>
+          </span>
+        </label>
+
+        <div id="picker" class="mt-3" style="display:none;">
+          <input type="search" id="picker-filter" class="form-control form-control-sm mb-2" placeholder="Type to filter customers…">
+          <select name="users" multiple size="8" class="form-select">
+            {% for c in customers %}
+              <option value="{{ c.id }}">{{ c.label }}{% if c.contact and c.contact != c.label %} — {{ c.contact }}{% endif %}</option>
+            {% endfor %}
+          </select>
+          <div class="form-text">Hold Ctrl (or ⌘) to select several.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mb-5">
+      <button type="submit" class="btn btn-warning px-4"
+              onclick="return confirm('Send this promotion now? It cannot be unsent.');">
+        <i class="far fa-paper-plane me-1"></i>Send promotion
+      </button>
+      <a href="{% url 'admin:messaging_message_changelist' %}" class="btn btn-outline-secondary ms-auto">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  var picker = document.getElementById("picker");
+  function syncPicker() {
+    var v = document.querySelector('input[name=audience]:checked').value;
+    picker.style.display = v === "specific" ? "" : "none";
+  }
+  document.querySelectorAll('input[name=audience]').forEach(function (r) { r.addEventListener("change", syncPicker); });
+  syncPicker();
+
+  // Quick filter for the customer list.
+  var filter = document.getElementById("picker-filter");
+  var options = Array.prototype.slice.call(document.querySelectorAll('select[name=users] option'));
+  filter.addEventListener("input", function () {
+    var q = filter.value.toLowerCase();
+    options.forEach(function (o) { o.hidden = q && o.textContent.toLowerCase().indexOf(q) === -1; });
+  });
+})();
+</script>
+{% endblock %}

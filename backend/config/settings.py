@@ -122,6 +122,10 @@ JAZZMIN_SETTINGS = {
         "products": [
             {"name": "Review moderation", "url": "admin:products_productreview_moderation", "icon": "far fa-comments"},
         ],
+        "messaging": [
+            {"name": "Support inbox", "url": "admin:messaging_thread_support_inbox", "icon": "fas fa-headset"},
+            {"name": "Send a promotion", "url": "admin:messaging_message_send_promotion", "icon": "fas fa-bullhorn"},
+        ],
     },
     "hide_apps": ["auth"],
 }
@@ -164,6 +168,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'orders.context_processors.fulfilment_badges',
                 'products.context_processors.review_badges',
+                'messaging.context_processors.support_badges',
             ],
         },
     },

@@ -19,6 +19,12 @@
       cls: 'text-bg-danger',
       title: function (n) { return n + ' bad review' + (n === 1 ? '' : 's') + ' awaiting a reply'; },
     },
+    {
+      n: {{ support_awaiting_count|default:0 }},
+      selector: 'a[href$="/messaging/thread/support-inbox/"]',
+      cls: 'text-bg-info',
+      title: function (n) { return n + ' customer' + (n === 1 ? '' : 's') + ' waiting for a support reply'; },
+    },
   ];
   badges.forEach(function (spec) {
     if (!spec.n) return;

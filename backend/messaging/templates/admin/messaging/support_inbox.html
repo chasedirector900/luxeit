@@ -1,0 +1,98 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:messaging_thread_changelist' %}">Threads</a>
+    &rsaquo; Support inbox
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+  {# ── Filter chips + search ── #}
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+    <a href="?filter=awaiting" class="btn btn-sm {% if current == 'awaiting' %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+      <i class="far fa-comment-dots me-1"></i>Awaiting reply <span class="badge text-bg-dark ms-1">{{ counts.awaiting }}</span>
+    </a>
+    <a href="?filter=all" class="btn btn-sm {% if current == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+      All conversations <span class="badge text-bg-dark ms-1">{{ counts.all }}</span>
+    </a>
+    <form method="get" class="d-flex ms-auto mb-0" style="max-width:280px;">
+      <input type="hidden" name="filter" value="{{ current }}">
+      <div class="input-group input-group-sm">
+        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search customers…">
+        <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
+      </div>
+    </form>
+  </div>
+
+  {# ── Conversations ── #}
+  {% if rows %}
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="small text-body-secondary">
+              <th class="ps-3">Customer</th>
+              <th>Last message</th>
+              <th class="text-center d-none d-sm-table-cell">Messages</th>
+              <th>Status</th>
+              <th class="text-end pe-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+              <tr>
+                <td class="ps-3">
+                  <span class="d-inline-flex align-items-center gap-2">
+                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-secondary fw-bold"
+                          style="width:36px;height:36px;">{{ r.initial }}</span>
+                    <span>
+                      <span class="d-block fw-semibold">{{ r.customer }}</span>
+                      {% if r.thread.user.full_name %}<span class="d-block small text-body-secondary">{{ r.thread.user.full_name }}</span>{% endif %}
+                    </span>
+                  </span>
+                </td>
+                <td style="max-width:340px;">
+                  {% if r.last %}
+                    <span class="d-block text-truncate">
+                      {% if r.awaiting %}<i class="fas fa-reply text-warning me-1" title="Customer is waiting"></i>
+                      {% else %}<i class="fas fa-check text-success me-1" title="Luxeit replied last"></i>{% endif %}
+                      {{ r.last.body }}
+                    </span>
+                    <span class="small text-body-secondary">{{ r.last.created_at|date:"j M, H:i" }}</span>
+                  {% else %}<span class="text-body-secondary">—</span>{% endif %}
+                </td>
+                <td class="text-center d-none d-sm-table-cell">{{ r.count }}</td>
+                <td>
+                  {% if r.awaiting %}
+                    <span class="badge text-bg-warning">Awaiting reply</span>
+                  {% else %}
+                    <span class="badge text-bg-success">Replied</span>
+                  {% endif %}
+                </td>
+                <td class="text-end pe-3">
+                  <a href="{{ r.url }}" class="btn btn-sm btn-primary text-nowrap">
+                    <i class="far fa-comments me-1"></i>Open chat
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="card border-0 shadow-sm">
+      <div class="card-body py-5 text-center text-body-secondary">
+        <i class="fas fa-circle-check text-success me-2"></i>
+        {% if current == 'awaiting' %}All caught up — no customers are waiting for a reply.
+        {% else %}No support conversations{% if q %} matching “{{ q }}”{% endif %} yet.{% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

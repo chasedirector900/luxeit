@@ -1,0 +1,70 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:messaging_thread_changelist' %}">Threads</a>
+    &rsaquo; <a href="{{ back_url }}">Support inbox</a>
+    &rsaquo; {{ customer }}
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="mx-auto" style="max-width:780px;">
+
+  {# ── Conversation header ── #}
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3 py-3">
+      <a href="{{ back_url }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Inbox</a>
+      <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-bg-primary fw-bold"
+            style="width:42px;height:42px;">{{ initial }}</span>
+      <span class="me-auto">
+        <span class="d-block fw-bold">{{ customer_name|default:customer }}</span>
+        <span class="d-block small text-body-secondary">{{ customer }} · customer since {{ thread.user.date_joined|date:"M Y" }}</span>
+      </span>
+      <span class="badge text-bg-light border"><i class="far fa-comments me-1"></i>{{ chat|length }} message{{ chat|length|pluralize }}</span>
+    </div>
+  </div>
+
+  {# ── Messages ── #}
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body" id="chat-scroll" style="max-height:60vh;overflow-y:auto;">
+      {% for m in chat %}
+        {% if m.from_user %}
+          <div class="d-flex justify-content-start mb-3">
+            <div style="max-width:75%;">
+              <div class="rounded-3 px-3 py-2 bg-body-secondary">{{ m.body|linebreaksbr }}</div>
+              <div class="small text-body-secondary mt-1">{{ customer_name|default:customer }} · {{ m.created_at|date:"j M, H:i" }}</div>
+            </div>
+          </div>
+        {% else %}
+          <div class="d-flex justify-content-end mb-3">
+            <div style="max-width:75%;" class="text-end">
+              <div class="rounded-3 px-3 py-2 bg-primary bg-opacity-75 text-white text-start">{{ m.body|linebreaksbr }}</div>
+              <div class="small text-body-secondary mt-1">
+                {{ m.agent_name|default:"Luxeit" }} · {{ m.created_at|date:"j M, H:i" }}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  {# ── Reply ── #}
+  <form method="post" class="card border-0 shadow-sm mb-5">
+    {% csrf_token %}
+    <div class="card-body d-flex gap-2 align-items-start">
+      <textarea name="body" rows="2" class="form-control" required
+                placeholder="Reply to {{ customer_name|default:customer }} — they'll see it instantly in their Luxeit inbox…"></textarea>
+      <button type="submit" class="btn btn-primary text-nowrap"><i class="far fa-paper-plane me-1"></i>Send</button>
+    </div>
+  </form>
+
+</div>
+<script>
+  // Open with the newest messages in view.
+  var box = document.getElementById("chat-scroll");
+  if (box) box.scrollTop = box.scrollHeight;
+</script>
+{% endblock %}
