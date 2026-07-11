@@ -119,6 +119,9 @@ JAZZMIN_SETTINGS = {
             {"name": "Fulfilment board", "url": "admin:orders_shipment_fulfilment", "icon": "fas fa-clipboard-check"},
             {"name": "Analytics", "url": "admin:orders_order_analytics", "icon": "fas fa-chart-line"},
         ],
+        "products": [
+            {"name": "Review moderation", "url": "admin:products_productreview_moderation", "icon": "far fa-comments"},
+        ],
     },
     "hide_apps": ["auth"],
 }

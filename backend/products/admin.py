@@ -158,14 +158,41 @@ class ProductAdmin(admin.ModelAdmin):
         return f"{obj.rating_average} ★ · {obj.rating_count} review{'' if obj.rating_count == 1 else 's'}"
 
 
+class RepliedFilter(admin.SimpleListFilter):
+    title = "reply status"
+    parameter_name = "replied"
+
+    def lookups(self, request, model_admin):
+        return [("no", "Needs a reply"), ("yes", "Replied")]
+
+    def queryset(self, request, queryset):
+        if self.value() == "no":
+            return queryset.filter(reply_text="")
+        if self.value() == "yes":
+            return queryset.exclude(reply_text="")
+        return queryset
+
+
+def _stars(rating: int):
+    colour = "#f59e0b" if rating >= 4 else ("#f59e0b" if rating == 3 else "#ef4444")
+    return format_html(
+        '<span style="color:{};font-size:1rem;letter-spacing:1px;" title="{} out of 5">{}</span>',
+        colour, rating, "★" * rating + "☆" * (5 - rating),
+    )
+
+
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):
     """Moderation only: reviews are written by customers in the app. Staff can
     reply publicly or delete abusive reviews — never author or edit them."""
 
-    list_display = ("user_name", "product", "rating", "verified", "date", "helpful_count", "has_reply")
-    list_filter = ("rating", "verified")
+    list_display = ("stars", "excerpt", "product", "user_name", "verified", "date", "reply_state")
+    list_display_links = ("excerpt",)
+    list_filter = (RepliedFilter, "rating", "verified")
+    date_hierarchy = "date"
+    list_per_page = 25
     search_fields = ("user_name", "text", "product__title")
+    change_list_template = "admin/products/productreview/change_list.html"
     readonly_fields = (
         "product", "user", "user_name", "avatar_initial", "avatar_url",
         "rating", "text", "date", "helpful_count", "verified", "images",
@@ -179,6 +206,9 @@ class ProductReviewAdmin(admin.ModelAdmin):
             "description": "Type a reply to respond publicly. The date auto-fills on first save.",
         }),
     )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("product")
 
     # Reviews come from verified customers through the app — never created here.
     def has_add_permission(self, request):
@@ -195,6 +225,86 @@ class ProductReviewAdmin(admin.ModelAdmin):
         for product in products:
             product.recalculate_ratings()
 
-    @admin.display(boolean=True, description="Replied")
-    def has_reply(self, obj):
-        return bool(obj.reply_text)
+    @admin.display(description="Rating", ordering="rating")
+    def stars(self, obj):
+        return _stars(obj.rating)
+
+    @admin.display(description="Review")
+    def excerpt(self, obj):
+        text = (obj.text or "").strip()
+        return (text[:70] + "…") if len(text) > 70 else (text or "—")
+
+    @admin.display(description="Reply", ordering="reply_text")
+    def reply_state(self, obj):
+        if obj.reply_text:
+            return format_html('<span class="badge text-bg-success">Replied</span>')
+        return format_html('<span class="badge text-bg-warning">Needs reply</span>')
+
+    # ── Moderation board: cards with stars, text, and an inline reply box ────
+    def get_urls(self):
+        custom = [
+            path(
+                "moderation/",
+                self.admin_site.admin_view(self.moderation_view),
+                name="products_productreview_moderation",
+            ),
+        ]
+        return custom + super().get_urls()
+
+    def moderation_view(self, request):
+        from urllib.parse import urlencode
+
+        if request.method == "POST":
+            review = ProductReview.objects.filter(pk=request.POST.get("review")).select_related("product").first()
+            if review is None:
+                self.message_user(request, "That review no longer exists.", level=messages.WARNING)
+            elif request.POST.get("action") == "delete":
+                if self.has_delete_permission(request, review):
+                    product = review.product
+                    review.delete()
+                    product.recalculate_ratings()
+                    self.message_user(request, f"Deleted {review.user_name}'s review of “{product.title}”.")
+            else:  # reply (save or clear)
+                review.reply_text = request.POST.get("reply_text", "").strip()
+                if not review.reply_text:
+                    review.reply_date = None
+                review.save()
+                self.message_user(
+                    request,
+                    "Reply published — it now shows under the review in the app." if review.reply_text else "Reply removed.",
+                )
+            keep = {k: request.POST.get(k, "") for k in ("filter", "q", "page") if request.POST.get(k)}
+            url = reverse("admin:products_productreview_moderation")
+            return redirect(f"{url}?{urlencode(keep)}" if keep else url)
+
+        current = request.GET.get("filter", "needs_reply")
+        q = request.GET.get("q", "").strip()
+        qs = ProductReview.objects.select_related("product").order_by("-date", "-created_at")
+        if current == "needs_reply":
+            qs = qs.filter(reply_text="")
+        elif current == "bad":
+            qs = qs.filter(rating__lte=2)
+        if q:
+            from django.db.models import Q
+            qs = qs.filter(Q(text__icontains=q) | Q(user_name__icontains=q) | Q(product__title__icontains=q))
+
+        from django.core.paginator import Paginator
+        page = Paginator(qs, 15).get_page(request.GET.get("page"))
+        for r in page:
+            r.stars_str = "★" * r.rating + "☆" * (5 - r.rating)
+
+        base = ProductReview.objects.all()
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Review moderation",
+            "page": page,
+            "current": current,
+            "q": q,
+            "counts": {
+                "needs_reply": base.filter(reply_text="").count(),
+                "bad": base.filter(rating__lte=2).count(),
+                "all": base.count(),
+            },
+            "can_delete": self.has_delete_permission(request),
+        }
+        return render(request, "admin/products/review_moderation.html", context)
