@@ -1,5 +1,5 @@
-import { AccountSkeleton } from "@/components/auth/account-skeleton";
+import { SecuritySkeleton } from "@/components/account/security-skeleton";
 
-export default function Loading() {
-  return <AccountSkeleton />;
+export default function SecurityLoading() {
+  return <SecuritySkeleton />;
 }

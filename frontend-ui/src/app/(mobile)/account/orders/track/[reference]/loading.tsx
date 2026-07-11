@@ -1,5 +1,5 @@
-import { OrdersListSkeleton } from "@/components/orders/orders-list-skeleton";
+import { TrackOrderSkeleton } from "@/components/orders/track-order-skeleton";
 
 export default function OrderTrackLoading() {
-  return <OrdersListSkeleton />;
+  return <TrackOrderSkeleton />;
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Clock, MapPin, Package, PackageCheck, Plane, Ship, Star, Truck, Wallet, XCircle } from "lucide-react";
-import { OrdersListSkeleton } from "@/components/orders/orders-list-skeleton";
+import { TrackOrderSkeleton } from "@/components/orders/track-order-skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { getOrder, type OrderApi, type OrderApiShipment } from "@/lib/auth/api";
 
@@ -50,7 +50,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
     };
   }, [status, reference]);
 
-  if (status !== "authenticated" || (!order && !missing)) return <OrdersListSkeleton />;
+  if (status !== "authenticated" || (!order && !missing)) return <TrackOrderSkeleton />;
 
   if (missing || !order) {
     return (

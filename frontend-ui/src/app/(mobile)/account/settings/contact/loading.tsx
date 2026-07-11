@@ -1,5 +1,5 @@
-import { AccountSkeleton } from "@/components/auth/account-skeleton";
+import { ContactSkeleton } from "@/components/account/contact-skeleton";
 
-export default function Loading() {
-  return <AccountSkeleton />;
+export default function ContactLoading() {
+  return <ContactSkeleton />;
 }

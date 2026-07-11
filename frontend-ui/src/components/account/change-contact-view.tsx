@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Loader2, Mail, Phone, ShieldCheck } from "lucide-react";
-import { AccountSkeleton } from "@/components/auth/account-skeleton";
+import { ContactSkeleton } from "@/components/account/contact-skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { requestContactChange, verifyContactChange } from "@/lib/auth/api";
 
@@ -46,7 +46,7 @@ export function ChangeContactView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasEmail, hasPhone]);
 
-  if (status !== "authenticated") return <AccountSkeleton />;
+  if (status !== "authenticated") return <ContactSkeleton />;
 
   async function sendCode(e: React.FormEvent) {
     e.preventDefault();

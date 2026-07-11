@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Loader2, LogOut, Monitor, ShieldCheck, Smartphone } from "lucide-react";
-import { AccountSkeleton } from "@/components/auth/account-skeleton";
+import { SecuritySkeleton } from "@/components/account/security-skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { listSessions, logoutOtherSessions, revokeSession, type DeviceSession } from "@/lib/auth/api";
 
@@ -81,7 +81,7 @@ export function SecurityView() {
     }
   }
 
-  if (status !== "authenticated") return <AccountSkeleton />;
+  if (status !== "authenticated") return <SecuritySkeleton />;
 
   const hasOthers = sessions.some((s) => !s.current);
 

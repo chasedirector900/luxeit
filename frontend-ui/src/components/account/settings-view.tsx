@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { createPortal } from "react-dom";
-import { AccountSkeleton } from "@/components/auth/account-skeleton";
+import { SettingsSkeleton } from "@/components/account/settings-skeleton";
 import { ThemeModeChips } from "@/components/theme-mode-chips";
 import { useAuth } from "@/hooks/use-auth";
 import { getPreferences, updatePreferences, type NotificationPrefs } from "@/lib/auth/api";
@@ -72,7 +72,7 @@ export function SettingsView() {
       .catch(() => setPrefs(null));
   }, [status]);
 
-  if (status !== "authenticated") return <AccountSkeleton />;
+  if (status !== "authenticated") return <SettingsSkeleton />;
 
   async function togglePref(key: keyof NotificationPrefs) {
     if (!prefs) return;

@@ -1,5 +1,5 @@
-import { AccountSkeleton } from "@/components/auth/account-skeleton";
+import { SettingsSkeleton } from "@/components/account/settings-skeleton";
 
-export default function Loading() {
-  return <AccountSkeleton />;
+export default function SettingsLoading() {
+  return <SettingsSkeleton />;
 }
