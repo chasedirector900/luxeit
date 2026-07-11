@@ -130,6 +130,13 @@ def product_review(request, slug):
         },
     )
     product.recalculate_ratings()
+
+    # Alert the team the moment a review BECOMES bad (not on every edit of one).
+    from .services import BAD_RATING_MAX, alert_staff_bad_review
+
+    was_bad = existing is not None and existing.rating <= BAD_RATING_MAX
+    if rating <= BAD_RATING_MAX and not was_bad:
+        alert_staff_bad_review(review, request=request)
     return Response(
         {"ok": True, "review": {"rating": review.rating, "text": review.text, "date": review.date.isoformat()}},
         status=http_status.HTTP_201_CREATED,

@@ -1,20 +1,35 @@
 {% extends 'admin/base.html' %}
 
-{# Live "waiting to source" badge on the Fulfilment board link (top bar + sidebar). #}
+{# Live attention badges on sidebar/topbar links: batches waiting to be
+   sourced (amber, Fulfilment board) and bad reviews awaiting a reply
+   (red, Review moderation). #}
 {% block extrajs %}{{ block.super }}
 <script>
 (function () {
-  var n = {{ to_source_count|default:0 }};
-  if (!n) return;
-  // Matches both the top-bar topmenu link and the sidebar custom link.
-  var links = document.querySelectorAll('a[href$="/orders/shipment/fulfilment/"]');
-  links.forEach(function (a) {
-    if (a.querySelector('.fulfilment-badge')) return;
-    var b = document.createElement('span');
-    b.className = 'fulfilment-badge badge text-bg-warning ms-1';
-    b.title = n + ' batch' + (n === 1 ? '' : 'es') + ' waiting to be sourced';
-    b.textContent = n;
-    a.appendChild(b);
+  var badges = [
+    {
+      n: {{ to_source_count|default:0 }},
+      selector: 'a[href$="/orders/shipment/fulfilment/"]',
+      cls: 'text-bg-warning',
+      title: function (n) { return n + ' batch' + (n === 1 ? '' : 'es') + ' waiting to be sourced'; },
+    },
+    {
+      n: {{ bad_review_count|default:0 }},
+      selector: 'a[href$="/products/productreview/moderation/"]',
+      cls: 'text-bg-danger',
+      title: function (n) { return n + ' bad review' + (n === 1 ? '' : 's') + ' awaiting a reply'; },
+    },
+  ];
+  badges.forEach(function (spec) {
+    if (!spec.n) return;
+    document.querySelectorAll(spec.selector).forEach(function (a) {
+      if (a.querySelector('.attention-badge')) return;
+      var b = document.createElement('span');
+      b.className = 'attention-badge badge ' + spec.cls + ' ms-1';
+      b.title = spec.title(spec.n);
+      b.textContent = spec.n;
+      a.appendChild(b);
+    });
   });
 })();
 </script>

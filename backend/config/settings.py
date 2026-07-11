@@ -163,6 +163,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'orders.context_processors.fulfilment_badges',
+                'products.context_processors.review_badges',
             ],
         },
     },

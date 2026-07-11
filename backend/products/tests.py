@@ -1,10 +1,63 @@
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from .models import Category, Product, ProductReview, ProductType
 
 User = get_user_model()
+
+
+class BadReviewAlertTests(TestCase):
+    """A 1–2★ review must alert staff by email and show in the admin badge."""
+
+    def setUp(self):
+        self.staff = User.objects.create_user(email="ops@example.com")
+        self.staff.is_staff = True
+        self.staff.save()
+        self.user = User.objects.create_user(email="buyer@example.com")
+        self.client.force_login(self.user)
+        self.product = Product.objects.create(slug="widget", title="Widget", price=20, warehouse="china")
+        from orders.models import Order, OrderItem
+
+        order = Order.objects.create(user=self.user, status="delivered")
+        OrderItem.objects.create(order=order, product=self.product, title="Widget", unit_price=20, quantity=1)
+
+    def _post(self, rating, text="hmm"):
+        return self.client.post(
+            "/api/products/widget/review",
+            data={"rating": rating, "text": text},
+            content_type="application/json",
+        )
+
+    def test_bad_review_emails_staff(self):
+        self._post(2, "Broke after one day")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("ops@example.com", mail.outbox[0].to)
+        self.assertIn("Widget", mail.outbox[0].subject)
+        self.assertIn("Broke after one day", mail.outbox[0].body)
+
+    def test_good_review_sends_nothing(self):
+        self._post(5, "love it")
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_editing_an_already_bad_review_does_not_realert(self):
+        self._post(2)
+        self._post(1, "even worse")  # still bad — no second alert
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_badge_counts_unreplied_bad_reviews(self):
+        from .context_processors import review_badges
+
+        self._post(1)
+        request = RequestFactory().get("/admin/")
+        request.user = self.staff
+        self.assertEqual(review_badges(request)["bad_review_count"], 1)
+        # A reply clears it from the badge.
+        review = self.product.reviews.get()
+        review.reply_text = "So sorry — we'll make it right."
+        review.save()
+        self.assertEqual(review_badges(request)["bad_review_count"], 0)
 
 
 class ProductReviewApiTests(TestCase):
