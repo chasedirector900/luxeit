@@ -2,10 +2,12 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status as http_status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+
+from api.throttling import ReviewThrottle
 
 from .models import Category, Product, ProductReview
 from .serializers import (
@@ -43,8 +45,13 @@ class CategoryDetailView(RetrieveAPIView):
     queryset = Category.objects.filter(is_active=True).prefetch_related("products")
 
 
+# Hard ceiling on list responses — one request can never drag the whole
+# catalogue out of the database as it grows.
+PRODUCT_LIST_CAP = 300
+
+
 class ProductListView(ListAPIView):
-    """GET /api/products/ — filterable product list.
+    """GET /api/products/ — filterable product list (capped at PRODUCT_LIST_CAP).
 
     Query params: ?category=<slug> &type=<product_type> &warehouse=<china|zambia>
     &sub=<sub_category> &q=<search>
@@ -67,7 +74,7 @@ class ProductListView(ListAPIView):
             qs = qs.filter(sub_category=sub)
         if q := params.get("q"):
             qs = qs.filter(Q(title__icontains=q) | Q(searchable_text__icontains=q))
-        return qs
+        return qs[:PRODUCT_LIST_CAP]
 
 
 class ProductDetailView(RetrieveAPIView):
@@ -85,6 +92,7 @@ class ProductDetailView(RetrieveAPIView):
 
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([ReviewThrottle])  # write-only: GETs are never counted
 def product_review(request, slug):
     """The signed-in user's own review for a product.
 

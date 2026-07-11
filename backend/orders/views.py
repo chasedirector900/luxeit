@@ -1,9 +1,11 @@
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import status as http_status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from api.throttling import OrderCreateThrottle
 
 from products.models import Product
 from .models import Carrier, ItemCarrier, Order, OrderItem, OrderStatus, Shipment
@@ -31,6 +33,7 @@ BUCKET_STATUSES = {
 
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([OrderCreateThrottle])  # write-only: GETs are never counted
 def orders(request):
     """GET: the current user's orders (optionally ?bucket= or ?status=).
     POST: create an order from the checkout payload."""

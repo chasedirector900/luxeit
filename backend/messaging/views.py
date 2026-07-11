@@ -1,9 +1,11 @@
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from api.throttling import SupportMessageThrottle
 
 from .models import Message, SenderRole
 from .serializers import ThreadSerializer
@@ -37,6 +39,7 @@ def thread_detail(request, slug):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([SupportMessageThrottle])
 def send_message(request, slug):
     """Send a message — only allowed on the live-support thread."""
     thread = _user_thread(request, slug)

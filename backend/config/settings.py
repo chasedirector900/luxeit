@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -249,6 +250,10 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# True while the test suite runs — used to relax the global throttles so rapid
+# test requests don't trip them (per-endpoint scoped throttles stay active).
+TESTING = "test" in sys.argv
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -262,10 +267,28 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    # Global abuse ceiling: every client gets a per-minute budget (readers and
+    # signed-in users separately). Tighter per-action limits below.
+    'DEFAULT_THROTTLE_CLASSES': [] if TESTING else [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    # How many trusted proxies sit in front of Django (for keying anon limits to
+    # the real client IP). 0 in local dev; 1 on Render (its load balancer).
+    'NUM_PROXIES': int(os.getenv('DJANGO_NUM_PROXIES', '0')),
     'DEFAULT_THROTTLE_RATES': {
+        # Global ceilings (per client). Anon is generous because browser calls
+        # arrive via the Next.js proxy and can share an egress IP.
+        'anon': os.getenv('DRF_ANON_RATE', '300/min'),
+        'user': os.getenv('DRF_USER_RATE', '240/min'),
+        # Login codes (most-attacked surface).
         'otp_request': '10/min',      # code requests per IP
         'otp_verify': '20/min',       # verify attempts per IP
         'otp_destination': '5/hour',  # codes sent to a single email/phone
+        # Expensive / spammable writes (per signed-in user).
+        'orders_create': '30/hour',
+        'reviews': '20/hour',
+        'support_send': '60/hour',
     },
 }
 

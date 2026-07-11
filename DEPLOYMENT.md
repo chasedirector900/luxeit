@@ -90,6 +90,26 @@ Until then, testers' login codes appear in Render → **Logs**.
 - [ ] Re-enable self-service data export (DATA_EXPORT_ENABLED=True) once
       the flow is finalised, or keep the support-request process
 
+## Abuse protection & scaling (already built in)
+
+- **Rate limits:** global ceilings per client (anon 300/min, signed-in 240/min,
+  tunable via `DRF_ANON_RATE` / `DRF_USER_RATE`) plus tight per-action limits —
+  login codes 10/min per IP & 5/hour per destination, order creation 30/hour,
+  reviews 20/hour, support messages 60/hour. Reads are never throttled.
+- **Client identification:** `DJANGO_NUM_PROXIES=1` on Render keys anon limits
+  to the real client IP behind the load balancer.
+- **Bounded responses:** product list capped at 300 rows per request.
+- **Serving:** gunicorn 2 workers × 4 threads per instance; DB connections
+  pooled (`conn_max_age`); Next.js caches catalogue reads for 5 minutes, which
+  shields Django from most public traffic.
+
+When real traffic grows (thousands of daily users), in order:
+1. Move the throttle/cache store to **Redis** (Render Key Value) — counters are
+   currently per-process, which is fine at 1–2 instances.
+2. Scale **Render instances** horizontally (the app is stateless).
+3. Upgrade Postgres plan; add read replicas only if reports show DB pressure.
+4. Load-test with something like `locust` before big marketing pushes.
+
 ## Local dev — nothing changes
 
 SQLite, console login codes, and `runserver`/`next dev` all keep working
