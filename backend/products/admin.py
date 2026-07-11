@@ -1,8 +1,10 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Count
-from django.urls import reverse
+from django.shortcuts import redirect, render
+from django.urls import path, reverse
 from django.utils.html import format_html
 
+from .forms import GuidedProductForm
 from .models import Category, Product, ProductImage, ProductReview
 
 
@@ -81,6 +83,53 @@ class ProductAdmin(admin.ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         return self._ADD_FIELDSETS if obj is None else self._ADD_FIELDSETS + self._APP_MANAGED_FIELDSET
+
+    change_list_template = "admin/products/product/change_list.html"
+
+    # ── Guided add: a plain-language form for non-technical staff ────────────
+    def get_urls(self):
+        custom = [
+            path(
+                "add-guided/",
+                self.admin_site.admin_view(self.guided_add_view),
+                name="products_product_add_guided",
+            ),
+        ]
+        return custom + super().get_urls()
+
+    def guided_add_view(self, request):
+        if not self.has_add_permission(request):
+            return redirect("admin:products_product_changelist")
+
+        if request.method == "POST":
+            form = GuidedProductForm(request.POST)
+            if form.is_valid():
+                product = form.save()
+                self.message_user(request, f"“{product.title}” is now in the catalogue.", level=messages.SUCCESS)
+                if "save_add_another" in request.POST:
+                    return redirect("admin:products_product_add_guided")
+                return redirect("admin:products_product_changelist")
+        else:
+            form = GuidedProductForm()
+
+        # {category id -> [{key, label}]} so the sub-category dropdown follows
+        # the chosen category.
+        chips = {
+            str(cat.pk): [
+                {"key": c.get("key", ""), "label": c.get("label", c.get("key", ""))}
+                for c in (cat.chips or [])
+                if isinstance(c, dict) and c.get("key") and c.get("key") != "all"
+            ]
+            for cat in Category.objects.filter(is_active=True)
+        }
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Add a product",
+            "form": form,
+            "chips": chips,
+            "advanced_url": reverse("admin:products_product_add"),
+        }
+        return render(request, "admin/products/guided_add.html", context)
 
     @admin.display(description="")
     def thumb(self, obj):

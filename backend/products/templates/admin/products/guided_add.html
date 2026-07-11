@@ -1,0 +1,229 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:products_product_changelist' %}">Products</a>
+    &rsaquo; Add a product
+  </div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <form method="post" id="guided-form" class="mx-auto" style="max-width:760px;">
+    {% csrf_token %}
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-success bg-opacity-25 text-success" style="width:42px;height:42px;">
+        <i class="fas fa-plus"></i>
+      </span>
+      <div class="me-auto">
+        <div class="fw-bold fs-5 lh-1">Add a product</div>
+        <div class="text-body-secondary small mt-1">Fill in the four steps — that's it. Sales and ratings are tracked automatically.</div>
+      </div>
+      <a href="{{ advanced_url }}" class="btn btn-sm btn-outline-secondary" title="The full form with every field">Advanced form</a>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {# ── 1 · Basics ── #}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-bold py-3"><span class="badge text-bg-success me-2">1</span>The basics</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="id_title">{{ form.title.label }}</label>
+          {{ form.title }}
+          <div class="form-text">{{ form.title.help_text }}</div>
+          {{ form.title.errors }}
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="id_category">{{ form.category.label }}</label>
+            {{ form.category }}
+            {{ form.category.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="id_sub_category">{{ form.sub_category.label }}</label>
+            {{ form.sub_category }}
+            <div class="form-text">{{ form.sub_category.help_text }}</div>
+            {{ form.sub_category.errors }}
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="id_product_type">{{ form.product_type.label }}</label>
+            {{ form.product_type }}
+            {{ form.product_type.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="id_subtitle">{{ form.subtitle.label }}</label>
+            {{ form.subtitle }}
+            {{ form.subtitle.errors }}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="id_description">{{ form.description.label }}</label>
+          {{ form.description }}
+          <div class="form-text">{{ form.description.help_text }}</div>
+          {{ form.description.errors }}
+        </div>
+        <label class="d-flex align-items-center gap-2 mb-0">
+          {{ form.is_active }} <span class="fw-semibold">{{ form.is_active.label }}</span>
+        </label>
+      </div>
+    </div>
+
+    {# ── 2 · Shipping ── #}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-bold py-3"><span class="badge text-bg-success me-2">2</span>Where it ships from</div>
+      <div class="card-body">
+        {% for radio in form.warehouse %}
+          <label class="d-flex align-items-center gap-2 rounded-3 border p-3 mb-2" style="cursor:pointer;">
+            {{ radio.tag }} <span class="fw-semibold">{{ radio.choice_label }}</span>
+          </label>
+        {% endfor %}
+        {{ form.warehouse.errors }}
+        <div class="row g-3 mt-1">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="id_delivery_estimate">{{ form.delivery_estimate.label }}</label>
+            {{ form.delivery_estimate }}
+            {{ form.delivery_estimate.errors }}
+          </div>
+          <div class="col-md-6 d-flex align-items-end pb-2">
+            <label class="d-flex align-items-center gap-2 mb-0">
+              {{ form.preorder }} <span class="fw-semibold">{{ form.preorder.label }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── 3 · Price ── #}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-bold py-3"><span class="badge text-bg-success me-2">3</span>Price</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="id_price">{{ form.price.label }}</label>
+            {{ form.price }}
+            <div class="form-text">{{ form.price.help_text }}</div>
+            {{ form.price.errors }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="id_original_price">{{ form.original_price.label }}</label>
+            {{ form.original_price }}
+            <div class="form-text">Shown crossed out, e.g. <s>K499</s> K399.</div>
+            {{ form.original_price.errors }}
+          </div>
+        </div>
+        <div id="air-price-group" class="mt-3">
+          <label class="form-label fw-semibold" for="id_air_price">{{ form.air_price.label }}</label>
+          {{ form.air_price }}
+          <div class="form-text">{{ form.air_price.help_text }}</div>
+          {{ form.air_price.errors }}
+        </div>
+      </div>
+    </div>
+
+    {# ── 4 · Photos ── #}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent fw-bold py-3"><span class="badge text-bg-success me-2">4</span>Photos</div>
+      <div class="card-body">
+        <div class="row g-3 mb-3">
+          <div class="col-md-9">
+            <label class="form-label fw-semibold" for="id_image">{{ form.image.label }}</label>
+            {{ form.image }}
+            <div class="form-text">{{ form.image.help_text }}</div>
+            {{ form.image.errors }}
+          </div>
+          <div class="col-md-3 d-flex align-items-center justify-content-center">
+            <img id="thumb-preview" src="" alt="" class="rounded border d-none" style="width:84px;height:84px;object-fit:cover;">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="id_gallery">{{ form.gallery.label }}</label>
+          {{ form.gallery }}
+          <div class="form-text">{{ form.gallery.help_text }}</div>
+          {{ form.gallery.errors }}
+          <div id="gallery-previews" class="d-flex flex-wrap gap-2 mt-2"></div>
+        </div>
+        <div>
+          <label class="form-label fw-semibold" for="id_video">{{ form.video.label }}</label>
+          {{ form.video }}
+          {{ form.video.errors }}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-5">
+      <button type="submit" class="btn btn-success px-4"><i class="fas fa-check me-1"></i>Save product</button>
+      <button type="submit" name="save_add_another" value="1" class="btn btn-outline-success">Save &amp; add another</button>
+      <a href="{% url 'admin:products_product_changelist' %}" class="btn btn-outline-secondary ms-auto">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{{ chips|json_script:"chips-data" }}
+<script>
+(function () {
+  // Bootstrap-ify the plain Django widgets.
+  document.querySelectorAll("#guided-form input[type=text], #guided-form input[type=number], #guided-form input[type=url], #guided-form textarea, #guided-form select")
+    .forEach(function (el) { el.classList.add("form-control"); });
+  document.querySelectorAll("#guided-form input[type=checkbox], #guided-form input[type=radio]")
+    .forEach(function (el) { el.classList.add("form-check-input"); });
+
+  var chips = JSON.parse(document.getElementById("chips-data").textContent);
+  var category = document.getElementById("id_category");
+  var sub = document.getElementById("id_sub_category");
+  var selectedSub = "{{ form.sub_category.value|default_if_none:'' }}";
+
+  function syncSub() {
+    var opts = chips[category.value] || [];
+    sub.innerHTML = "";
+    sub.appendChild(new Option(opts.length ? "— optional: pick one —" : "— this category has no sub-categories —", ""));
+    opts.forEach(function (c) { sub.appendChild(new Option(c.label, c.key)); });
+    if (selectedSub) sub.value = selectedSub;
+    sub.disabled = !opts.length;
+  }
+  category.addEventListener("change", function () { selectedSub = ""; syncSub(); });
+  syncSub();
+
+  // Air price only applies to the China hub.
+  var airGroup = document.getElementById("air-price-group");
+  function syncAir() {
+    var checked = document.querySelector("input[name=warehouse]:checked");
+    airGroup.style.display = checked && checked.value === "china" ? "" : "none";
+  }
+  document.querySelectorAll("input[name=warehouse]").forEach(function (r) { r.addEventListener("change", syncAir); });
+  syncAir();
+
+  // Live photo previews.
+  var image = document.getElementById("id_image");
+  var thumb = document.getElementById("thumb-preview");
+  function syncThumb() {
+    var v = image.value.trim();
+    thumb.src = v;
+    thumb.classList.toggle("d-none", !v);
+  }
+  image.addEventListener("input", syncThumb);
+  syncThumb();
+
+  var gallery = document.getElementById("id_gallery");
+  var strip = document.getElementById("gallery-previews");
+  function syncGallery() {
+    strip.innerHTML = "";
+    gallery.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (src) {
+      var img = document.createElement("img");
+      img.src = src;
+      img.className = "rounded border";
+      img.style.cssText = "width:56px;height:56px;object-fit:cover;";
+      strip.appendChild(img);
+    });
+  }
+  gallery.addEventListener("input", syncGallery);
+  syncGallery();
+})();
+</script>
+{% endblock %}
