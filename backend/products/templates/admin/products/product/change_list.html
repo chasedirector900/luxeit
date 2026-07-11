@@ -1,5 +1,7 @@
 {% extends "admin/change_list.html" %}
+{# "Add product" itself now opens the guided flow; this extra link reaches the
+   full tabbed form for power edits. #}
 {% block object-tools-items %}
-  <li><a href="add-guided/" class="addlink"><i class="fas fa-wand-magic-sparkles me-1"></i>Add product (guided)</a></li>
+  <li><a href="add/?advanced=1"><i class="fas fa-sliders me-1"></i>Advanced add</a></li>
   {{ block.super }}
 {% endblock %}

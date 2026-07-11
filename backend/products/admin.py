@@ -97,6 +97,13 @@ class ProductAdmin(admin.ModelAdmin):
         ]
         return custom + super().get_urls()
 
+    def add_view(self, request, form_url="", extra_context=None):
+        # The guided flow IS the default "Add product" — every add button lands
+        # there. The full tabbed form stays reachable via ?advanced=1.
+        if "advanced" not in request.GET:
+            return redirect("admin:products_product_add_guided")
+        return super().add_view(request, form_url, extra_context)
+
     def guided_add_view(self, request):
         if not self.has_add_permission(request):
             return redirect("admin:products_product_changelist")
@@ -127,7 +134,7 @@ class ProductAdmin(admin.ModelAdmin):
             "title": "Add a product",
             "form": form,
             "chips": chips,
-            "advanced_url": reverse("admin:products_product_add"),
+            "advanced_url": reverse("admin:products_product_add") + "?advanced=1",
         }
         return render(request, "admin/products/guided_add.html", context)
 
