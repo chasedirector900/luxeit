@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     # Third-party
     'rest_framework',
     'corsheaders',
+    'axes',  # admin-login brute-force lockouts
     # Local
     'users',
     'products',
@@ -76,6 +77,21 @@ INSTALLED_APPS = [
     'orders',
     'api',
 ]
+
+# Admin sign-in is the only password login — lock it after repeated failures.
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',  # must be first: enforces lockouts
+    'django.contrib.auth.backends.ModelBackend',
+]
+AXES_FAILURE_LIMIT = 5              # failed attempts before lockout
+AXES_COOLOFF_TIME = 1               # hours until the lockout lifts
+AXES_RESET_ON_SUCCESS = True        # a good login clears the counter
+AXES_LOCKOUT_PARAMETERS = [["ip_address", "username"]]  # per attacker+account
+AXES_CLIENT_IP_CALLABLE = "api.net.client_ip"  # proxy-aware, same as the API
+# The admin form posts the login as "username" even though our USERNAME_FIELD
+# is email; without this, axes records attempts under the wrong key and the
+# lockout never matches (verified by test).
+AXES_USERNAME_FORM_FIELD = "username"
 
 # Custom passwordless user model (email or phone, OTP auth). Must be set before
 # the first migration of this project's database.
@@ -140,6 +156,8 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 MIDDLEWARE = [
+    # First: reject blocklisted IPs before any other work happens.
+    'api.middleware.BlockedIPMiddleware',
     'django.middleware.security.SecurityMiddleware',
     # Serves collected static files (admin/Jazzmin CSS) straight from Django —
     # no separate web server needed on Render.
@@ -151,7 +169,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',  # last: turns lockouts into 403s
 ]
+
+# Emergency IP blocklist (comma-separated). Change the env var and restart —
+# no deploy needed. See api/middleware.py.
+BLOCKED_IPS = set(env_list("DJANGO_BLOCKED_IPS", ""))
 
 ROOT_URLCONF = 'config.urls'
 
@@ -319,6 +342,12 @@ CSRF_COOKIE_SECURE = not DEBUG
 
 # OTP delivery — in dev (DEBUG) codes are logged to the console instead of sent.
 OTP_DELIVERY_CONSOLE = env_bool("OTP_DELIVERY_CONSOLE", DEBUG)
+
+# Circuit breaker: total login codes the WHOLE system may send per hour. Even a
+# botnet rotating IPs and destinations can't run up the email/SMS bill past
+# this. 0 disables the cap. Legit traffic needing more than 500 codes/hour
+# means real scale — raise it deliberately, don't remove it.
+OTP_GLOBAL_HOURLY_CAP = int(os.getenv("OTP_GLOBAL_HOURLY_CAP", "500"))
 
 # Self-service data export (/api/auth/export). Off for now — data-copy requests
 # go through support (Privacy Policy §8). Flip the env var to re-enable.

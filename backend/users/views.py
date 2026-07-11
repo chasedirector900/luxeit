@@ -16,6 +16,7 @@ from .services import (
     detect_channel,
     normalize_destination,
     notify_new_device,
+    otp_budget_exceeded,
 )
 from .throttles import OTPDestinationThrottle, OTPRequestThrottle, OTPVerifyThrottle
 from messaging.services import post_system_message, post_welcome
@@ -49,6 +50,12 @@ def request_code(request):
         return Response(
             {"detail": "Enter a valid email address or phone number."},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if otp_budget_exceeded():
+        return Response(
+            {"detail": "We can't send codes right now. Please try again in a little while."},
+            status=status.HTTP_429_TOO_MANY_REQUESTS,
         )
 
     destination = normalize_destination(channel, identifier)
@@ -237,6 +244,12 @@ def change_contact_request(request):
         return Response({"detail": f"That's already your {field}."}, status=status.HTTP_400_BAD_REQUEST)
     if User.objects.filter(**{field: destination}).exclude(pk=request.user.pk).exists():
         return Response({"detail": "That contact is already in use by another account."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if otp_budget_exceeded():
+        return Response(
+            {"detail": "We can't send codes right now. Please try again in a little while."},
+            status=status.HTTP_429_TOO_MANY_REQUESTS,
+        )
 
     _, code = LoginCode.issue(channel, destination)
     deliver_code(channel, destination, code)

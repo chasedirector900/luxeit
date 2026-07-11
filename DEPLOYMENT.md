@@ -103,6 +103,30 @@ Until then, testers' login codes appear in Render → **Logs**.
   pooled (`conn_max_age`); Next.js caches catalogue reads for 5 minutes, which
   shields Django from most public traffic.
 
+**Login & account protection:**
+- Login codes: hashed, 10-min expiry, max 5 wrong attempts per code, old codes
+  invalidated on reissue; per-IP and per-destination request caps.
+- **Global OTP circuit breaker** (`OTP_GLOBAL_HOURLY_CAP`, default 500/hour):
+  even a distributed flood cannot run up the email/SMS bill — past the cap the
+  system stops sending codes and logs a CRITICAL line.
+- **Admin login lockout** (django-axes): 5 failed password attempts locks that
+  IP+account combination for 1 hour. Lockout history is visible in the admin
+  under "Axes" → Access attempts.
+
+**The 3am playbook** (someone is flooding an endpoint right now):
+1. Open Render → luxeit-api → Logs. Repeated 429s mean the rate limits are
+   already absorbing it — usually nothing else needed.
+2. To hard-block the source: copy the attacker IP(s) from the logs, set
+   `DJANGO_BLOCKED_IPS=1.2.3.4,5.6.7.8` in Render → Environment → Save.
+   The service restarts (~30s) and those IPs get an instant 403 with zero
+   processing cost. Remove them later the same way.
+3. If codes/emails are the target, the circuit breaker has already capped the
+   damage; look for the "OTP circuit breaker OPEN" log line.
+4. For a true volumetric DDoS (millions of requests), app-level defences are
+   the wrong layer — put **Cloudflare** (free plan) in front of the custom
+   domain at launch: DDoS absorption, WAF, per-IP rules and country blocks at
+   the edge, before traffic ever reaches Render.
+
 When real traffic grows (thousands of daily users), in order:
 1. Move the throttle/cache store to **Redis** (Render Key Value) — counters are
    currently per-process, which is fine at 1–2 instances.

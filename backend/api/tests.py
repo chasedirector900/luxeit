@@ -68,3 +68,59 @@ class ProductListCapTests(TestCase):
         res = self.client.get("/api/products")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.json()), PRODUCT_LIST_CAP)
+
+
+class BlockedIPTests(TestCase):
+    """The emergency blocklist rejects an IP before any view runs."""
+
+    def test_blocked_ip_gets_403_everywhere(self):
+        with self.settings(BLOCKED_IPS={"203.0.113.7"}):
+            res = self.client.get("/api/health", REMOTE_ADDR="203.0.113.7")
+            self.assertEqual(res.status_code, 403)
+            # Everyone else is unaffected.
+            self.assertEqual(self.client.get("/api/health", REMOTE_ADDR="10.0.0.5").status_code, 200)
+
+
+class OtpCircuitBreakerTests(TestCase):
+    """The global send budget stops code delivery past the hourly cap."""
+
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_code_sending_stops_at_the_global_cap(self):
+        with self.settings(OTP_GLOBAL_HOURLY_CAP=2):
+            for i in range(2):
+                res = self.client.post(
+                    "/api/auth/request-code",
+                    data={"identifier": f"person{i}@example.com"},
+                    content_type="application/json",
+                )
+                self.assertEqual(res.status_code, 200)
+            res = self.client.post(
+                "/api/auth/request-code",
+                data={"identifier": "person3@example.com"},
+                content_type="application/json",
+            )
+            self.assertEqual(res.status_code, 429)  # breaker open — bill protected
+
+
+class AdminLockoutTests(TestCase):
+    """django-axes locks the admin login after repeated failures."""
+
+    def setUp(self):
+        self.staff = User.objects.create_user(email="boss@example.com", password="correct-horse-battery")
+        self.staff.is_staff = True
+        self.staff.save()
+
+    def test_admin_login_locks_after_failures(self):
+        for _ in range(5):
+            self.client.post("/admin/login/", {"username": "boss@example.com", "password": "wrong"})
+        # Even the CORRECT password is refused while locked out.
+        res = self.client.post(
+            "/admin/login/", {"username": "boss@example.com", "password": "correct-horse-battery"}
+        )
+        self.assertEqual(res.status_code, 429)
+        self.assertFalse(res.wsgi_request.user.is_authenticated)

@@ -4,11 +4,40 @@ Delivery is stubbed for development: the code is printed to the runserver
 console. Swap the ``_send_*`` helpers for a real email backend / SMS gateway in
 production (set OTP_DELIVERY_CONSOLE=False once those are wired up).
 """
+import logging
 import re
 
 from django.conf import settings
+from django.core.cache import cache
+from django.utils import timezone
 
 from .models import LoginCode
+
+logger = logging.getLogger(__name__)
+
+
+def otp_budget_exceeded() -> bool:
+    """Global circuit breaker on code sending (OTP_GLOBAL_HOURLY_CAP).
+
+    Counts every send attempt in the current clock hour; past the cap, code
+    issuing stops system-wide and a critical log line fires — so a 3am flood
+    can never run up the email/SMS bill unbounded."""
+    cap = getattr(settings, "OTP_GLOBAL_HOURLY_CAP", 0)
+    if cap <= 0:
+        return False
+    key = f"otp-send-budget:{timezone.now():%Y%m%d%H}"
+    try:
+        count = cache.incr(key)
+    except ValueError:  # first send this hour
+        cache.add(key, 1, 3900)
+        count = 1
+    if count > cap:
+        logger.critical(
+            "OTP circuit breaker OPEN: %s send attempts this hour (cap %s). "
+            "Codes are NOT being sent. Investigate for abuse.", count, cap,
+        )
+        return True
+    return False
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 # E.164-ish: optional +, then 7–15 digits. Spaces/dashes are stripped first.
