@@ -311,6 +311,29 @@ class OrderApiTests(TestCase):
         self.assertEqual(res["total"], 20.0)  # priced as sea, not air
         self.assertEqual(res["items"][0]["shippingMethod"], "sea")
 
+    def test_duplicate_submit_returns_same_order_not_a_second_one(self):
+        payload = {
+            "items": [{"title": "Brake Pads", "image": "x", "price": 38.99, "quantity": 1}],
+            "payment": {"brand": "airtel", "detail": "1"},
+            "idempotencyKey": "attempt-abc-123",
+        }
+        first = self.client.post("/api/orders", data=payload, content_type="application/json")
+        second = self.client.post("/api/orders", data=payload, content_type="application/json")
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(second.status_code, 200)  # replay, not a new order
+        self.assertEqual(first.json()["id"], second.json()["id"])
+        self.assertEqual(Order.objects.filter(user=self.user).count(), 1)
+
+    def test_different_attempts_create_different_orders(self):
+        for key in ("attempt-1", "attempt-2"):
+            payload = {
+                "items": [{"title": "Item", "image": "x", "price": 10, "quantity": 1}],
+                "payment": {"brand": "mtn", "detail": "1"},
+                "idempotencyKey": key,
+            }
+            self.client.post("/api/orders", data=payload, content_type="application/json")
+        self.assertEqual(Order.objects.filter(user=self.user).count(), 2)
+
     def test_create_without_payment_is_pending(self):
         res = self.client.post(
             "/api/orders",

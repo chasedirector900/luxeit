@@ -70,6 +70,29 @@ class ProductListCapTests(TestCase):
         self.assertEqual(len(res.json()), PRODUCT_LIST_CAP)
 
 
+class ErrorGateTests(TestCase):
+    """Every API error is human-readable; nothing technical leaks out."""
+
+    def test_unhandled_exception_becomes_friendly_json(self):
+        from api.exceptions import FRIENDLY_500, api_exception_handler
+
+        response = api_exception_handler(RuntimeError("db exploded: secret table xyz"), {"request": None})
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.data["detail"], FRIENDLY_500)
+        self.assertNotIn("db exploded", str(response.data))  # internals never leak
+
+    def test_throttle_message_reads_like_a_person(self):
+        from rest_framework.exceptions import Throttled
+
+        from api.exceptions import api_exception_handler
+
+        response = api_exception_handler(Throttled(wait=42), {"request": None})
+        self.assertEqual(response.status_code, 429)
+        self.assertIn("too fast", response.data["detail"])
+        self.assertIn("42 seconds", response.data["detail"])
+        self.assertNotIn("throttled", response.data["detail"].lower())  # no jargon
+
+
 class BlockedIPTests(TestCase):
     """The emergency blocklist rejects an IP before any view runs."""
 

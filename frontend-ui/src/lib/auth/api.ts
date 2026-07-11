@@ -51,7 +51,24 @@ type FetchOptions = {
   body?: unknown;
 };
 
+// Collapse duplicate in-flight GETs: when several components request the same
+// path at the same moment (badge + page both loading threads, double effects),
+// they share ONE network call instead of stampeding the backend.
+const inflightGets = new Map<string, Promise<{ status: number; data: unknown }>>();
+
 async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<{ status: number; data: T | null }> {
+  const { method = "GET" } = options;
+  if (method === "GET") {
+    const pending = inflightGets.get(path);
+    if (pending) return pending as Promise<{ status: number; data: T | null }>;
+    const request = doFetch<T>(path, options).finally(() => inflightGets.delete(path));
+    inflightGets.set(path, request as Promise<{ status: number; data: unknown }>);
+    return request;
+  }
+  return doFetch<T>(path, options);
+}
+
+async function doFetch<T>(path: string, options: FetchOptions = {}): Promise<{ status: number; data: T | null }> {
   const { method = "GET", body } = options;
   const headers: Record<string, string> = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -301,6 +318,9 @@ export type CreateOrderInput = {
   carrier?: string;
   address?: { line1: string; city: string; area: string } | null;
   payment?: { brand: string; detail: string } | null;
+  /** Random key per checkout attempt — retries return the same order instead
+   *  of creating duplicates (double-tap / flaky network protection). */
+  idempotencyKey?: string;
 };
 
 /** The current user's orders, optionally filtered to one tab/bucket. */

@@ -40,6 +40,7 @@ export function AccountView() {
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [editing, setEditing] = useState<"profile" | "address" | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersError, setOrdersError] = useState(false);
 
   useEffect(() => {
     setProfile(readProfile());
@@ -51,10 +52,17 @@ export function AccountView() {
     let cancelled = false;
     listOrders()
       .then((data: OrderApi[]) => {
-        if (!cancelled) setOrders(data as unknown as Order[]);
+        if (!cancelled) {
+          setOrders(data as unknown as Order[]);
+          setOrdersError(false);
+        }
       })
       .catch(() => {
-        if (!cancelled) setOrders([]);
+        // Never fail silently: the tiles would show zeros and lie.
+        if (!cancelled) {
+          setOrders([]);
+          setOrdersError(true);
+        }
       });
     return () => {
       cancelled = true;
@@ -230,6 +238,11 @@ export function AccountView() {
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
+        {ordersError ? (
+          <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] font-medium text-amber-700 dark:text-amber-400">
+            We couldn&apos;t load your order counts — check your connection and pull to refresh.
+          </p>
+        ) : null}
         <div className="grid grid-cols-2 gap-2.5">
           {ORDER_BUCKETS.map(({ slug, label, note, icon: Icon, tint, ring }) => {
             const count = bucketCount(slug, orders);

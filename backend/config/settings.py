@@ -290,6 +290,9 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    # Every API error goes through one gate: technical details to the logs,
+    # plain language to the customer (see api/exceptions.py).
+    'EXCEPTION_HANDLER': 'api.exceptions.api_exception_handler',
     # Global abuse ceiling: every client gets a per-minute budget (readers and
     # signed-in users separately). Tighter per-action limits below.
     'DEFAULT_THROTTLE_CLASSES': [] if TESTING else [

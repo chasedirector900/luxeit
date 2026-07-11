@@ -98,11 +98,23 @@ class Order(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Duplicate-submit shield: checkout sends a random key per attempt; retries
+    # (double-tap, flaky network, refresh) return the SAME order instead of
+    # creating a second one. Blank for legacy/seeded orders.
+    idempotency_key = models.CharField(max_length=64, blank=True, default="")
+
     class Meta:
         ordering = ["-placed_at"]
         indexes = [
             models.Index(fields=["user", "status"]),
             models.Index(fields=["-placed_at"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "idempotency_key"],
+                condition=~models.Q(idempotency_key=""),
+                name="uniq_order_user_idempotency_key",
+            ),
         ]
 
     def __str__(self):

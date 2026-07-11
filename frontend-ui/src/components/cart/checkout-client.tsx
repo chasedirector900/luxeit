@@ -121,6 +121,14 @@ export function CheckoutClient() {
     [items, methodOverrides],
   );
 
+  // One random key per checkout attempt (renewed if the cart changes): if the
+  // network flakes and the user taps again, the backend returns the SAME order
+  // instead of charging/creating a duplicate.
+  const idempotencyKey = useMemo(
+    () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
+    [items],
+  );
+
   function setItemMethod(item: CartItem, method: ShippingMethod) {
     setMethodOverrides((prev) => ({ ...prev, [itemKey(item)]: method }));
   }
@@ -172,6 +180,7 @@ export function CheckoutClient() {
         })),
         address: { line1: selectedAddress.line1, city: selectedAddress.city, area: selectedAddress.area },
         payment: selectedMethod ? { brand: selectedMethod.brand, detail: selectedMethod.detail } : null,
+        idempotencyKey,
       });
       clearCart();
       setPlaced(true);

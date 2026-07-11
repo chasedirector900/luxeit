@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import status as http_status
@@ -76,6 +77,19 @@ def _create_order(request):
     if not items:
         return Response({"detail": "Your cart is empty."}, status=http_status.HTTP_400_BAD_REQUEST)
 
+    # Duplicate-submit shield: if this exact checkout attempt was already
+    # processed (double-tap, retry after a network blip), return the order that
+    # was created then — never a second order.
+    idem_key = str(data.get("idempotencyKey") or "").strip()[:64]
+    if idem_key:
+        existing = (
+            request.user.orders.filter(idempotency_key=idem_key)
+            .prefetch_related(*_ORDER_PREFETCH)
+            .first()
+        )
+        if existing is not None:
+            return Response(OrderSerializer(existing).data, status=http_status.HTTP_200_OK)
+
     user = request.user
     address = data.get("address") or {}
     # Fall back to the saved profile address when checkout didn't pass one.
@@ -93,18 +107,26 @@ def _create_order(request):
     # A chosen payment method means it's paid -> queue; otherwise awaiting payment.
     new_status = OrderStatus.QUEUE if payment.get("brand") else OrderStatus.PENDING
 
-    order = Order.objects.create(
-        user=user,
-        status=new_status,
-        carrier=carrier,
-        ship_name=user.full_name or "",
-        ship_line1=line1,
-        ship_city=city,
-        ship_area=area,
-        ship_phone=user.phone or "",
-        payment_brand=str(payment.get("brand") or "")[:20],
-        payment_detail=str(payment.get("detail") or "")[:40],
-    )
+    try:
+        order = Order.objects.create(
+            user=user,
+            status=new_status,
+            carrier=carrier,
+            ship_name=user.full_name or "",
+            ship_line1=line1,
+            ship_city=city,
+            ship_area=area,
+            ship_phone=user.phone or "",
+            payment_brand=str(payment.get("brand") or "")[:20],
+            payment_detail=str(payment.get("detail") or "")[:40],
+            idempotency_key=idem_key,
+        )
+    except IntegrityError:
+        # Two identical submits raced — the other one won; return its order.
+        existing = request.user.orders.filter(idempotency_key=idem_key).prefetch_related(*_ORDER_PREFETCH).first()
+        if existing is not None:
+            return Response(OrderSerializer(existing).data, status=http_status.HTTP_200_OK)
+        raise
 
     slugs = [it.get("slug") for it in items if isinstance(it, dict) and it.get("slug")]
     products_by_slug = {p.slug: p for p in Product.objects.filter(slug__in=slugs)} if slugs else {}
