@@ -150,6 +150,37 @@ class FulfilmentBoardViewTests(TestCase):
         thread = self.customer.threads.get(slug=f"order-{self.order.reference.lower()}")
         self.assertTrue(thread.messages.filter(body__icontains="Shoes").exists())
 
+    def test_deliver_stage_shows_customers_and_marks_per_order(self):
+        from django.urls import reverse
+
+        # Two Lusaka-local orders on the same day, different customers.
+        other = User.objects.create_user(email="second@example.com")
+        o1 = Order.objects.create(
+            user=self.customer, ship_name="Chanda Mwape", ship_line1="Plot 5, Kabulonga",
+            ship_city="Lusaka", ship_phone="+260971112222",
+        )
+        o2 = Order.objects.create(user=other, ship_name="Besa Zulu", ship_line1="12 Chilenje South", ship_city="Lusaka")
+        for order, title in ((o1, "LED Headlights"), (o2, "Car Mats")):
+            sh = Shipment.objects.create(order=order, warehouse="zambia", carrier="local", status=OrderStatus.QUEUE)
+            OrderItem.objects.create(
+                order=order, shipment=sh, title=title, warehouse="zambia",
+                shipping_method="local", status=OrderStatus.QUEUE, unit_price=100, quantity=1,
+            )
+        day = timezone.localdate(o1.placed_at).isoformat()
+        url = reverse("admin:orders_shipment_fulfilment_batch", args=["deliver", day, "local"])
+
+        # The page shows each customer's delivery details.
+        html = self.client.get(url).content.decode()
+        for expected in ("Chanda Mwape", "Plot 5, Kabulonga", "+260971112222", o1.reference, "Besa Zulu"):
+            self.assertIn(expected, html)
+
+        # Marking ONE order delivers only that customer's items.
+        self.client.post(url, data={"order": o1.pk})
+        self.assertEqual(Order.objects.get(pk=o1.pk).status, OrderStatus.DELIVERED)
+        self.assertEqual(Order.objects.get(pk=o2.pk).status, OrderStatus.PENDING)
+        thread = self.customer.threads.get(slug=f"order-{o1.reference.lower()}")
+        self.assertTrue(thread.messages.filter(body__icontains="delivered").exists())
+
     def test_ship_stage_moves_sourced_to_transit_and_notifies(self):
         from django.urls import reverse
 

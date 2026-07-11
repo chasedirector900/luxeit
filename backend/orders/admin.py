@@ -326,15 +326,17 @@ class ShipmentAdmin(admin.ModelAdmin):
             "title": "Arrivals", "warehouse": "china",
             "statuses": [OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
             "action": "Mark arrived (ready for collection)", "done": "arrived (ready for collection)",
-            "hint": "In transit from China — mark a product arrived when it lands.",
+            "hint": "In transit from China — when it lands, mark each customer's order so they know to collect.",
             "icon": "fa-warehouse", "color": "primary",
+            "per_customer": True,  # arrivals are handed over per customer
         },
         "deliver": {
             "title": "Lusaka local", "warehouse": "zambia",
             "statuses": [OrderStatus.QUEUE, OrderStatus.SOURCING, OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
             "action": "Mark delivered", "done": "delivered",
-            "hint": "Local-stock orders ready for the rider.",
+            "hint": "Local-stock orders — the rider delivers per customer; mark each drop as it's done.",
             "icon": "fa-truck", "color": "success",
+            "per_customer": True,  # the rider works address by address
         },
     }
     CARRIER_LABEL = {"air": "Air", "sea": "Sea", "local": "Local"}
@@ -443,10 +445,13 @@ class ShipmentAdmin(admin.ModelAdmin):
             return self._advance(request, stage, day_d, carrier)
 
         cfg = self.STAGES[stage]
+        stage_items = list(self._stage_items(stage, day=day_d, carrier=carrier))
+
+        # Product-grouped buy list (source/ship stages).
         index: dict = {}
         lines: list = []
         all_orders: set = set()
-        for it in self._stage_items(stage, day=day_d, carrier=carrier):
+        for it in stage_items:
             key = self._line_key(it)
             line = index.get(key)
             if line is None:
@@ -461,6 +466,34 @@ class ShipmentAdmin(admin.ModelAdmin):
         for line in lines:
             line["customers"] = len(line["customers"])
         lines.sort(key=lambda r: (-r["qty"], r["title"]))
+
+        # Customer-grouped drop list (arrive/deliver stages): the rider or the
+        # collection desk works order by order — show who, where, and what.
+        customer_orders: list = []
+        if cfg.get("per_customer"):
+            by_order: dict = {}
+            for it in stage_items:
+                o = by_order.get(it.order_id)
+                if o is None:
+                    order = it.order
+                    contact = order.user.email or order.user.phone or ""
+                    o = {
+                        "id": order.pk,
+                        "ref": order.reference,
+                        "name": order.ship_name or order.user.full_name or contact or f"user #{order.user_id}",
+                        "initial": (order.ship_name or order.user.full_name or contact or "?")[:1].upper(),
+                        "phone": order.ship_phone or order.user.phone or "",
+                        "contact": contact,
+                        "address": ", ".join(p for p in [order.ship_line1, order.ship_city, order.ship_area] if p),
+                        "items": [], "units": 0, "value": 0,
+                    }
+                    by_order[it.order_id] = o
+                    customer_orders.append(o)
+                o["items"].append({"title": it.title, "image": it.image, "variant": it.variant_label, "qty": it.quantity})
+                o["units"] += it.quantity
+                o["value"] += float(it.line_total)
+            customer_orders.sort(key=lambda r: r["ref"])
+
         context = {
             **self.admin_site.each_context(request),
             "title": f"{cfg['title']} · {day_d} · {self.CARRIER_LABEL.get(carrier, carrier)}",
@@ -469,6 +502,8 @@ class ShipmentAdmin(admin.ModelAdmin):
             "carrier_label": self.CARRIER_LABEL.get(carrier, carrier),
             "carrier_icon": self.CARRIER_ICON.get(carrier, "fa-box"),
             "action_label": cfg["action"], "lines": lines,
+            "customer_orders": customer_orders,
+            "per_customer": bool(cfg.get("per_customer")),
             "total": sum(line["qty"] for line in lines),
             "customers_total": len(all_orders),
             "back_url": reverse("admin:orders_shipment_fulfilment_day", args=[stage, day]),
@@ -478,16 +513,22 @@ class ShipmentAdmin(admin.ModelAdmin):
     def _advance(self, request, stage, day, carrier):
         cfg = self.STAGES[stage]
         base = list(self._stage_items(stage, day=day, carrier=carrier))
+        order_id = request.POST.get("order", "")
         line_key = request.POST.get("line", "")
-        if line_key and line_key != "__all__":
+        if order_id:  # one customer's whole order (the rider finished a drop)
+            items = [it for it in base if str(it.order_id) == order_id]
+        elif line_key and line_key != "__all__":  # one product line
             items = [it for it in base if self._line_key(it) == line_key]
-        else:
+        else:  # the whole batch
             items = base
         if not items:
             self.message_user(request, "Nothing to update — it may have already moved.", level=messages.WARNING)
             return redirect(request.path)
         customers, units = advance_items(items, cfg["target"])
-        self.message_user(request, f"Marked {units} unit(s) as {cfg['done']} — {customers} customer(s) notified.")
+        if order_id:
+            self.message_user(request, f"Order {items[0].order.reference} marked {cfg['done']} — the customer has been notified.")
+        else:
+            self.message_user(request, f"Marked {units} unit(s) as {cfg['done']} — {customers} customer(s) notified.")
         return redirect(request.path)
 
     # ── Bulk status actions (granular, from the changelist) ─────────────────
