@@ -8,8 +8,8 @@
  */
 export function SectionSkeleton() {
   return (
-    <main className="min-h-screen animate-pulse bg-slate-50 px-4 pb-6 pt-5 dark:bg-black">
-      <div className="mx-auto w-full max-w-md space-y-5">
+    <main className="min-h-screen animate-pulse bg-slate-50 px-4 pb-6 pt-5 md:px-6 dark:bg-black">
+      <div className="mx-auto w-full max-w-md space-y-5 md:max-w-6xl">
         {/* Generic header: back button + title lines — matches every section page */}
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 shrink-0 rounded-full bg-slate-200 dark:bg-zinc-800" />
@@ -20,9 +20,16 @@ export function SectionSkeleton() {
         </div>
 
         {/* Uncommitted content blocks — plausible before any child page */}
-        <div className="h-40 w-full rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70" />
-        <div className="h-64 w-full rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70" />
-        <div className="h-32 w-full rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70" />
+        <div className="h-40 w-full rounded-2xl border border-slate-200 bg-white md:h-52 dark:border-zinc-800 dark:bg-zinc-900/70" />
+        {/* A responsive card grid so desktop doesn't flash a narrow column. */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {Array.from({ length: 10 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="aspect-[3/4] rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70"
+            />
+          ))}
+        </div>
       </div>
     </main>
   );

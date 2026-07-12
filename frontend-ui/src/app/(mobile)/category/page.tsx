@@ -76,24 +76,27 @@ function SectionHeader({ title, href }: { title: string; href?: string }) {
 }
 
 export default async function CategoryPage() {
-  const recommended = (await fetchProducts()).slice(0, 2);
+  const recommended = (await fetchProducts()).slice(0, 10);
 
   return (
-    <main className="min-h-screen bg-slate-50 px-3 pb-4 pt-4 text-slate-950 dark:bg-black dark:text-zinc-100">
-      <div className="mx-auto w-full max-w-md">
+    <main className="min-h-screen bg-slate-50 px-3 pb-4 pt-4 text-slate-950 md:px-6 dark:bg-black dark:text-zinc-100">
+      <div className="mx-auto w-full max-w-md md:max-w-6xl">
         <header className="reveal-up mb-4 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-black tracking-tight">Category</h1>
-            <p className="mt-0.5 text-[11px] font-medium text-slate-500 dark:text-zinc-400">
+            <h1 className="text-2xl font-black tracking-tight md:text-3xl">Category</h1>
+            <p className="mt-0.5 text-[11px] font-medium text-slate-500 md:text-sm dark:text-zinc-400">
               Browse products, imports, and digital services
             </p>
           </div>
-          <CartButton />
+          {/* Cart lives in the desktop top bar. */}
+          <span className="md:hidden">
+            <CartButton />
+          </span>
         </header>
 
         <div style={{ animationDelay: "60ms" }} className="reveal-up">
           <SectionHeader title="Quick Categories" />
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-4 gap-2 md:grid-cols-6 lg:grid-cols-8">
             {quickCategories.map(({ label, href, icon: Icon, tint, ring }) => (
               <Link
                 key={label}
@@ -136,7 +139,7 @@ export default async function CategoryPage() {
 
         <section style={{ animationDelay: "180ms" }} className="reveal-up mt-5">
           <SectionHeader title="Popular Vehicle Categories" href="/explore/search?q=car+parts" />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
             {popularVehicleCategories.map((item) => (
               <Link
                 key={item.label}
@@ -160,7 +163,7 @@ export default async function CategoryPage() {
 
         <section style={{ animationDelay: "240ms" }} className="reveal-up mt-5">
           <SectionHeader title="Universal Car Parts" href="/category/universal-car-parts" />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
             {universalCarParts.map(({ title, subtitle, href, icon: Icon, tint, ring }) => (
               <Link
                 key={title}
@@ -201,7 +204,7 @@ export default async function CategoryPage() {
 
         <section style={{ animationDelay: "360ms" }} className="reveal-up mt-5">
           <SectionHeader title="Recommended in Categories" href="/explore/search" />
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {recommended.map((product) => (
               <ProductCard
                 key={`cat-reco-${product.id}`}
