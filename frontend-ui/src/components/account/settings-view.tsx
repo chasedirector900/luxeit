@@ -192,9 +192,9 @@ export function SettingsView() {
           </div>
         </section>
 
-        {/* Danger zone */}
+        {/* Close account */}
         <section style={{ animationDelay: "210ms" }} className="reveal-up">
-          <h2 className={SECTION}>Danger zone</h2>
+          <h2 className={SECTION}>Manage account</h2>
           <button
             type="button"
             onClick={() => setConfirmOpen(true)}

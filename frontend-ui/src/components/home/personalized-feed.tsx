@@ -6,6 +6,18 @@ import { ProductCard } from "@/components/product/product-card";
 import { fetchFeed } from "@/lib/auth/api";
 import type { Product } from "@/types/product";
 
+// ONE seed per full page load. The module re-initialises on a hard reload (F5),
+// giving a new seed → the feed rotates; but it persists across client-side
+// navigation (the SPA runtime stays alive), so hopping between pages keeps the
+// SAME order. Paired with the cache below, navigating back is instant and makes
+// zero extra API calls — SSR does the first paint, this does the rest.
+const PAGE_SEED =
+  typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Math.random()).slice(2);
+
+// Per-load memo of feeds we've already fetched, keyed by placement params. Wiped
+// on reload (module re-init). Prevents refetching the same feed on every visit.
+const feedCache = new Map<string, Product[]>();
+
 type PersonalizedFeedProps = {
   /** How many products to request. */
   limit?: number;
@@ -37,14 +49,25 @@ export function PersonalizedFeed({
   className = "grid grid-cols-2 gap-3",
   initial = [],
 }: PersonalizedFeedProps) {
-  const [items, setItems] = useState<Product[]>(initial);
-  const [loading, setLoading] = useState(initial.length === 0);
+  const cacheKey = `${category ?? ""}|${limit}|${(exclude ?? []).join(",")}`;
+  const cached = feedCache.get(cacheKey);
+  const [items, setItems] = useState<Product[]>(cached ?? initial);
+  const [loading, setLoading] = useState(!cached && initial.length === 0);
 
   useEffect(() => {
+    // Already fetched this feed on this page load → serve it instantly, no call.
+    const hit = feedCache.get(cacheKey);
+    if (hit) {
+      setItems(hit);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
-    fetchFeed({ limit, category, exclude })
+    fetchFeed({ seed: PAGE_SEED, limit, category, exclude })
       .then((data) => {
-        if (!cancelled && data.length) setItems(data);
+        if (cancelled || !data.length) return;
+        feedCache.set(cacheKey, data);
+        setItems(data);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -52,9 +75,9 @@ export function PersonalizedFeed({
     return () => {
       cancelled = true;
     };
-    // A fresh mount (each page load) re-runs this with a new random seed.
+    // cacheKey captures limit/category/exclude; the seed is stable per page load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cacheKey]);
 
   if (loading && items.length === 0) {
     return (
