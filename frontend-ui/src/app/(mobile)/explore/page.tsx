@@ -13,6 +13,7 @@ import {
   Watch,
 } from "lucide-react";
 import { HeaderCartButton } from "@/components/layout/header-cart-button";
+import { PersonalizedFeed } from "@/components/home/personalized-feed";
 import { ProductCard } from "@/components/product/product-card";
 import { fetchProducts } from "@/lib/category/api";
 import { formatKwacha } from "@/lib/currency";
@@ -202,7 +203,10 @@ export default async function ExplorePage() {
           </div>
         </section>
 
-        <ProductSection title="Top Picks For You" href="/explore/search?sort=top" products={topPicks} delay={360} />
+        <section className="reveal-up" style={{ animationDelay: "360ms" }}>
+          <SectionHeader title="Top Picks For You" href="/explore/search?sort=top" />
+          <PersonalizedFeed card="product" limit={6} initial={topPicks} className="grid grid-cols-2 gap-2.5" />
+        </section>
         <ProductSection title="New Imports" href="/explore/search?filter=imports" products={newImports} delay={360} />
         <ProductSection title="Fast Air Shipping" href="/explore/search?shipping=air" products={fastAir} delay={360} />
         <ProductSection title="Popular Categories" href="/explore/search?sort=popular" products={popular} delay={360} />

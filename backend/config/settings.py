@@ -315,6 +315,7 @@ REST_FRAMEWORK = {
         'orders_create': '30/hour',
         'reviews': '20/hour',
         'support_send': '60/hour',
+        'events': '600/hour',  # view/cart tracking — generous, it's cheap
     },
 }
 

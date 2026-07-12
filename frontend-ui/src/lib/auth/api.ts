@@ -370,6 +370,44 @@ export async function submitReview(slug: string, input: { rating: number; text: 
   throw new ApiError(detail(data, "Couldn't submit your review."), status);
 }
 
+// ── Smart feed, interaction tracking & search terms ─────────────────────────
+/** The personalised, rotated product feed. A fresh `seed` reshuffles it (each
+ *  reload looks different); the backend personalises when the user is signed in.
+ *  Returns [] on any error so the UI can fall back gracefully. */
+export async function fetchFeed(opts?: { seed?: string; limit?: number; category?: string; exclude?: string[] }): Promise<Product[]> {
+  const params = new URLSearchParams();
+  params.set("seed", opts?.seed ?? String(Math.random()).slice(2));
+  if (opts?.limit) params.set("limit", String(opts.limit));
+  if (opts?.category) params.set("category", opts.category);
+  if (opts?.exclude?.length) params.set("exclude", opts.exclude.join(","));
+  const { status, data } = await apiFetch<Product[]>(`/api/feed?${params.toString()}`);
+  return status === 200 && data ? data : [];
+}
+
+/** Record a product view / add-to-cart so the feed learns (signed-in users). */
+export async function recordProductEvent(slug: string, kind: "view" | "cart" = "view"): Promise<void> {
+  try {
+    await apiFetch("/api/events", { method: "POST", body: { slug, kind } });
+  } catch {
+    // Tracking must never disrupt the UI.
+  }
+}
+
+export type SearchTerms = { recent: string[]; popular: string[] };
+
+export async function getSearchTerms(): Promise<SearchTerms> {
+  const { status, data } = await apiFetch<SearchTerms>("/api/searches");
+  return status === 200 && data ? data : { recent: [], popular: [] };
+}
+
+export async function recordSearch(term: string): Promise<void> {
+  try {
+    await apiFetch("/api/searches", { method: "POST", body: { term } });
+  } catch {
+    // Non-critical.
+  }
+}
+
 // ── Saved items (wishlist — server-side, per account) ───────────────────────
 export type SavedItemApi = {
   id: string; // product slug

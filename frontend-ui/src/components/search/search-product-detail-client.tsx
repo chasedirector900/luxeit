@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -19,6 +19,7 @@ import {
   Warehouse,
 } from "lucide-react";
 import { ProductCard } from "@/components/product/product-card";
+import { recordProductEvent } from "@/lib/auth/api";
 import { useCart } from "@/hooks/use-cart";
 import { formatKwacha } from "@/lib/currency";
 import { WAREHOUSE_META, deliveryLong } from "@/lib/products/warehouse";
@@ -54,6 +55,11 @@ export function SearchProductDetailClient({
 }: SearchProductDetailClientProps) {
   const router = useRouter();
   const { addItem } = useCart();
+  // Tell the feed this product was viewed, so recommendations learn (fires once
+  // per product; no-op when signed out).
+  useEffect(() => {
+    void recordProductEvent(product.slug, "view");
+  }, [product.slug]);
   const [quantity, setQuantity] = useState(1);
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});

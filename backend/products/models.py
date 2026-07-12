@@ -226,6 +226,48 @@ class ProductImage(models.Model):
         return f"{self.product.title} image #{self.position}"
 
 
+class ProductEvent(models.Model):
+    """A lightweight interaction signal (a view, or an add-to-cart) used to learn
+    what a customer is into. Purchases, saves and reviews live in their own
+    tables and are read by the recommender directly — this covers the rest."""
+
+    VIEW = "view"
+    CART = "cart"
+    KIND_CHOICES = [(VIEW, "Viewed"), (CART, "Added to cart")]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="product_events", on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(Product, related_name="events", on_delete=models.CASCADE)
+    kind = models.CharField(max_length=8, choices=KIND_CHOICES, default=VIEW)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.user} {self.kind} {self.product}"
+
+
+class SearchQuery(models.Model):
+    """A search a customer ran — powers per-user 'recent searches' and the
+    global 'popular searches' list."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="searches", on_delete=models.CASCADE
+    )
+    term = models.CharField(max_length=120)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.user}: {self.term}"
+
+
 class SavedItem(models.Model):
     """A product on the user's wishlist — server-side, per-account, so hearts
     follow the user across devices and never leak on a shared phone."""

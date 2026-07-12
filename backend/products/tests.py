@@ -228,3 +228,54 @@ class CarReviewSeedTests(TestCase):
         call_command("seed_reviews")
         after = sum(p.reviews.count() for p in Product.objects.filter(product_type=ProductType.CAR_PART))
         self.assertEqual(before, after)
+
+
+class RecommendationTests(TestCase):
+    """The feed personalises from behaviour, rotates by seed, and works cold."""
+
+    def setUp(self):
+        from products.models import Category
+
+        self.cat_shoe = Category.objects.create(slug="shoes", name="Shoes")
+        self.cat_car = Category.objects.create(slug="cars", name="Cars")
+        # A spread of products across two categories.
+        for i in range(6):
+            Product.objects.create(slug=f"shoe-{i}", title=f"Shoe {i}", price=50, warehouse="china",
+                                   category=self.cat_shoe, product_type="footwear", units_sold=i)
+        for i in range(6):
+            Product.objects.create(slug=f"car-{i}", title=f"Car part {i}", price=50, warehouse="china",
+                                   category=self.cat_car, product_type="car_part", units_sold=i)
+        self.user = User.objects.create_user(email="feed@example.com")
+
+    def test_feed_is_public_and_rotates_by_seed(self):
+        a = [p["slug"] for p in self.client.get("/api/feed?seed=alpha&limit=8").json()]
+        b = [p["slug"] for p in self.client.get("/api/feed?seed=bravo&limit=8").json()]
+        self.assertEqual(len(a), 8)
+        self.assertNotEqual(a, b)  # different seed -> different order
+        # Same seed is stable.
+        self.assertEqual(a, [p["slug"] for p in self.client.get("/api/feed?seed=alpha&limit=8").json()])
+
+    def test_feed_personalises_toward_viewed_category(self):
+        from products.recommendations import affinity_profile
+
+        self.client.force_login(self.user)
+        # Strongly signal interest in shoes.
+        for i in range(5):
+            self.client.post("/api/events", data={"slug": f"shoe-{i}", "kind": "view"}, content_type="application/json")
+        prof = affinity_profile(self.user)
+        self.assertGreater(prof["category"].get(self.cat_shoe.id, 0), prof["category"].get(self.cat_car.id, 0))
+        # Shoes should dominate the top of the feed.
+        top = [p["slug"] for p in self.client.get("/api/feed?seed=x&limit=6").json()]
+        self.assertGreaterEqual(sum(1 for s in top if s.startswith("shoe")), 4)
+
+    def test_searches_record_and_list(self):
+        self.client.force_login(self.user)
+        self.client.post("/api/searches", data={"term": "Sneakers"}, content_type="application/json")
+        self.client.post("/api/searches", data={"term": "Brake pads"}, content_type="application/json")
+        data = self.client.get("/api/searches").json()
+        self.assertIn("Sneakers", data["recent"])
+        self.assertIn("Brake pads", data["recent"])
+        self.assertTrue(data["popular"])  # always has content (fallback tops up)
+
+    def test_events_require_auth(self):
+        self.assertIn(self.client.post("/api/events", data={"slug": "shoe-0"}, content_type="application/json").status_code, (401, 403))

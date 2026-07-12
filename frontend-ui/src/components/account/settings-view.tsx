@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   ArrowLeft,
   ChevronRight,
-  Download,
   FileText,
   Loader2,
   Mail,
@@ -177,15 +176,6 @@ export function SettingsView() {
               <span className="flex-1 text-sm font-semibold text-slate-800 dark:text-zinc-200">Privacy policy</span>
               <ChevronRight className="h-4 w-4 text-slate-300 dark:text-zinc-600" />
             </Link>
-            {/* Disabled for now — a copy of your data can be requested via support
-                (see Privacy Policy §8). Re-enable once the export flow is finalised. */}
-            <div className={`${ROW_CLASS} cursor-not-allowed opacity-50`} aria-disabled="true">
-              <span className={ROW_ICON}><Download className="h-[18px] w-[18px]" strokeWidth={2} /></span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-slate-800 dark:text-zinc-200">Export my data</span>
-                <span className="block text-[12px] text-slate-500 dark:text-zinc-400">Temporarily unavailable — contact support for a copy</span>
-              </span>
-            </div>
           </div>
         </section>
 

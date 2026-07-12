@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Clock3, Search, Tag, TrendingUp } from "lucide-react";
+import { PersonalizedFeed } from "@/components/home/personalized-feed";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductCardSkeleton } from "@/components/product/product-card-skeleton";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { searchProducts } from "@/lib/auth/api";
-import { POPULAR_SEARCH_TERMS, RECENT_SEARCH_TERMS } from "@/lib/products/mock-products";
+import { getSearchTerms, recordSearch, searchProducts } from "@/lib/auth/api";
 import type { Product } from "@/types/product";
 
 function normalizeText(value: string) {
@@ -57,6 +57,30 @@ export function SearchPageClient({
   const debouncedQuery = useDebouncedValue(query, 250);
   const normalizedDebouncedQuery = normalizeText(debouncedQuery);
 
+  // Real search terms: recent (this user's history) + popular (across everyone).
+  const [recentTerms, setRecentTerms] = useState<string[]>([]);
+  const [popularTerms, setPopularTerms] = useState<string[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    getSearchTerms().then((t) => {
+      if (cancelled) return;
+      setRecentTerms(t.recent);
+      setPopularTerms(t.popular);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Record a real search once the user pauses on a meaningful query, and show it
+  // in "recent" immediately (optimistic).
+  useEffect(() => {
+    const term = debouncedQuery.trim();
+    if (term.length < 2) return;
+    void recordSearch(term);
+    setRecentTerms((prev) => [term, ...prev.filter((t) => t.toLowerCase() !== term.toLowerCase())].slice(0, 8));
+  }, [debouncedQuery]);
+
   // Server-side search: the backend matches the query; the chips below filter the
   // returned set client-side. An empty query returns a default list (recommended).
   const [products, setProducts] = useState<Product[]>([]);
@@ -94,7 +118,6 @@ export function SearchPageClient({
   );
 
   const showSuggestions = normalizedDebouncedQuery.length === 0;
-  const recommended = filteredProducts.slice(0, 6);
   const totalProductCount = filteredProducts.length;
 
   return (
@@ -150,25 +173,27 @@ export function SearchPageClient({
 
         {showSuggestions ? (
           <section className="reveal-up mt-6 space-y-6" style={{ animationDelay: "180ms" }}>
-            <div>
-              <h2 className="mb-2.5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">
-                <Clock3 className="h-3.5 w-3.5" /> Recent Searches
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {RECENT_SEARCH_TERMS.map((term) => (
-                  <button key={term} type="button" onClick={() => setQuery(term)} className={TERM_PILL_CLASS}>
-                    {term}
-                  </button>
-                ))}
+            {recentTerms.length > 0 ? (
+              <div>
+                <h2 className="mb-2.5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">
+                  <Clock3 className="h-3.5 w-3.5" /> Recent Searches
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {recentTerms.map((term) => (
+                    <button key={term} type="button" onClick={() => setQuery(term)} className={TERM_PILL_CLASS}>
+                      {term}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
 
             <div>
               <h2 className="mb-2.5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">
                 <TrendingUp className="h-3.5 w-3.5" /> Popular Searches
               </h2>
               <div className="flex flex-wrap gap-2">
-                {POPULAR_SEARCH_TERMS.map((term) => (
+                {popularTerms.map((term) => (
                   <button key={term} type="button" onClick={() => setQuery(term)} className={TERM_PILL_CLASS}>
                     {term}
                   </button>
@@ -178,19 +203,14 @@ export function SearchPageClient({
 
             <div>
               <h2 className="mb-3 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">
-                <Tag className="h-3.5 w-3.5" /> Recommended
+                <Tag className="h-3.5 w-3.5" /> Recommended for you
               </h2>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                {recommended.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    showAddToCart
-                    variant="search"
-                    detailHrefBase={productHrefBase}
-                  />
-                ))}
-              </div>
+              <PersonalizedFeed
+                card="product"
+                limit={6}
+                detailHrefBase={productHrefBase}
+                className="grid grid-cols-2 gap-3 md:grid-cols-3"
+              />
             </div>
           </section>
         ) : (

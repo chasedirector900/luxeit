@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from . import views
+from . import feed_views, views
 
 app_name = "products"
 
@@ -14,4 +14,8 @@ urlpatterns = [
     # Wishlist — server-side per account, so hearts follow the user, not the device.
     re_path(r"^saved/?$", views.saved_list, name="saved"),
     re_path(r"^saved/(?P<slug>[-\w]+)/?$", views.saved_toggle, name="saved-toggle"),
+    # Smart feed + interaction tracking + search terms.
+    re_path(r"^feed/?$", feed_views.feed, name="feed"),
+    re_path(r"^events/?$", feed_views.record_event, name="events"),
+    re_path(r"^searches/?$", feed_views.searches, name="searches"),
 ]

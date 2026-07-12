@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, SearchX, Tag, Truck } from "lucide-react";
 import { HomeTopPickCard } from "@/components/home/home-top-pick-card";
+import { PersonalizedFeed } from "@/components/home/personalized-feed";
 import { MobileHomeHeader } from "@/components/home/mobile-home-header";
 import { InlineSearchInput } from "@/components/search/inline-search-input";
 import { fetchProducts } from "@/lib/category/api";
@@ -17,7 +18,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   // Search hits the backend catalogue server-side — the URL (?q=) is the source
   // of truth, so results are SSR'd and the home stays a server component.
   const results = isSearching ? await fetchProducts({ q: query }) : [];
-  const topPicks = (await fetchProducts()).slice(0, 4);
+  // Server-rendered seed for the feed so there's an instant first paint; the
+  // <PersonalizedFeed> then refreshes + rotates + personalises on the client.
+  const feedSeed = isSearching ? [] : (await fetchProducts()).slice(0, 6);
 
   return (
     <main className="min-h-screen bg-slate-50 px-3 pb-6 pt-3 text-slate-900 dark:bg-black dark:text-zinc-100">
@@ -99,7 +102,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <div className="mb-3 flex items-end justify-between">
                 <div>
                   <h3 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">Top Picks for You</h3>
-                  <p className="mt-0.5 text-[12px] text-slate-500 dark:text-zinc-500">Handpicked deals, refreshed daily</p>
+                  <p className="mt-0.5 text-[12px] text-slate-500 dark:text-zinc-500">Personalised · refreshes every visit</p>
                 </div>
                 <Link
                   href="/explore/search"
@@ -109,11 +112,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {topPicks.map((product) => (
-                  <HomeTopPickCard key={product.id} product={product} />
-                ))}
-              </div>
+              <PersonalizedFeed card="home" limit={8} initial={feedSeed} className="grid grid-cols-2 gap-3" />
             </section>
 
             <section style={{ animationDelay: "300ms" }} className="reveal-up grid grid-cols-2 gap-3">

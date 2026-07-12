@@ -5,6 +5,7 @@ import { InlineSearchInput } from "@/components/search/inline-search-input";
 import { ListingChips } from "@/components/category/listing-chips";
 import { ListingFilterSheet } from "@/components/category/listing-filter-sheet";
 import { ListingProductCard } from "@/components/category/listing-product-card";
+import { PersonalizedFeed } from "@/components/home/personalized-feed";
 import { type CategoryConfig, filterListing } from "@/lib/category/shared";
 import { resolveListingIcon } from "@/lib/category/icons";
 
@@ -103,6 +104,22 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
             <span className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
               <Sparkles className="h-5 w-5" />
             </span>
+          </section>
+        ) : null}
+
+        {/* Personalised, rotating rail — only in the pure browse view */}
+        {isBrowsing ? (
+          <section style={{ animationDelay: "200ms" }} className="reveal-up">
+            <h3 className="mb-3 flex items-center gap-1.5 text-lg font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">
+              <Sparkles className="h-4 w-4 text-indigo-500" /> Recommended for you
+            </h3>
+            <PersonalizedFeed
+              card="product"
+              category={config.slug}
+              limit={4}
+              detailHrefBase={detailHrefBase}
+              className="grid grid-cols-2 gap-3"
+            />
           </section>
         ) : null}
 
