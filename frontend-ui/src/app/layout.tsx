@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { DesktopGate } from "@/components/layout/desktop-gate";
-import { Header } from "@/components/layout/header";
+import { AppShell } from "@/components/layout/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
@@ -37,20 +36,19 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full bg-background text-foreground md:overflow-hidden">
+      <body className="min-h-full bg-background text-foreground">
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
               <SavedProvider>
                 <NotificationsProvider>
-                  <Header />
-                  {children}
+                  {/* Phones keep the mobile chrome; tablets & desktops get the
+                      sidebar + top-bar shell around the same pages. */}
+                  <AppShell>{children}</AppShell>
                 </NotificationsProvider>
               </SavedProvider>
             </CartProvider>
           </AuthProvider>
-          {/* Tablets & desktops see a "use mobile" gate instead of the app. */}
-          <DesktopGate />
         </ThemeProvider>
       </body>
     </html>

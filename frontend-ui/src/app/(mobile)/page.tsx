@@ -23,13 +23,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const feedSeed = isSearching ? [] : (await fetchProducts()).slice(0, 6);
 
   return (
-    <main className="min-h-screen bg-slate-50 px-3 pb-6 pt-3 text-slate-900 dark:bg-black dark:text-zinc-100">
-      <div className="mx-auto w-full max-w-md space-y-5">
-        <div className="reveal-up">
+    <main className="min-h-screen bg-slate-50 px-3 pb-6 pt-3 text-slate-900 md:px-6 dark:bg-black dark:text-zinc-100">
+      <div className="mx-auto w-full max-w-md space-y-5 md:max-w-6xl">
+        {/* Logo + bell live in the desktop top bar, so hide this on md+. */}
+        <div className="reveal-up md:hidden">
           <MobileHomeHeader />
         </div>
 
-        <div style={{ animationDelay: "60ms" }} className="reveal-up">
+        {/* The desktop top bar owns search, so this inline box is mobile-only. */}
+        <div style={{ animationDelay: "60ms" }} className="reveal-up md:hidden">
           <InlineSearchInput initialQuery={query} placeholder="Search products, brands, and more" />
         </div>
 
@@ -44,7 +46,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
 
             {results.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {results.map((product) => (
                   <HomeTopPickCard key={product.id} product={product} />
                 ))}
@@ -112,7 +114,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
-              <PersonalizedFeed card="home" limit={8} initial={feedSeed} className="grid grid-cols-2 gap-3" />
+              <PersonalizedFeed card="home" limit={12} initial={feedSeed} className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" />
             </section>
 
             <section style={{ animationDelay: "300ms" }} className="reveal-up grid grid-cols-2 gap-3">

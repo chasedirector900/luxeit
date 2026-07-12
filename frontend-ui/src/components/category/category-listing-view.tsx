@@ -49,8 +49,8 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
         : `All ${config.title}`;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 pb-6 pt-5 text-slate-900 dark:bg-black dark:text-zinc-100">
-      <div className="mx-auto w-full max-w-md space-y-5">
+    <main className="min-h-screen bg-slate-50 px-4 pb-6 pt-5 text-slate-900 md:px-6 dark:bg-black dark:text-zinc-100">
+      <div className="mx-auto w-full max-w-md space-y-5 md:max-w-6xl">
         {/* Header */}
         <header className="reveal-up space-y-3">
           <div className="flex items-center justify-between gap-3">
@@ -116,9 +116,9 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
             <PersonalizedFeed
               card="product"
               category={config.slug}
-              limit={4}
+              limit={10}
               detailHrefBase={detailHrefBase}
-              className="grid grid-cols-2 gap-3"
+              className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             />
           </section>
         ) : null}
@@ -148,7 +148,7 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
           </div>
 
           {gridProducts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {gridProducts.map((product) => (
                 <ListingProductCard key={product.id} product={product} detailHrefBase={detailHrefBase} />
               ))}

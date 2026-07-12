@@ -66,7 +66,7 @@ function ProductSection({
   return (
     <section className="reveal-up" style={{ animationDelay: `${delay}ms` }}>
       <SectionHeader title={title} href={href} />
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {products.map((product) => (
           <ProductCard key={`${title}-${product.id}`} product={product} variant="search" />
         ))}
@@ -86,8 +86,8 @@ export default async function ExplorePage() {
   const dealsOfDay = [...all].sort((a, b) => a.price - b.price).slice(0, 6);
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 pb-6 pt-5 text-slate-900 dark:bg-black dark:text-zinc-100">
-      <div className="mx-auto w-full max-w-md space-y-5">
+    <main className="min-h-screen bg-slate-50 px-4 pb-6 pt-5 text-slate-900 md:px-6 dark:bg-black dark:text-zinc-100">
+      <div className="mx-auto w-full max-w-md space-y-5 md:max-w-6xl">
         {/* Header */}
         <header className="reveal-up flex items-start justify-between gap-3">
           <div>
@@ -158,7 +158,7 @@ export default async function ExplorePage() {
         {/* Browse by Category */}
         <section className="reveal-up" style={{ animationDelay: "240ms" }}>
           <SectionHeader title="Browse by Category" href="/explore/search" />
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-3 gap-2.5 md:grid-cols-5 lg:grid-cols-6">
             {browseItems.map(({ label, href, icon: Icon, tint, ring }) => (
               <Link
                 key={label}
@@ -205,7 +205,7 @@ export default async function ExplorePage() {
 
         <section className="reveal-up" style={{ animationDelay: "360ms" }}>
           <SectionHeader title="Top Picks For You" href="/explore/search?sort=top" />
-          <PersonalizedFeed card="product" limit={6} initial={topPicks} className="grid grid-cols-2 gap-2.5" />
+          <PersonalizedFeed card="product" limit={10} initial={topPicks} className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" />
         </section>
         <ProductSection title="New Imports" href="/explore/search?filter=imports" products={newImports} delay={360} />
         <ProductSection title="Fast Air Shipping" href="/explore/search?shipping=air" products={fastAir} delay={360} />
