@@ -165,3 +165,47 @@ class NotificationPreferences(models.Model):
 
     def __str__(self):
         return f"prefs for {self.user}"
+
+
+class Address(models.Model):
+    """A delivery address in the user's address book (server-side, per-account —
+    never stored on the device, so shared phones can't leak it)."""
+
+    user = models.ForeignKey(User, related_name="addresses", on_delete=models.CASCADE)
+    line1 = models.CharField(max_length=200)
+    city = models.CharField(max_length=120)
+    area = models.CharField(max_length=120, blank=True)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-is_default", "created_at"]
+        verbose_name_plural = "addresses"
+
+    def __str__(self):
+        return f"{self.user} - {self.line1}, {self.city}"
+
+
+class PaymentMethod(models.Model):
+    """A saved payment method — masked display data and an opaque gateway token
+    ONLY. The raw card number and CVV never touch our systems."""
+
+    BRAND_CHOICES = [
+        ("visa", "Visa"), ("mastercard", "Mastercard"),
+        ("airtel", "Airtel Money"), ("mtn", "MTN MoMo"),
+    ]
+
+    user = models.ForeignKey(User, related_name="payment_methods", on_delete=models.CASCADE)
+    brand = models.CharField(max_length=12, choices=BRAND_CHOICES)
+    detail = models.CharField(max_length=40)  # masked, e.g. "•••• 4242" / "••• 210"
+    token = models.CharField(max_length=128, blank=True)  # gateway vault token
+    exp_month = models.PositiveSmallIntegerField(null=True, blank=True)
+    exp_year = models.PositiveSmallIntegerField(null=True, blank=True)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-is_default", "created_at"]
+
+    def __str__(self):
+        return f"{self.user} - {self.brand} {self.detail}"

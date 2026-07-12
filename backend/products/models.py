@@ -226,6 +226,26 @@ class ProductImage(models.Model):
         return f"{self.product.title} image #{self.position}"
 
 
+class SavedItem(models.Model):
+    """A product on the user's wishlist — server-side, per-account, so hearts
+    follow the user across devices and never leak on a shared phone."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="saved_items", on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(Product, related_name="saved_by", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["user", "product"], name="uniq_saved_user_product"),
+        ]
+
+    def __str__(self):
+        return f"{self.user} ♥ {self.product}"
+
+
 class ProductReview(models.Model):
     product = models.ForeignKey(Product, related_name="reviews", on_delete=models.CASCADE)
     # Optional link to the authenticated user who wrote it (reviews may be seeded too).

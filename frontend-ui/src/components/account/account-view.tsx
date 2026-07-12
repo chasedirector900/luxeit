@@ -27,7 +27,7 @@ import { useNotifications } from "@/hooks/use-notifications";
 import { listOrders, type OrderApi } from "@/lib/auth/api";
 import { ORDER_BUCKETS, bucketCount } from "@/lib/orders/order-buckets";
 import type { Order } from "@/lib/orders/mock-orders";
-import { DEFAULT_PROFILE, readProfile, writeProfile, type Profile } from "@/lib/profile/profile-storage";
+import type { Profile } from "@/lib/profile/profile-storage";
 
 const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
 const ROW_CLASS = "flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-slate-50 dark:active:bg-zinc-800/50";
@@ -37,14 +37,9 @@ export function AccountView() {
   const router = useRouter();
   const { logout, status, user, updateProfile } = useAuth();
   const { totalUnread } = useNotifications();
-  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [editing, setEditing] = useState<"profile" | "address" | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersError, setOrdersError] = useState(false);
-
-  useEffect(() => {
-    setProfile(readProfile());
-  }, []);
 
   // Load the user's orders so the My Orders tabs show live counts.
   useEffect(() => {
@@ -77,23 +72,25 @@ export function AccountView() {
     }
   }, [status, router]);
 
-  // Keep the displayed profile in sync once the signed-in identity loads.
-  useEffect(() => {
-    if (status === "authenticated") {
-      setProfile(readProfile());
-    }
-  }, [status]);
-
   if (status !== "authenticated") {
     return <AccountSkeleton />;
   }
 
+  // The profile shown is ALWAYS the signed-in account from the backend — never
+  // anything stored on this device, so a shared phone can't show the previous
+  // user's name or address.
+  const profile: Profile = {
+    fullName: user?.fullName ?? "",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
+    address: user?.address ?? null,
+  };
+
   function save(next: Profile) {
-    setProfile(next);
-    writeProfile(next);
     setEditing(null);
     // Persist the display name and delivery address to the backend (email/phone
-    // stay as login identifiers and change via the OTP flow).
+    // stay as login identifiers and change via the OTP flow). The auth context
+    // refreshes `user`, which re-renders this page with the saved values.
     void updateProfile({ fullName: next.fullName.trim(), address: next.address ?? null }).catch(() => {});
   }
 

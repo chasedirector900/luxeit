@@ -4,13 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Check, ShieldCheck } from "lucide-react";
-import {
-  getPaymentBrand,
-  readPaymentMethods,
-  writePaymentMethods,
-  type PaymentBrand,
-  type PaymentMethod,
-} from "@/lib/payments/payment-methods";
+import { getPaymentBrand, type PaymentBrand } from "@/lib/payments/payment-methods";
+import { addPaymentMethod } from "@/lib/auth/api";
 import { tokenizeCard } from "@/lib/payments/gateway";
 
 const FIELD =
@@ -74,40 +69,30 @@ export function AddPaymentMethodView({ brand }: { brand: PaymentBrand }) {
     setError(null);
     setSubmitting(true);
     try {
-      const existing = readPaymentMethods();
-      let method: PaymentMethod;
-
-      if (kind === "card") {
-        // Hand the card to the gateway for tokenization. The PAN + CVV go only
-        // to the gateway and are never stored by us — we keep the token + last4.
-        const t = await tokenizeCard({ number: cardNumber, cvv, expiry });
-        method = {
-          id: crypto.randomUUID(),
-          brand,
-          label: meta.label,
-          detail: `•••• ${t.last4}`,
-          expMonth: t.expMonth,
-          expYear: t.expYear,
-          token: t.token,
-          isDefault: existing.length === 0,
-        };
-      } else {
-        method = {
-          id: crypto.randomUUID(),
-          brand,
-          label: meta.label,
-          detail: `••• ${onlyDigits(phone).slice(-3)}`,
-          isDefault: existing.length === 0,
-        };
+      // The method is stored on the ACCOUNT (backend) — masked detail + gateway
+      // token only. Raw card numbers and CVVs never touch our systems.
+      if (saveInfo) {
+        if (kind === "card") {
+          // Hand the card to the gateway for tokenization. The PAN + CVV go only
+          // to the gateway and are never stored by us — we keep the token + last4.
+          const t = await tokenizeCard({ number: cardNumber, cvv, expiry });
+          await addPaymentMethod({
+            brand,
+            detail: `•••• ${t.last4}`,
+            token: t.token,
+            expMonth: t.expMonth,
+            expYear: t.expYear,
+          });
+        } else {
+          await addPaymentMethod({ brand, detail: `••• ${onlyDigits(phone).slice(-3)}` });
+        }
       }
-
-      writePaymentMethods(saveInfo ? [...existing, method] : existing);
       // Defensive: drop the sensitive values from memory once tokenized.
       setCardNumber("");
       setCvv("");
       router.push("/account/payment-methods");
-    } catch {
-      setError("Couldn't save your payment method. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't save your payment method. Please try again.");
       setSubmitting(false);
     }
   }

@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from . import views
+from . import account_views, views
 
 app_name = "users"
 
@@ -17,6 +17,13 @@ urlpatterns = [
     re_path(r"^sessions/?$", views.sessions_list, name="sessions"),
     re_path(r"^sessions/logout-others/?$", views.logout_others, name="logout-others"),
     re_path(r"^sessions/(?P<session_id>\d+)/revoke/?$", views.revoke_session, name="revoke-session"),
+    # Account-owned resources — server-side, never device storage (shared-phone safety).
+    re_path(r"^addresses/?$", account_views.addresses, name="addresses"),
+    re_path(r"^addresses/(?P<address_id>\d+)/default/?$", account_views.address_default, name="address-default"),
+    re_path(r"^addresses/(?P<address_id>\d+)/?$", account_views.address_delete, name="address-delete"),
+    re_path(r"^payment-methods/?$", account_views.payment_methods, name="payment-methods"),
+    re_path(r"^payment-methods/(?P<method_id>\d+)/default/?$", account_views.payment_method_default, name="payment-method-default"),
+    re_path(r"^payment-methods/(?P<method_id>\d+)/?$", account_views.payment_method_delete, name="payment-method-delete"),
     # Preferences, contact change (secure OTP), and data export
     re_path(r"^preferences/?$", views.preferences, name="preferences"),
     re_path(r"^change-contact/request/?$", views.change_contact_request, name="change-contact-request"),

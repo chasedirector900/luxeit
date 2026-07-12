@@ -11,4 +11,7 @@ urlpatterns = [
     re_path(r"^products/(?P<slug>[-\w]+)/?$", views.ProductDetailView.as_view(), name="detail"),
     re_path(r"^categories/?$", views.CategoryListView.as_view(), name="categories"),
     re_path(r"^categories/(?P<slug>[-\w]+)/?$", views.CategoryDetailView.as_view(), name="category-detail"),
+    # Wishlist — server-side per account, so hearts follow the user, not the device.
+    re_path(r"^saved/?$", views.saved_list, name="saved"),
+    re_path(r"^saved/(?P<slug>[-\w]+)/?$", views.saved_toggle, name="saved-toggle"),
 ]

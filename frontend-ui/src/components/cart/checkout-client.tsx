@@ -7,19 +7,25 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Check, CreditCard, MapPin, PackageCheck, Plane, Plus, Ship, Truck } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
-import { createOrder } from "@/lib/auth/api";
+import {
+  addAddress,
+  createOrder,
+  listAddresses,
+  listPaymentMethods,
+  setDefaultAddress,
+  type AddressApi,
+  type PaymentMethodApi,
+} from "@/lib/auth/api";
 import { formatKwacha } from "@/lib/currency";
 import { WAREHOUSE_META } from "@/lib/products/warehouse";
-import { DEFAULT_PROFILE, readProfile, writeProfile, type Profile } from "@/lib/profile/profile-storage";
-import { addAddress, ensureSeeded, readAddresses, setDefaultAddress, type SavedAddress } from "@/lib/profile/addresses";
-import { getPaymentBrand, readPaymentMethods, type PaymentMethod } from "@/lib/payments/payment-methods";
+import { getPaymentBrand, type PaymentBrand } from "@/lib/payments/payment-methods";
 import type { CartItem, ShippingMethod } from "@/types/cart";
 
 const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
 const FIELD =
   "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-indigo-500";
 
-function formatAddress(a: SavedAddress): string {
+function formatAddress(a: AddressApi): string {
   return [a.line1, a.city, a.area].filter(Boolean).join(", ");
 }
 
@@ -48,35 +54,40 @@ const SHIPMENT_META: Record<string, { label: string; icon: typeof Plane }> = {
 
 export function CheckoutClient() {
   const { items, cartCount, clearCart } = useCart();
-  const { updateProfile } = useAuth();
+  const { user } = useAuth();
   // Per-item carrier overrides (dual China items only). Defaults to each item's
   // own chosen method, so a cart can ship some items air and others sea.
   const [methodOverrides, setMethodOverrides] = useState<Record<string, ShippingMethod>>({});
-  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [placed, setPlaced] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Saved address book + selection.
-  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
+  // Address book + payment methods live on the ACCOUNT (backend) — never on
+  // the device, so a shared phone can't leak them between users.
+  const [addresses, setAddresses] = useState<AddressApi[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [addressSheetOpen, setAddressSheetOpen] = useState(false);
 
-  // Saved payment methods + selection.
-  const [methods, setMethods] = useState<PaymentMethod[]>([]);
+  const [methods, setMethods] = useState<PaymentMethodApi[]>([]);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
 
   useEffect(() => {
-    const p = readProfile();
-    setProfile(p);
-
-    const book = ensureSeeded(p.address);
-    setAddresses(book);
-    setSelectedAddressId((book.find((a) => a.isDefault) ?? book[0])?.id ?? null);
-
-    const saved = readPaymentMethods();
-    setMethods(saved);
-    setSelectedMethodId((saved.find((m) => m.isDefault) ?? saved[0])?.id ?? null);
+    let cancelled = false;
+    Promise.all([listAddresses(), listPaymentMethods()])
+      .then(([book, saved]) => {
+        if (cancelled) return;
+        setAddresses(book);
+        setSelectedAddressId((book.find((a) => a.isDefault) ?? book[0])?.id ?? null);
+        setMethods(saved);
+        setSelectedMethodId((saved.find((m) => m.isDefault) ?? saved[0])?.id ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError("We couldn't load your saved details — check your connection and refresh.");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null;
@@ -138,28 +149,24 @@ export function CheckoutClient() {
     return carrier === "air" ? "About 2 weeks (Air)" : "About 2 months (Sea)";
   }
 
-  function persistPrimaryAddress(addr: { line1: string; city: string; area: string }) {
-    // Mirror the chosen address to the account profile + backend so it's saved
-    // server-side (the user record carries the primary delivery address).
-    const next = { ...profile, address: { line1: addr.line1, city: addr.city, area: addr.area } };
-    setProfile(next);
-    writeProfile(next);
-    void updateProfile({ address: next.address }).catch(() => {});
-  }
-
-  function handleSaveAddress(addr: { line1: string; city: string; area: string }) {
-    const { list, saved } = addAddress(addr);
-    setAddresses(list);
-    setSelectedAddressId(saved.id);
-    setAddressSheetOpen(false);
-    persistPrimaryAddress(addr);
+  async function handleSaveAddress(addr: { line1: string; city: string; area: string }) {
+    try {
+      const saved = await addAddress(addr); // stored on the account, server-side
+      setAddresses((prev) => (prev.some((a) => a.id === saved.id) ? prev : [...prev, saved]));
+      setSelectedAddressId(saved.id);
+      setAddressSheetOpen(false);
+      setLoadError(null);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Couldn't save that address — please try again.");
+    }
   }
 
   function chooseAddress(id: string) {
     setSelectedAddressId(id);
-    setAddresses(setDefaultAddress(id));
-    const chosen = addresses.find((a) => a.id === id);
-    if (chosen) persistPrimaryAddress({ line1: chosen.line1, city: chosen.city, area: chosen.area });
+    // Persist the preference server-side; the response is the updated book.
+    void setDefaultAddress(id)
+      .then(setAddresses)
+      .catch(() => {}); // selection still applies for this checkout
   }
 
   async function placeOrder() {
@@ -246,6 +253,10 @@ export function CheckoutClient() {
     <div className="mx-auto w-full max-w-md space-y-5">
       <Header />
 
+      {loadError ? (
+        <p className="reveal-up rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] font-medium text-amber-700 dark:text-amber-400">{loadError}</p>
+      ) : null}
+
       {/* Deliver to — choose a saved address or add one */}
       <section style={{ animationDelay: "60ms" }} className={`reveal-up ${CARD} p-4`}>
         <div className="mb-2.5 flex items-center justify-between">
@@ -282,9 +293,9 @@ export function CheckoutClient() {
                     <MapPin className="h-[17px] w-[17px]" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold text-slate-900 dark:text-zinc-100">{profile.fullName || "Delivery address"}</span>
+                    <span className="block text-sm font-bold text-slate-900 dark:text-zinc-100">{user?.fullName || "Delivery address"}</span>
                     <span className="mt-0.5 block text-[13px] leading-snug text-slate-600 dark:text-zinc-300">{formatAddress(addr)}</span>
-                    {profile.phone ? <span className="mt-0.5 block text-[12px] text-slate-500 dark:text-zinc-400">{profile.phone}</span> : null}
+                    {user?.phone ? <span className="mt-0.5 block text-[12px] text-slate-500 dark:text-zinc-400">{user.phone}</span> : null}
                   </span>
                   {active ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" /> : null}
                 </button>
@@ -319,7 +330,7 @@ export function CheckoutClient() {
         {methods.length > 0 ? (
           <div className="space-y-2">
             {methods.map((method) => {
-              const meta = getPaymentBrand(method.brand);
+              const meta = getPaymentBrand(method.brand as PaymentBrand);
               const Icon = meta.icon;
               const active = method.id === selectedMethodId;
               return (

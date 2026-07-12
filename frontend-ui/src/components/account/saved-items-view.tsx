@@ -8,7 +8,7 @@ import { useSaved } from "@/hooks/use-saved";
 import { formatKwacha } from "@/lib/currency";
 
 export function SavedItemsView() {
-  const { items, savedCount, removeSaved, clearSaved } = useSaved();
+  const { items, savedCount, removeSaved } = useSaved();
 
   return (
     <div className="mx-auto w-full max-w-md space-y-5">
@@ -31,7 +31,7 @@ export function SavedItemsView() {
         {savedCount > 0 ? (
           <button
             type="button"
-            onClick={clearSaved}
+            onClick={() => items.forEach((item) => removeSaved(item.id))}
             className="text-[12px] font-semibold text-slate-500 transition-colors active:text-rose-500 dark:text-zinc-400"
           >
             Clear all

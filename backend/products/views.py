@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from api.throttling import ReviewThrottle
 
-from .models import Category, Product, ProductReview
+from .models import Category, Product, ProductReview, SavedItem
 from .serializers import (
     CategoryListingSerializer,
     CategorySerializer,
@@ -149,3 +149,41 @@ def product_review(request, slug):
         {"ok": True, "review": {"rating": review.rating, "text": review.text, "date": review.date.isoformat()}},
         status=http_status.HTTP_201_CREATED,
     )
+
+
+# ── Saved items (wishlist) — server-side, per account ────────────────────────
+
+def _saved_dict(item: SavedItem) -> dict:
+    p = item.product
+    href = f"/category/{p.category.slug}/product/{p.slug}" if p.category_id else f"/product/{p.slug}"
+    return {
+        "id": p.slug,  # the frontend keys saved entries by slug
+        "slug": p.slug,
+        "title": p.title,
+        "image": p.image,
+        "price": float(p.price),
+        "href": href,
+    }
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def saved_list(request):
+    """The signed-in user's wishlist, newest first."""
+    items = (
+        SavedItem.objects.filter(user=request.user, product__is_active=True)
+        .select_related("product__category")
+    )
+    return Response([_saved_dict(i) for i in items])
+
+
+@api_view(["PUT", "DELETE"])
+@permission_classes([IsAuthenticated])
+def saved_toggle(request, slug):
+    """PUT: save a product. DELETE: unsave it. Both idempotent."""
+    product = get_object_or_404(Product.objects.filter(is_active=True), slug=slug)
+    if request.method == "PUT":
+        SavedItem.objects.get_or_create(user=request.user, product=product)
+        return Response({"saved": True}, status=http_status.HTTP_200_OK)
+    SavedItem.objects.filter(user=request.user, product=product).delete()
+    return Response({"saved": False}, status=http_status.HTTP_200_OK)

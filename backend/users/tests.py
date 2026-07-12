@@ -4,6 +4,67 @@ from django.test import TestCase
 User = get_user_model()
 
 
+class AccountResourceIsolationTests(TestCase):
+    """Addresses, payment methods and saved items are strictly per-account —
+    switching users on the same device can never leak another person's data."""
+
+    def setUp(self):
+        self.alice = User.objects.create_user(email="alice@example.com")
+        self.bob = User.objects.create_user(email="bob@example.com")
+
+    def test_addresses_are_per_account(self):
+        self.client.force_login(self.alice)
+        self.client.post(
+            "/api/auth/addresses",
+            data={"line1": "Plot 9, Kabulonga", "city": "Lusaka", "area": "Kabulonga"},
+            content_type="application/json",
+        )
+        self.assertEqual(len(self.client.get("/api/auth/addresses").json()), 1)
+        # Bob logs in on the SAME client (same device) — sees nothing of Alice's.
+        self.client.force_login(self.bob)
+        self.assertEqual(self.client.get("/api/auth/addresses").json(), [])
+
+    def test_payment_methods_are_per_account_and_masked_only(self):
+        self.client.force_login(self.alice)
+        res = self.client.post(
+            "/api/auth/payment-methods",
+            data={"brand": "visa", "detail": "•••• 4242", "token": "tok_abc", "expMonth": 12, "expYear": 2028},
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 201)
+        self.assertNotIn("token", res.json())  # the vault token never goes back out
+        self.client.force_login(self.bob)
+        self.assertEqual(self.client.get("/api/auth/payment-methods").json(), [])
+
+    def test_first_address_becomes_default_and_mirrors_profile(self):
+        self.client.force_login(self.alice)
+        self.client.post(
+            "/api/auth/addresses",
+            data={"line1": "12 Chilenje South", "city": "Lusaka", "area": ""},
+            content_type="application/json",
+        )
+        self.alice.refresh_from_db()
+        self.assertEqual(self.alice.address_line1, "12 Chilenje South")
+
+    def test_anonymous_gets_nothing(self):
+        for path in ("/api/auth/addresses", "/api/auth/payment-methods", "/api/saved"):
+            self.assertIn(self.client.get(path).status_code, (401, 403))
+
+    def test_saved_items_are_per_account(self):
+        from products.models import Product
+
+        Product.objects.create(slug="w1", title="Widget", price=10, warehouse="china")
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.put("/api/saved/w1").json(), {"saved": True})
+        self.assertEqual(len(self.client.get("/api/saved").json()), 1)
+        self.client.force_login(self.bob)
+        self.assertEqual(self.client.get("/api/saved").json(), [])
+        # Bob's unsave is scoped to Bob — Alice's heart stays intact.
+        self.assertEqual(self.client.delete("/api/saved/w1").json(), {"saved": False})
+        self.client.force_login(self.alice)
+        self.assertEqual(len(self.client.get("/api/saved").json()), 1)
+
+
 class PublicDisplayNameTests(TestCase):
     def test_prefers_full_name(self):
         u = User.objects.create_user(email="a@b.com", full_name="Chanda Mwale")

@@ -4,43 +4,44 @@ import Link from "next/link";
 import { ArrowLeft, Plus, ShieldCheck, Trash2, Wallet } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { PAYMENT_BRANDS, getPaymentBrand, type PaymentBrand } from "@/lib/payments/payment-methods";
 import {
-  PAYMENT_BRANDS,
-  getPaymentBrand,
-  readPaymentMethods,
-  writePaymentMethods,
-  type PaymentMethod,
-} from "@/lib/payments/payment-methods";
+  deletePaymentMethod,
+  listPaymentMethods,
+  setDefaultPaymentMethod,
+  type PaymentMethodApi,
+} from "@/lib/auth/api";
 
 const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
 
 export function PaymentMethodsView() {
-  const [methods, setMethods] = useState<PaymentMethod[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  // Methods live on the ACCOUNT (backend) — never on the device, so a shared
+  // phone can't show one person's cards to the next.
+  const [methods, setMethods] = useState<PaymentMethodApi[]>([]);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    setMethods(readPaymentMethods());
-    setHydrated(true);
+    listPaymentMethods()
+      .then(setMethods)
+      .catch(() => setNotice("Couldn't load your payment methods — check your connection and refresh."));
   }, []);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    writePaymentMethods(methods);
-  }, [hydrated, methods]);
-
-  function removeMethod(id: string) {
-    setMethods((prev) => {
-      const removed = prev.find((m) => m.id === id);
-      let next = prev.filter((m) => m.id !== id);
-      if (removed?.isDefault && next.length > 0) {
-        next = next.map((m, idx) => ({ ...m, isDefault: idx === 0 }));
-      }
-      return next;
-    });
+  async function removeMethod(id: string) {
+    try {
+      setMethods(await deletePaymentMethod(id));
+      setNotice(null);
+    } catch {
+      setNotice("Couldn't remove that method — please try again.");
+    }
   }
 
-  function setDefault(id: string) {
-    setMethods((prev) => prev.map((m) => ({ ...m, isDefault: m.id === id })));
+  async function setDefault(id: string) {
+    try {
+      setMethods(await setDefaultPaymentMethod(id));
+      setNotice(null);
+    } catch {
+      setNotice("Couldn't update your default — please try again.");
+    }
   }
 
   return (
@@ -59,6 +60,10 @@ export function PaymentMethodsView() {
         </div>
       </header>
 
+      {notice ? (
+        <p className="reveal-up rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] font-medium text-amber-700 dark:text-amber-400">{notice}</p>
+      ) : null}
+
       {/* Saved methods */}
       <section style={{ animationDelay: "60ms" }} className="reveal-up">
         <h2 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Your methods</h2>
@@ -66,7 +71,7 @@ export function PaymentMethodsView() {
           <div className="space-y-2.5">
             <AnimatePresence initial={false}>
               {methods.map((method) => {
-                const meta = getPaymentBrand(method.brand);
+                const meta = getPaymentBrand(method.brand as PaymentBrand);
                 const Icon = meta.icon;
                 return (
                   <motion.div
@@ -83,7 +88,7 @@ export function PaymentMethodsView() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="truncate text-sm font-bold text-slate-900 dark:text-zinc-100">{method.label}</p>
+                        <p className="truncate text-sm font-bold text-slate-900 dark:text-zinc-100">{meta.label}</p>
                         {method.isDefault ? (
                           <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
                             Default
@@ -105,7 +110,7 @@ export function PaymentMethodsView() {
                       <button
                         type="button"
                         onClick={() => removeMethod(method.id)}
-                        aria-label={`Remove ${method.label}`}
+                        aria-label={`Remove ${meta.label}`}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-transform active:scale-90 hover:bg-slate-100 hover:text-rose-500 dark:text-zinc-500 dark:hover:bg-zinc-800"
                       >
                         <Trash2 className="h-4 w-4" />

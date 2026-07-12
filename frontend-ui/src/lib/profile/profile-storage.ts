@@ -1,5 +1,6 @@
-// Lightweight client-side profile persistence (localStorage), mirroring the
-// cart-storage pattern. Swap for a real API later — the shape stays the same.
+// Profile shape used by the account screens. The data itself lives on the
+// BACKEND (the signed-in user record) — nothing personal is persisted on the
+// device anymore, so a shared phone can never show the previous user's details.
 
 export type Address = {
   line1: string;
@@ -13,37 +14,3 @@ export type Profile = {
   phone: string;
   address: Address | null;
 };
-
-export const DEFAULT_PROFILE: Profile = {
-  fullName: "",
-  email: "",
-  phone: "",
-  address: null,
-};
-
-const STORAGE_KEY = "luxeit:profile:v1";
-
-export function readProfile(): Profile {
-  if (typeof window === "undefined") return DEFAULT_PROFILE;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_PROFILE;
-    const parsed = JSON.parse(raw) as Partial<Profile>;
-    return {
-      ...DEFAULT_PROFILE,
-      ...parsed,
-      address: parsed.address ?? null,
-    };
-  } catch {
-    return DEFAULT_PROFILE;
-  }
-}
-
-export function writeProfile(profile: Profile): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-  } catch {
-    // Ignore write errors (private mode, quota, etc.).
-  }
-}

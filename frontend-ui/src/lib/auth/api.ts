@@ -47,7 +47,7 @@ function readCookie(name: string): string | null {
 }
 
 type FetchOptions = {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
 };
 
@@ -368,6 +368,96 @@ export async function submitReview(slug: string, input: { rating: number; text: 
   });
   if ((status === 201 || status === 200) && data?.review) return data.review;
   throw new ApiError(detail(data, "Couldn't submit your review."), status);
+}
+
+// ── Saved items (wishlist — server-side, per account) ───────────────────────
+export type SavedItemApi = {
+  id: string; // product slug
+  slug: string;
+  title: string;
+  image: string;
+  price: number;
+  href: string;
+};
+
+/** The signed-in user's wishlist. Returns [] when signed out. */
+export async function listSaved(): Promise<SavedItemApi[]> {
+  const { status, data } = await apiFetch<SavedItemApi[]>("/api/saved");
+  return status === 200 && data ? data : [];
+}
+
+export async function saveItem(slug: string): Promise<void> {
+  await apiFetch(`/api/saved/${encodeURIComponent(slug)}`, { method: "PUT" });
+}
+
+export async function unsaveItem(slug: string): Promise<void> {
+  await apiFetch(`/api/saved/${encodeURIComponent(slug)}`, { method: "DELETE" });
+}
+
+// ── Address book (server-side, per account) ─────────────────────────────────
+export type AddressApi = { id: string; line1: string; city: string; area: string; isDefault?: boolean };
+
+export async function listAddresses(): Promise<AddressApi[]> {
+  const { status, data } = await apiFetch<AddressApi[]>("/api/auth/addresses");
+  return status === 200 && data ? data : [];
+}
+
+export async function addAddress(input: { line1: string; city: string; area: string }): Promise<AddressApi> {
+  const { status, data } = await apiFetch<AddressApi>("/api/auth/addresses", { method: "POST", body: input });
+  if ((status === 200 || status === 201) && data) return data;
+  throw new ApiError(detail(data, "Couldn't save that address."), status);
+}
+
+export async function setDefaultAddress(id: string): Promise<AddressApi[]> {
+  const { status, data } = await apiFetch<AddressApi[]>(`/api/auth/addresses/${id}/default`, { method: "POST" });
+  if (status === 200 && data) return data;
+  throw new ApiError(detail(data, "Couldn't update your addresses."), status);
+}
+
+export async function deleteAddress(id: string): Promise<AddressApi[]> {
+  const { status, data } = await apiFetch<AddressApi[]>(`/api/auth/addresses/${id}`, { method: "DELETE" });
+  if (status === 200 && data) return data;
+  throw new ApiError(detail(data, "Couldn't remove that address."), status);
+}
+
+// ── Payment methods (masked display data only — server-side, per account) ───
+export type PaymentMethodApi = {
+  id: string;
+  brand: string;
+  detail: string;
+  isDefault?: boolean;
+  expMonth?: number;
+  expYear?: number;
+};
+
+export async function listPaymentMethods(): Promise<PaymentMethodApi[]> {
+  const { status, data } = await apiFetch<PaymentMethodApi[]>("/api/auth/payment-methods");
+  return status === 200 && data ? data : [];
+}
+
+export async function addPaymentMethod(input: {
+  brand: string;
+  detail: string;
+  token?: string;
+  expMonth?: number;
+  expYear?: number;
+  makeDefault?: boolean;
+}): Promise<PaymentMethodApi> {
+  const { status, data } = await apiFetch<PaymentMethodApi>("/api/auth/payment-methods", { method: "POST", body: input });
+  if ((status === 200 || status === 201) && data) return data;
+  throw new ApiError(detail(data, "Couldn't save that payment method."), status);
+}
+
+export async function setDefaultPaymentMethod(id: string): Promise<PaymentMethodApi[]> {
+  const { status, data } = await apiFetch<PaymentMethodApi[]>(`/api/auth/payment-methods/${id}/default`, { method: "POST" });
+  if (status === 200 && data) return data;
+  throw new ApiError(detail(data, "Couldn't update your payment methods."), status);
+}
+
+export async function deletePaymentMethod(id: string): Promise<PaymentMethodApi[]> {
+  const { status, data } = await apiFetch<PaymentMethodApi[]>(`/api/auth/payment-methods/${id}`, { method: "DELETE" });
+  if (status === 200 && data) return data;
+  throw new ApiError(detail(data, "Couldn't remove that payment method."), status);
 }
 
 // ── Notification preferences ────────────────────────────────────────────────

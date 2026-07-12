@@ -18,7 +18,7 @@ type ListingProductCardProps = {
 
 export function ListingProductCard({ product, detailHrefBase }: ListingProductCardProps) {
   const { addItem } = useCart();
-  const { isSaved, toggleSaved } = useSaved();
+  const { isSaved, toggleSaved, enabled: savedEnabled } = useSaved();
   const [added, setAdded] = useState(false);
   const detailHref = `${detailHrefBase}/${product.slug}`;
   const saved = isSaved(product.id);
@@ -55,26 +55,28 @@ export function ListingProductCard({ product, detailHrefBase }: ListingProductCa
             </span>
           ) : null}
 
-          <button
-            type="button"
-            aria-label={saved ? "Remove from saved" : "Save item"}
-            aria-pressed={saved}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              toggleSaved({
-                id: product.id,
-                slug: product.slug,
-                title: product.title,
-                image: product.image,
-                price: product.price,
-                href: detailHref,
-              });
-            }}
-            className="absolute right-2.5 top-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-slate-600 shadow-sm backdrop-blur-sm transition-transform active:scale-90 dark:bg-zinc-950/80 dark:text-zinc-300"
-          >
-            <Heart className={`h-4 w-4 ${saved ? "fill-rose-500 text-rose-500" : ""}`} />
-          </button>
+          {savedEnabled ? (
+            <button
+              type="button"
+              aria-label={saved ? "Remove from saved" : "Save item"}
+              aria-pressed={saved}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleSaved({
+                  id: product.id,
+                  slug: product.slug,
+                  title: product.title,
+                  image: product.image,
+                  price: product.price,
+                  href: detailHref,
+                });
+              }}
+              className="absolute right-2.5 top-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-slate-600 shadow-sm backdrop-blur-sm transition-transform active:scale-90 dark:bg-zinc-950/80 dark:text-zinc-300"
+            >
+              <Heart className={`h-4 w-4 ${saved ? "fill-rose-500 text-rose-500" : ""}`} />
+            </button>
+          ) : null}
         </div>
       </Link>
 

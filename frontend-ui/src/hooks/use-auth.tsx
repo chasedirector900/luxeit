@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   deleteAccount as apiDeleteAccount,
   fetchMe,
@@ -11,7 +11,24 @@ import {
   type ApiUser,
   type RequestCodeResult,
 } from "@/lib/auth/api";
-import { readProfile, writeProfile } from "@/lib/profile/profile-storage";
+// Per-user data (profile, addresses, payment methods, saved items) lives on
+// the BACKEND only. The device keeps just the cart (by design) and theme.
+// This purge runs on logout and on every fresh sign-in, so switching accounts
+// on a shared phone can never show one person's data to the next.
+const DEVICE_KEYS_TO_KEEP = new Set(["luxeit:cart:v1"]);
+
+function purgePerUserStorage() {
+  if (typeof window === "undefined") return;
+  try {
+    for (const key of Object.keys(window.localStorage)) {
+      if (key.startsWith("luxeit:") && !DEVICE_KEYS_TO_KEEP.has(key)) {
+        window.localStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // ignore storage errors (private mode, quota, ...)
+  }
+}
 
 export type AuthUser = {
   id: number;
@@ -58,27 +75,6 @@ function toAuthUser(u: ApiUser): AuthUser {
   };
 }
 
-// Seed the local profile (name/address store) with the verified contact so the
-// account page reflects the real signed-in identity instead of placeholder data.
-// The backend is authoritative for name/email/phone — prefer its values and only
-// fall back to whatever this device had stored when the backend has none.
-function syncProfileContact(u: ApiUser) {
-  try {
-    const current = readProfile();
-    writeProfile({
-      ...current,
-      email: u.email ?? current.email,
-      phone: u.phone ?? current.phone,
-      fullName: u.full_name || current.fullName,
-      // Backend address is authoritative; keep any local address only if the
-      // backend has none stored yet.
-      address: u.address ?? current.address,
-    });
-  } catch {
-    // ignore storage errors
-  }
-}
-
 type AuthContextValue = {
   user: AuthUser | null;
   status: AuthStatus;
@@ -101,7 +97,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
 
   const applyUser = useCallback((u: ApiUser) => {
-    syncProfileContact(u);
     setUser(toAuthUser(u));
     setStatus("authenticated");
   }, []);
@@ -127,33 +122,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void refresh();
   }, [refresh]);
 
-  // Heal accounts whose name was only ever saved on this device (older builds, or
-  // a save that silently failed): if the backend has no name but localStorage
-  // does, push it up once so the backend becomes the source of truth.
-  const backfilledName = useRef(false);
-  useEffect(() => {
-    if (status !== "authenticated" || !user || backfilledName.current) return;
-    if (user.fullName.trim()) return; // backend already has a name
-    let stored = "";
-    try {
-      stored = readProfile().fullName.trim();
-    } catch {
-      stored = "";
-    }
-    if (!stored) return;
-    backfilledName.current = true;
-    apiUpdateProfile({ fullName: stored })
-      .then(applyUser)
-      .catch(() => {
-        backfilledName.current = false; // allow another attempt next load
-      });
-  }, [status, user, applyUser]);
-
   const requestCode = useCallback((identifier: string) => apiRequestCode(identifier), []);
 
   const verifyCode = useCallback(
     async (identifier: string, code: string) => {
       const u = await apiVerifyCode(identifier, code);
+      // Fresh sign-in on this device: drop anything a previous user left behind
+      // BEFORE exposing the new session to the app.
+      purgePerUserStorage();
       applyUser(u);
       return toAuthUser(u);
     },
@@ -176,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Even if the network call fails, drop local state.
     }
     clearStaleSessionCookie();
+    purgePerUserStorage(); // leave nothing personal behind on this device
     setUser(null);
     setStatus("unauthenticated");
   }, []);
