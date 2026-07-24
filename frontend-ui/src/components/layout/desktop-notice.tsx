@@ -8,6 +8,12 @@ import { useEffect, useState } from "react";
 const DESKTOP_READY = process.env.NEXT_PUBLIC_DESKTOP_READY === "true";
 const DISMISS_KEY = "luxeit:desktop-preview";
 
+// The "Continue to desktop preview" escape hatch only exists while developing
+// locally (`npm run dev`). On the live site (production build) there's no way
+// past the notice — big-screen visitors are asked to use their phone. Retire
+// the whole notice by setting NEXT_PUBLIC_DESKTOP_READY=true when it's ready.
+const ALLOW_PREVIEW = process.env.NODE_ENV !== "production";
+
 /**
  * "Best on mobile for now" gate for tablets & desktops (md+).
  *
@@ -47,20 +53,22 @@ export function DesktopNotice() {
           please open it on your phone.
         </p>
 
-        <button
-          type="button"
-          onClick={() => {
-            try {
-              window.sessionStorage.setItem(DISMISS_KEY, "1");
-            } catch {
-              // ignore storage errors
-            }
-            setDismissed(true);
-          }}
-          className="mt-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-        >
-          Continue to desktop preview →
-        </button>
+        {ALLOW_PREVIEW ? (
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                window.sessionStorage.setItem(DISMISS_KEY, "1");
+              } catch {
+                // ignore storage errors
+              }
+              setDismissed(true);
+            }}
+            className="mt-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+          >
+            Continue to desktop preview →
+          </button>
+        ) : null}
       </div>
     </div>
   );
