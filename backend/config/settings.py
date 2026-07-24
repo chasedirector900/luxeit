@@ -347,6 +347,10 @@ CSRF_COOKIE_SECURE = not DEBUG
 # OTP delivery — in dev (DEBUG) codes are logged to the console instead of sent.
 OTP_DELIVERY_CONSOLE = env_bool("OTP_DELIVERY_CONSOLE", DEBUG)
 
+# Phone/SMS login is disabled until an SMS gateway is paid for and wired up.
+# Email login works free. Flip PHONE_LOGIN_ENABLED=True once SMS is ready.
+PHONE_LOGIN_ENABLED = env_bool("PHONE_LOGIN_ENABLED", False)
+
 # Circuit breaker: total login codes the WHOLE system may send per hour. Even a
 # botnet rotating IPs and destinations can't run up the email/SMS bill past
 # this. 0 disables the cap. Legit traffic needing more than 500 codes/hour

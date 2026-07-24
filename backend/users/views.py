@@ -33,6 +33,17 @@ def csrf(request):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+PHONE_DISABLED_MESSAGE = (
+    "Phone sign-in isn't available yet — SMS is still being set up. "
+    "Please sign in with your email for now."
+)
+
+
+def _phone_login_blocked(channel) -> bool:
+    """Phone/SMS login is gated off until an SMS gateway is paid for."""
+    return channel == LoginCode.CHANNEL_PHONE and not getattr(settings, "PHONE_LOGIN_ENABLED", False)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 @throttle_classes([OTPRequestThrottle, OTPDestinationThrottle])
@@ -51,6 +62,8 @@ def request_code(request):
             {"detail": "Enter a valid email address or phone number."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    if _phone_login_blocked(channel):
+        return Response({"detail": PHONE_DISABLED_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 
     if otp_budget_exceeded():
         return Response(
@@ -88,6 +101,8 @@ def verify_code(request):
             {"detail": "Enter a valid email address or phone number."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    if _phone_login_blocked(channel):
+        return Response({"detail": PHONE_DISABLED_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
     destination = normalize_destination(channel, identifier)
 
     # Look at the latest code for this destination (issuing a new one marks older
@@ -237,6 +252,8 @@ def change_contact_request(request):
     channel = detect_channel(identifier)
     if channel is None:
         return Response({"detail": "Enter a valid email address or phone number."}, status=status.HTTP_400_BAD_REQUEST)
+    if _phone_login_blocked(channel):
+        return Response({"detail": PHONE_DISABLED_MESSAGE}, status=status.HTTP_400_BAD_REQUEST)
 
     destination = normalize_destination(channel, identifier)
     field = "email" if channel == LoginCode.CHANNEL_EMAIL else "phone"

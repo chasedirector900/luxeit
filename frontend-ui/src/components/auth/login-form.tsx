@@ -12,6 +12,10 @@ const NUMERIC_ONLY_REGEX = /\D/g;
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
+// Phone/SMS sign-in is off until an SMS gateway is paid for. Email login is free.
+// Flip to true (and the backend PHONE_LOGIN_ENABLED) when SMS is ready.
+const PHONE_LOGIN_ENABLED = false;
+
 type CountryOption = {
   code: string;
   dialCode: string;
@@ -141,9 +145,13 @@ export function LoginForm() {
   const buildCredential = () =>
     identifierMode === "email" ? email.trim() : `${selectedCountry.dialCode}${phoneLocal}`;
 
+  const phoneDisabled = identifierMode === "phone" && !PHONE_LOGIN_ENABLED;
+
   const validateIdentifier = (): string | null => {
     if (identifierMode === "email") {
       if (!email || !EMAIL_REGEX.test(email)) return "Please enter a valid email address.";
+    } else if (!PHONE_LOGIN_ENABLED) {
+      return "Phone sign-in isn't available yet — please use your email.";
     } else if (!phoneLocal || phoneLocal.length < selectedCountry.minLen) {
       return `Phone number must be ${selectedCountry.minLen} digits.`;
     }
@@ -247,7 +255,7 @@ export function LoginForm() {
         </h1>
         <p className="mx-auto mt-1 max-w-[17rem] text-[13px] leading-relaxed text-slate-500 dark:text-zinc-400">
           {step === "identify" ? (
-            "Enter your email or phone — we'll send a one-time code. No password needed."
+            "Sign in with your email — we'll send a one-time code. No password needed."
           ) : (
             <>
               We sent a 6-digit code to{" "}
@@ -272,13 +280,18 @@ export function LoginForm() {
                   setIdentifierMode(mode);
                   setError(null);
                 }}
-                className={`h-9 rounded-lg text-xs font-bold capitalize transition-colors ${
+                className={`relative h-9 rounded-lg text-xs font-bold capitalize transition-colors ${
                   identifierMode === mode
                     ? "bg-white text-slate-900 shadow-sm dark:bg-zinc-800 dark:text-white"
                     : "text-slate-500 dark:text-zinc-400"
                 }`}
               >
                 {mode}
+                {mode === "phone" && !PHONE_LOGIN_ENABLED ? (
+                  <span className="ml-1.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                    Soon
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>
@@ -286,7 +299,23 @@ export function LoginForm() {
           {/* Email or phone */}
           <div>
             <label className={LABEL}>{identifierMode === "email" ? "Email address" : "Phone number"}</label>
-            {identifierMode === "email" ? (
+            {phoneDisabled ? (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.07] px-3.5 py-3 text-[12px] leading-relaxed text-amber-800 dark:border-amber-400/25 dark:text-amber-300">
+                <span className="font-bold">Phone sign-in is coming soon.</span> We&apos;re setting up SMS
+                delivery, which needs a paid SMS service. For now, please sign in with your{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdentifierMode("email");
+                    setError(null);
+                  }}
+                  className="font-bold underline underline-offset-2"
+                >
+                  email
+                </button>
+                .
+              </div>
+            ) : identifierMode === "email" ? (
               <div className={FIELD_WRAP}>
                 <Mail className="h-[18px] w-[18px] shrink-0 text-slate-400 dark:text-zinc-500" />
                 <input
@@ -365,8 +394,8 @@ export function LoginForm() {
 
           <button
             type="submit"
-            disabled={submitting}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-70"
+            disabled={submitting || phoneDisabled}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {submitting ? "Sending code…" : "Send code"}
