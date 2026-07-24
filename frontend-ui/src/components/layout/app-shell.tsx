@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppTopbar } from "@/components/layout/app-topbar";
+import { DesktopNotice } from "@/components/layout/desktop-notice";
 import { FullScreenSearch } from "@/components/layout/full-screen-search";
 
 /**
@@ -30,6 +31,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <FullScreenSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
+      {/* Big-screen "use your phone" notice while the desktop UI is in progress. */}
+      <DesktopNotice />
     </>
   );
 }
