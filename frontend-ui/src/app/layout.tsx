@@ -21,8 +21,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Luxeit",
-  description: "A clean dark interface system for Luxeit.",
+  metadataBase: new URL("https://www.luxeit.co.zm"),
+  title: {
+    default: "Luxeit — Premium imports, delivered",
+    template: "%s · Luxeit",
+  },
+  description:
+    "Premium products from China, delivered across Zambia. Shop electronics, fashion, home & more on Luxeit.",
+  applicationName: "Luxeit",
+  openGraph: {
+    type: "website",
+    siteName: "Luxeit",
+    title: "Luxeit — Premium imports, delivered",
+    description:
+      "Shop China's best — electronics, fashion, home & more — delivered across Zambia.",
+    url: "https://www.luxeit.co.zm",
+    locale: "en_ZM",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Luxeit — Premium imports, delivered",
+    description:
+      "Shop China's best — electronics, fashion, home & more — delivered across Zambia.",
+  },
 };
 
 export default function RootLayout({
