@@ -8,7 +8,11 @@ services:
     runtime: python
     rootDir: backend
     plan: starter # always-on (~$7/mo). Use "free" to test — sleeps after 15 min idle.
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    # Build: install deps + collect static (no database needed here).
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    # Migrations run AFTER the build, once the database is connected — the
+    # correct place for them on Render (the build phase can't reach the DB).
+    preDeployCommand: python manage.py migrate
     # 2 worker processes × 4 threads: ~8 concurrent requests per instance —
     # right-sized for a 512MB Starter instance. Scale instances, then workers.
     startCommand: gunicorn config.wsgi:application --workers 2 --threads 4 --timeout 60
