@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { AppShell } from "@/components/layout/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -29,6 +30,17 @@ export const metadata: Metadata = {
   description:
     "Premium products from China, delivered across Zambia. Shop electronics, fashion, home & more on Luxeit.",
   applicationName: "Luxeit",
+  keywords: [
+    "Luxeit",
+    "Luxeit Zambia",
+    "online shopping Zambia",
+    "China to Zambia imports",
+    "buy electronics Zambia",
+    "Lusaka online store",
+    "shipping included Zambia",
+  ],
+  alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
   openGraph: {
     type: "website",
     siteName: "Luxeit",
@@ -58,6 +70,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground">
+        {/* Structured data so search engines show a rich, detailed brand result. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
+        />
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>

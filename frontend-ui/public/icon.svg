@@ -1,0 +1,82 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8E7A1"/>
+      <stop offset="40%" stop-color="#D4AF37"/>
+      <stop offset="70%" stop-color="#B8860B"/>
+      <stop offset="100%" stop-color="#FFE08A"/>
+    </linearGradient>
+
+    <linearGradient id="silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#D9D9D9"/>
+      <stop offset="100%" stop-color="#9F9F9F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="36" fill="#0A0A0A"/>
+
+  <!-- Outer Circle -->
+  <circle
+      cx="256"
+      cy="256"
+      r="180"
+      fill="none"
+      stroke="url(#gold)"
+      stroke-width="8"/>
+
+  <!-- Top Arc -->
+  <path
+      d="M140 170
+         A140 140 0 0 1 372 170"
+      fill="none"
+      stroke="url(#gold)"
+      stroke-width="6"
+      stroke-linecap="round"/>
+
+  <!-- Brand -->
+  <text
+      x="256"
+      y="245"
+      text-anchor="middle"
+      font-size="82"
+      font-family="Georgia, serif"
+      font-weight="700">
+
+      <tspan fill="url(#gold)">LUXE</tspan>
+      <tspan fill="url(#silver)">iT</tspan>
+  </text>
+
+  <!-- Accessories -->
+  <text
+      x="256"
+      y="305"
+      text-anchor="middle"
+      font-size="22"
+      letter-spacing="8"
+      fill="#D4AF37"
+      font-family="Arial, Helvetica, sans-serif">
+      ACCESSORIES
+  </text>
+
+  <!-- ZM Badge -->
+  <rect
+      x="315"
+      y="320"
+      width="60"
+      height="38"
+      rx="6"
+      fill="#111"/>
+
+  <text
+      x="345"
+      y="346"
+      text-anchor="middle"
+      font-size="24"
+      font-weight="700"
+      fill="#FFFFFF"
+      font-family="Arial">
+      ZM
+  </text>
+</svg>
