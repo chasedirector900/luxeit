@@ -1,7 +1,5 @@
 "use client";
 
-import { Apple } from "lucide-react";
-
 function GoogleMark() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[18px] w-[18px]">
@@ -18,13 +16,15 @@ function GoogleMark() {
 
 type SocialAuthProps = {
   onGoogle?: () => void;
-  onApple?: () => void;
 };
 
 const BUTTON =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] md:hover:bg-slate-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:md:hover:bg-zinc-800";
+  "inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] md:hover:bg-slate-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:md:hover:bg-zinc-800";
 
-export function SocialAuth({ onGoogle, onApple }: SocialAuthProps) {
+// Apple sign-in was removed for launch — Zambia has very low iOS share and it
+// needs a paid Apple Developer account. Google is kept as the single social
+// option; the handler is wired up once Google OAuth is configured.
+export function SocialAuth({ onGoogle }: SocialAuthProps) {
   return (
     <div>
       <div className="mb-3 flex items-center gap-3">
@@ -35,16 +35,10 @@ export function SocialAuth({ onGoogle, onApple }: SocialAuthProps) {
         <span className="h-px flex-1 bg-slate-200 dark:bg-zinc-800" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <button type="button" onClick={onGoogle} className={BUTTON}>
-          <GoogleMark />
-          Google
-        </button>
-        <button type="button" onClick={onApple} className={BUTTON}>
-          <Apple className="h-[18px] w-[18px]" />
-          Apple
-        </button>
-      </div>
+      <button type="button" onClick={onGoogle} className={BUTTON}>
+        <GoogleMark />
+        Google
+      </button>
     </div>
   );
 }
