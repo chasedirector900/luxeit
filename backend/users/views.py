@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.sessions.models import Session
@@ -154,7 +156,9 @@ def google_login(request):
     if not credential:
         return Response({"detail": "Missing Google credential."}, status=status.HTTP_400_BAD_REQUEST)
 
-    client_id = getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "")
+    # Strip stray whitespace/newlines that can sneak in when the ID is pasted
+    # into a dashboard env var — a trailing space makes the audience check fail.
+    client_id = str(getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "")).strip()
     if not client_id:
         return Response(
             {"detail": "Google sign-in isn't set up yet. Please continue with your email."},
@@ -166,8 +170,12 @@ def google_login(request):
         from google.oauth2 import id_token as google_id_token
 
         # Verifies the signature, audience (our client_id), issuer, and expiry.
-        claims = google_id_token.verify_oauth2_token(credential, google_requests.Request(), client_id)
-    except Exception:
+        # A little clock skew tolerance guards against minor server time drift.
+        claims = google_id_token.verify_oauth2_token(
+            credential, google_requests.Request(), client_id, clock_skew_in_seconds=10
+        )
+    except Exception as exc:  # noqa: BLE001 — log the real reason, return a safe message
+        logging.getLogger("users.google").warning("Google token verify failed: %s", exc)
         return Response(
             {"detail": "Couldn't verify your Google sign-in. Please try again."},
             status=status.HTTP_400_BAD_REQUEST,
