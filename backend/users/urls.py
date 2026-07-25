@@ -11,6 +11,7 @@ urlpatterns = [
     re_path(r"^csrf/?$", views.csrf, name="csrf"),
     re_path(r"^request-code/?$", views.request_code, name="request-code"),
     re_path(r"^verify-code/?$", views.verify_code, name="verify-code"),
+    re_path(r"^google/?$", views.google_login, name="google-login"),
     re_path(r"^logout/?$", views.logout_view, name="logout"),
     re_path(r"^me/?$", views.me, name="me"),
     # Signed-in device management

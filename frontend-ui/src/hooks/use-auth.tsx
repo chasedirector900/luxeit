@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import {
   deleteAccount as apiDeleteAccount,
   fetchMe,
+  googleLogin as apiGoogleLogin,
   logout as apiLogout,
   requestCode as apiRequestCode,
   updateProfile as apiUpdateProfile,
@@ -84,6 +85,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   requestCode: (identifier: string) => Promise<RequestCodeResult>;
   verifyCode: (identifier: string, code: string) => Promise<AuthUser>;
+  googleLogin: (credential: string) => Promise<AuthUser>;
   updateProfile: (data: {
     fullName?: string;
     contactPhone?: string;
@@ -140,6 +142,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [applyUser],
   );
 
+  const googleLogin = useCallback(
+    async (credential: string) => {
+      const u = await apiGoogleLogin(credential);
+      // Same fresh-sign-in hygiene as the OTP path.
+      purgePerUserStorage();
+      applyUser(u);
+      return toAuthUser(u);
+    },
+    [applyUser],
+  );
+
   const updateProfile = useCallback(
     async (data: { fullName?: string; contactPhone?: string; address?: { line1: string; city: string; area: string } | null }) => {
       const u = await apiUpdateProfile(data);
@@ -183,12 +196,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: status === "authenticated",
       requestCode,
       verifyCode,
+      googleLogin,
       updateProfile,
       logout,
       deleteAccount,
       refresh,
     }),
-    [user, status, requestCode, verifyCode, updateProfile, logout, deleteAccount, refresh],
+    [user, status, requestCode, verifyCode, googleLogin, updateProfile, logout, deleteAccount, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

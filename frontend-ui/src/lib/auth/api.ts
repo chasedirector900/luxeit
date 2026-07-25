@@ -136,6 +136,16 @@ export async function verifyCode(identifier: string, code: string): Promise<ApiU
   throw new ApiError(detail(data, "Invalid or expired code."), status);
 }
 
+/** Exchanges a Google ID token (from Google Identity Services) for a session. */
+export async function googleLogin(credential: string): Promise<ApiUser> {
+  const { status, data } = await apiFetch<ApiUser>("/api/auth/google", {
+    method: "POST",
+    body: { credential },
+  });
+  if (status === 200 && data) return data;
+  throw new ApiError(detail(data, "Couldn't sign in with Google."), status);
+}
+
 /** Updates the signed-in user's editable profile fields (currently the name). */
 export async function updateProfile(data: {
   fullName?: string;

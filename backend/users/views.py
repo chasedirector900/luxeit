@@ -141,6 +141,65 @@ def verify_code(request):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
+def google_login(request):
+    """Sign in (or sign up) with a Google ID token from Google Identity Services.
+
+    The browser sends the short-lived `credential` JWT that Google issues after
+    the user taps "Continue with Google". We verify it against our OAuth client
+    ID, trust the (Google-verified) email, and log the user in with the same
+    session flow as the email OTP path — so Google users are ordinary accounts.
+    """
+    credential = str(request.data.get("credential") or "").strip()
+    if not credential:
+        return Response({"detail": "Missing Google credential."}, status=status.HTTP_400_BAD_REQUEST)
+
+    client_id = getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "")
+    if not client_id:
+        return Response(
+            {"detail": "Google sign-in isn't set up yet. Please continue with your email."},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    try:
+        from google.auth.transport import requests as google_requests
+        from google.oauth2 import id_token as google_id_token
+
+        # Verifies the signature, audience (our client_id), issuer, and expiry.
+        claims = google_id_token.verify_oauth2_token(credential, google_requests.Request(), client_id)
+    except Exception:
+        return Response(
+            {"detail": "Couldn't verify your Google sign-in. Please try again."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    email = str(claims.get("email") or "").strip().lower()
+    if not email or not claims.get("email_verified", False):
+        return Response(
+            {"detail": "Your Google account doesn't have a verified email."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user, created = _get_or_create_user(LoginCode.CHANNEL_EMAIL, email)
+
+    # Seed the display name from Google on first sign-up only — never overwrite a
+    # name the user has already set themselves.
+    name = str(claims.get("name") or "").strip()
+    if name and not user.full_name:
+        user.full_name = name[:150]
+        user.save(update_fields=["full_name"])
+
+    if not user.is_active:
+        return Response({"detail": "This account is disabled."}, status=status.HTTP_403_FORBIDDEN)
+
+    login(request, user, backend=_AUTH_BACKEND)
+    if created:
+        post_welcome(user)
+    _record_session(request, user)
+    return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     UserSession.objects.filter(session_key=request.session.session_key).delete()

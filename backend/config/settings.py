@@ -351,6 +351,11 @@ OTP_DELIVERY_CONSOLE = env_bool("OTP_DELIVERY_CONSOLE", DEBUG)
 # Email login works free. Flip PHONE_LOGIN_ENABLED=True once SMS is ready.
 PHONE_LOGIN_ENABLED = env_bool("PHONE_LOGIN_ENABLED", False)
 
+# Google Sign-In: the OAuth *web* client ID from Google Cloud → Google Auth
+# Platform → Clients. The backend verifies Google ID tokens against it. Left
+# empty, the /api/auth/google endpoint returns 503 (Google sign-in disabled).
+GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "")
+
 # Circuit breaker: total login codes the WHOLE system may send per hour. Even a
 # botnet rotating IPs and destinations can't run up the email/SMS bill past
 # this. 0 disables the cap. Legit traffic needing more than 500 codes/hour
