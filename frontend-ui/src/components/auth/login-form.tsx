@@ -270,31 +270,30 @@ export function LoginForm() {
           onSubmit={submitIdentify}
           className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
         >
-          {/* Email / Phone segmented control */}
-          <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-zinc-800 dark:bg-zinc-900">
-            {(["email", "phone"] as const).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => {
-                  setIdentifierMode(mode);
-                  setError(null);
-                }}
-                className={`relative h-9 rounded-lg text-xs font-bold capitalize transition-colors ${
-                  identifierMode === mode
-                    ? "bg-white text-slate-900 shadow-sm dark:bg-zinc-800 dark:text-white"
-                    : "text-slate-500 dark:text-zinc-400"
-                }`}
-              >
-                {mode}
-                {mode === "phone" && !PHONE_LOGIN_ENABLED ? (
-                  <span className="ml-1.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                    Soon
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </div>
+          {/* Email / Phone segmented control — only shown once phone/SMS sign-in
+              is live. While it's off, the page is email-only with no hint that
+              phone is missing (flip PHONE_LOGIN_ENABLED to bring it back). */}
+          {PHONE_LOGIN_ENABLED ? (
+            <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+              {(["email", "phone"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => {
+                    setIdentifierMode(mode);
+                    setError(null);
+                  }}
+                  className={`relative h-9 rounded-lg text-xs font-bold capitalize transition-colors ${
+                    identifierMode === mode
+                      ? "bg-white text-slate-900 shadow-sm dark:bg-zinc-800 dark:text-white"
+                      : "text-slate-500 dark:text-zinc-400"
+                  }`}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           {/* Email or phone */}
           <div>
