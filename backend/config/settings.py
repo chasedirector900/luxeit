@@ -254,10 +254,54 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # `collectstatic` target (deploy builds)
 
+# Uploaded files (product photos). Locally these land in backend/media/ and are
+# served by the dev server; in production they go to Cloudflare R2 (see below).
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# --- Cloudflare R2 (S3-compatible) media storage -----------------------------
+# Set these env vars to store uploads in R2 instead of the local disk. Leave
+# R2_BUCKET empty (the default) and uploads stay on the filesystem, so local dev
+# works with zero configuration.
+#
+#   R2_BUCKET             bucket name, e.g. "luxeit-media"
+#   R2_ACCOUNT_ID         Cloudflare account id (used to build the endpoint)
+#   R2_ACCESS_KEY_ID      R2 API token access key
+#   R2_SECRET_ACCESS_KEY  R2 API token secret
+#   R2_PUBLIC_HOST        public host serving the bucket, no scheme —
+#                         e.g. "pub-xxxx.r2.dev" or "cdn.luxeit.co.zm"
+R2_BUCKET = os.getenv("R2_BUCKET", "")
+R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID", "")
+R2_PUBLIC_HOST = os.getenv("R2_PUBLIC_HOST", "").replace("https://", "").strip("/")
+
+if R2_BUCKET and R2_ACCOUNT_ID:
+    _default_storage = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "bucket_name": R2_BUCKET,
+            "endpoint_url": f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+            "access_key": os.getenv("R2_ACCESS_KEY_ID", ""),
+            "secret_key": os.getenv("R2_SECRET_ACCESS_KEY", ""),
+            "region_name": "auto",
+            # R2 rejects S3 ACL headers, and the bucket is served publicly, so
+            # don't sign URLs — files get plain, cacheable public URLs.
+            "default_acl": None,
+            "querystring_auth": False,
+            "signature_version": "s3v4",
+            "file_overwrite": False,
+            "location": "media",
+            # Long cache: uploaded files get unique names, so they're immutable.
+            "object_parameters": {"CacheControl": "public, max-age=31536000, immutable"},
+            **({"custom_domain": R2_PUBLIC_HOST} if R2_PUBLIC_HOST else {}),
+        },
+    }
+else:
+    _default_storage = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+
 # WhiteNoise: hashed filenames + gzip/brotli in production so static assets are
 # immutable and cacheable. Plain storage in dev (no manifest to rebuild).
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": _default_storage,
     "staticfiles": {
         "BACKEND": (
             "config.storage.ForgivingManifestStaticFilesStorage"

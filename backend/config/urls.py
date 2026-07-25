@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -27,3 +29,9 @@ urlpatterns = [
     path('api/', include('products.urls')),
     path('api/', include('api.urls')),
 ]
+
+# In local dev (DEBUG, no R2 configured) the dev server serves uploaded files.
+# In production uploads live in R2 and are served from its public host, so this
+# route isn't used.
+if settings.DEBUG and not settings.R2_BUCKET:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

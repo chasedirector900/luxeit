@@ -24,7 +24,7 @@ class ListingProductSerializer(serializers.BaseSerializer):
             "subtitle": obj.subtitle,
             "subCategory": obj.sub_category or "all",
             "price": float(obj.price),
-            "image": obj.image,
+            "image": obj.image_url,
         }
         if obj.original_price is not None and obj.original_price > obj.price:
             data["originalPrice"] = float(obj.original_price)
@@ -68,11 +68,11 @@ def _sold_label(n: int) -> str:
 def _media(product: Product) -> list:
     """Assemble the frontend media array: thumbnail first, then gallery, then video."""
     items: list[dict] = []
-    if product.image:
-        items.append({"type": "image", "src": product.image, "alt": product.title, "objectFit": "contain"})
+    if product.image_url:
+        items.append({"type": "image", "src": product.image_url, "alt": product.title, "objectFit": "contain"})
     for img in product.images.all():
         items.append(
-            {"type": "image", "src": img.src, "alt": img.alt or product.title, "objectFit": img.object_fit}
+            {"type": "image", "src": img.src_url, "alt": img.alt or product.title, "objectFit": img.object_fit}
         )
     if product.video:
         video = {"type": "video", "src": product.video, "title": f"{product.title} video"}
@@ -115,7 +115,7 @@ class ProductListSerializer(serializers.BaseSerializer):
             "id": str(obj.id),
             "slug": obj.slug,
             "title": obj.title,
-            "image": obj.image,
+            "image": obj.image_url,
             "price": float(obj.price),
             "productType": obj.product_type,
             "ratingAverage": float(obj.rating_average),
@@ -152,7 +152,7 @@ class ProductDetailSerializer(serializers.BaseSerializer):
             "id": str(obj.id),
             "slug": obj.slug,
             "title": obj.title,
-            "image": obj.image,
+            "image": obj.image_url,
             "media": _media(obj),
             "price": float(obj.price),
             "productType": obj.product_type,

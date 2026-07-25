@@ -12,7 +12,7 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
     min_num = 1  # business rule: thumbnail (the `image` field) + at least one gallery image
-    fields = ("src", "alt", "object_fit", "position")
+    fields = ("src_file", "src", "alt", "object_fit", "position")
 
 
 @admin.register(Category)
@@ -64,8 +64,8 @@ class ProductAdmin(admin.ModelAdmin):
             "fields": ("warehouse", "origin", "delivery_estimate", "import_tag", "preorder"),
         }),
         ("Media", {
-            "fields": ("image", "video", "video_thumbnail"),
-            "description": "Thumbnail is required; add gallery images below. Video is optional.",
+            "fields": ("image_file", "image", "video", "video_thumbnail"),
+            "description": "Upload a thumbnail (stored in R2) or paste an image URL — one is required. Add gallery images below. Video is optional.",
         }),
         ("Extra details (optional)", {
             "classes": ("collapse",),
@@ -140,11 +140,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(description="")
     def thumb(self, obj):
-        if not obj.image:
+        if not obj.image_url:
             return "—"
         return format_html(
             '<img src="{}" alt="" style="width:34px;height:34px;object-fit:cover;border-radius:6px;" loading="lazy">',
-            obj.image,
+            obj.image_url,
         )
 
     @admin.display(description="Price", ordering="price")

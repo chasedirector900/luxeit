@@ -100,7 +100,20 @@ class Product(models.Model):
 
     # Media — thumbnail (required) + relational gallery (ProductImage) + optional video.
     # Wide enough to hold a self-contained SVG data-URI placeholder, not just a URL.
-    image = models.CharField("thumbnail", max_length=2048, help_text="Main thumbnail image (required).")
+    image = models.CharField(
+        "thumbnail URL",
+        max_length=2048,
+        blank=True,
+        help_text="Image URL or data URI. Leave blank if you upload a thumbnail below.",
+    )
+    # Upload a real photo here and it wins over the `image` string above. Files
+    # go to Cloudflare R2 in production, the local media/ folder in dev.
+    image_file = models.ImageField(
+        "thumbnail upload",
+        upload_to="products/",
+        blank=True,
+        help_text="Upload a thumbnail photo. If set, this is used instead of the thumbnail URL above.",
+    )
     video = models.CharField(max_length=500, blank=True, help_text="Optional product video URL.")
     video_thumbnail = models.CharField(max_length=500, blank=True, help_text="Poster image for the video.")
 
@@ -162,6 +175,24 @@ class Product(models.Model):
             if self.air_price < self.price:
                 raise ValidationError({"air_price": "Air price should be greater than or equal to the sea price."})
 
+        # A thumbnail is still required — but it can come from either an upload
+        # or the URL field, so uploads alone are enough.
+        if not self.image and not self.image_file:
+            raise ValidationError(
+                {"image_file": "Upload a thumbnail photo, or paste an image URL in the thumbnail field."}
+            )
+
+    @property
+    def image_url(self) -> str:
+        """The thumbnail to serve: an uploaded file if there is one, else the URL.
+
+        Lets us move to real uploads (R2) product by product without breaking
+        the rows that still carry a URL or data-URI in `image`.
+        """
+        if self.image_file:
+            return self.image_file.url
+        return self.image
+
     @property
     def is_digital(self) -> bool:
         return self.product_type == ProductType.DIGITAL
@@ -214,13 +245,26 @@ class ProductImage(models.Model):
     """
 
     product = models.ForeignKey(Product, related_name="images", on_delete=models.CASCADE)
-    src = models.CharField(max_length=2048, help_text="Image URL or data URI.")
+    src = models.CharField(max_length=2048, blank=True, help_text="Image URL or data URI.")
+    src_file = models.ImageField(
+        "upload",
+        upload_to="products/gallery/",
+        blank=True,
+        help_text="Upload a photo. If set, this is used instead of the URL above.",
+    )
     alt = models.CharField(max_length=200, blank=True)
     object_fit = models.CharField(max_length=8, choices=ObjectFit.choices, default=ObjectFit.CONTAIN)
     position = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         ordering = ["position", "id"]
+
+    @property
+    def src_url(self) -> str:
+        """Uploaded file if there is one, else the URL/data-URI in `src`."""
+        if self.src_file:
+            return self.src_file.url
+        return self.src
 
     def __str__(self):
         return f"{self.product.title} image #{self.position}"
