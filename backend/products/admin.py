@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin, messages
 from django.db.models import Count
 from django.shortcuts import redirect, render
@@ -82,7 +83,26 @@ class ProductAdmin(admin.ModelAdmin):
     )
 
     def get_fieldsets(self, request, obj=None):
-        return self._ADD_FIELDSETS if obj is None else self._ADD_FIELDSETS + self._APP_MANAGED_FIELDSET
+        fieldsets = self._ADD_FIELDSETS if obj is None else self._ADD_FIELDSETS + self._APP_MANAGED_FIELDSET
+        if getattr(settings, "R2_BUCKET", ""):
+            return fieldsets
+        # No cloud storage configured: uploads go to the server's local disk,
+        # which is wiped on every deploy. Warn staff before they lose photos.
+        warned = []
+        for name, opts in fieldsets:
+            if name == "Media":
+                opts = {
+                    **opts,
+                    "description": (
+                        "<strong>WARNING: photo uploads are not saved permanently yet.</strong> "
+                        "Cloud storage (Cloudflare R2) isn't set up, so uploaded files are lost the "
+                        "next time the site updates. Paste an image URL instead, or ask a developer "
+                        "to finish the R2 setup. "
+                        + str(opts.get("description", ""))
+                    ),
+                }
+            warned.append((name, opts))
+        return tuple(warned)
 
     change_list_template = "admin/products/product/change_list.html"
 
