@@ -42,6 +42,22 @@ const nextConfig: NextConfig = {
   async headers() {
     if (!isProd) return [];
     return [
+      {
+        // Baseline security headers on every response. `frame-ancestors`
+        // (plus X-Frame-Options for older browsers) stops the site being
+        // framed by an attacker to impersonate or clickjack it.
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+        ],
+      },
       { source: "/brands/:path*", headers: [{ key: "Cache-Control", value: IMMUTABLE_ONE_YEAR }] },
       { source: "/cars/:path*", headers: [{ key: "Cache-Control", value: IMMUTABLE_ONE_YEAR }] },
       { source: "/images/:path*", headers: [{ key: "Cache-Control", value: IMMUTABLE_ONE_YEAR }] },
