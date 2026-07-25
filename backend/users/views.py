@@ -168,6 +168,13 @@ def me(request):
             request.user.full_name = str(full_name).strip()[:150]
             updated.append("full_name")
 
+        # Contact/delivery phone — a plain, unverified detail (not the login
+        # identifier), so it saves directly here with no OTP round-trip.
+        contact_phone = request.data.get("contact_phone")
+        if contact_phone is not None:
+            request.user.contact_phone = str(contact_phone).strip()[:30]
+            updated.append("contact_phone")
+
         if "address" in request.data:
             # Accept a nested {line1, city, area} object; null/empty clears it.
             # Keyed on presence so omitting "address" leaves it untouched.

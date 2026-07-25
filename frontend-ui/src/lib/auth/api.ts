@@ -19,6 +19,7 @@ export type ApiUser = {
   full_name: string;
   email: string | null;
   phone: string | null;
+  contact_phone: string;
   email_verified: boolean;
   phone_verified: boolean;
   address: ApiAddress | null;
@@ -138,10 +139,12 @@ export async function verifyCode(identifier: string, code: string): Promise<ApiU
 /** Updates the signed-in user's editable profile fields (currently the name). */
 export async function updateProfile(data: {
   fullName?: string;
+  contactPhone?: string;
   address?: ApiAddress | null;
 }): Promise<ApiUser> {
   const body: Record<string, unknown> = {};
   if (data.fullName !== undefined) body.full_name = data.fullName;
+  if (data.contactPhone !== undefined) body.contact_phone = data.contactPhone;
   if (data.address !== undefined) body.address = data.address;
   const { status, data: user } = await apiFetch<ApiUser>("/api/auth/me", {
     method: "PATCH",

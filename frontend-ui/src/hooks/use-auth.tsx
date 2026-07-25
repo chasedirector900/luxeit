@@ -35,6 +35,8 @@ export type AuthUser = {
   fullName: string;
   email?: string;
   phone?: string;
+  /** Contact/delivery number (unverified, editable on the profile). */
+  contactPhone: string;
   emailVerified: boolean;
   phoneVerified: boolean;
   address?: { line1: string; city: string; area: string } | null;
@@ -68,6 +70,7 @@ function toAuthUser(u: ApiUser): AuthUser {
     fullName: u.full_name,
     email: u.email ?? undefined,
     phone: u.phone ?? undefined,
+    contactPhone: u.contact_phone ?? "",
     emailVerified: u.email_verified,
     phoneVerified: u.phone_verified,
     address: u.address ?? null,
@@ -83,6 +86,7 @@ type AuthContextValue = {
   verifyCode: (identifier: string, code: string) => Promise<AuthUser>;
   updateProfile: (data: {
     fullName?: string;
+    contactPhone?: string;
     address?: { line1: string; city: string; area: string } | null;
   }) => Promise<AuthUser>;
   logout: () => Promise<void>;
@@ -137,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const updateProfile = useCallback(
-    async (data: { fullName?: string; address?: { line1: string; city: string; area: string } | null }) => {
+    async (data: { fullName?: string; contactPhone?: string; address?: { line1: string; city: string; area: string } | null }) => {
       const u = await apiUpdateProfile(data);
       applyUser(u);
       return toAuthUser(u);

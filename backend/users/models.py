@@ -45,6 +45,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
     full_name = models.CharField(max_length=150, blank=True)
 
+    # Contact/delivery phone number — a plain, unverified detail for reaching the
+    # customer about orders and delivery. Distinct from `phone` above, which is a
+    # unique login identifier verified via SMS OTP. This one is not unique, needs
+    # no verification, and is editable directly on the profile.
+    contact_phone = models.CharField(max_length=30, blank=True)
+
     # Primary delivery address (mirrors the frontend Address: line1/city/area).
     address_line1 = models.CharField(max_length=200, blank=True)
     address_city = models.CharField(max_length=120, blank=True)

@@ -159,10 +159,13 @@ export function EditProfileSheet({
                   </div>
                   <div>
                     <div className="mb-1.5 flex items-center justify-between">
-                      <label htmlFor="profile-phone" className={LABEL_TEXT}>Phone</label>
+                      <label htmlFor="profile-phone" className={LABEL_TEXT}>Phone (for delivery)</label>
                       {phoneStillVerified ? <VerifiedPill /> : null}
                     </div>
-                    <input id="profile-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+260 ..." className={FIELD_CLASS} />
+                    <input id="profile-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+260 97 123 4567" className={FIELD_CLASS} />
+                    <p className="mt-1.5 text-[12px] text-slate-500 dark:text-zinc-400">
+                      So couriers can reach you about your orders. Include the country code, e.g. +260.
+                    </p>
                   </div>
                 </>
               ) : (

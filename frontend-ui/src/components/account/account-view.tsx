@@ -82,16 +82,22 @@ export function AccountView() {
   const profile: Profile = {
     fullName: user?.fullName ?? "",
     email: user?.email ?? "",
-    phone: user?.phone ?? "",
+    // The editable phone here is the CONTACT/delivery number, not the login
+    // identifier (which changes only via the OTP flow).
+    phone: user?.contactPhone ?? "",
     address: user?.address ?? null,
   };
 
   function save(next: Profile) {
     setEditing(null);
-    // Persist the display name and delivery address to the backend (email/phone
-    // stay as login identifiers and change via the OTP flow). The auth context
-    // refreshes `user`, which re-renders this page with the saved values.
-    void updateProfile({ fullName: next.fullName.trim(), address: next.address ?? null }).catch(() => {});
+    // Persist the display name, contact phone, and delivery address to the
+    // backend (the login email/phone stay as identifiers, changed via the OTP
+    // flow). The auth context refreshes `user`, re-rendering with saved values.
+    void updateProfile({
+      fullName: next.fullName.trim(),
+      contactPhone: next.phone.trim(),
+      address: next.address ?? null,
+    }).catch(() => {});
   }
 
   const contact = profile.email || profile.phone;
