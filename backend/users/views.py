@@ -176,10 +176,8 @@ def google_login(request):
         )
     except Exception as exc:  # noqa: BLE001 — log the real reason, return a safe message
         logging.getLogger("users.google").warning("Google token verify failed: %s", exc)
-        # TEMP(debug): surface the real reason to the client to diagnose the live
-        # sign-in failure. Revert to the generic message once fixed.
         return Response(
-            {"detail": f"Google verify failed: {type(exc).__name__}: {exc}"},
+            {"detail": "Couldn't verify your Google sign-in. Please try again."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
