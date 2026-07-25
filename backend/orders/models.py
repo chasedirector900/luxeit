@@ -6,8 +6,11 @@ from django.utils import timezone
 
 class OrderStatus(models.TextChoices):
     PENDING = "pending", "Pending payment"   # placed, awaiting payment
-    QUEUE = "queue", "In queue"              # paid, waiting to be sourced
-    SOURCING = "sourcing", "Sourcing"        # being bought from China
+    QUEUE = "queue", "Sourcing"              # paid, being bought from China
+    # Set by "Mark sourced & purchased": the goods are BOUGHT and sitting at the
+    # hub waiting for a shipment to depart. (The value stays "sourcing" so no
+    # data migration is needed; only the customer-facing label changed.)
+    SOURCED = "sourcing", "Sourced"
     TRANSIT = "transit", "In transit"        # on its way to the customer
     DELIVERED = "delivered", "Delivered"     # completed
     CANCELLED = "cancelled", "Cancelled"
@@ -43,7 +46,7 @@ SHIPMENT_LABEL = {
 BUCKET_BY_STATUS = {
     OrderStatus.PENDING: "pending",
     OrderStatus.QUEUE: "queue",
-    OrderStatus.SOURCING: "queue",
+    OrderStatus.SOURCED: "queue",
     OrderStatus.TRANSIT: "transit",
     OrderStatus.DELIVERED: "delivered",
     OrderStatus.CANCELLED: "cancelled",
@@ -52,8 +55,8 @@ BUCKET_BY_STATUS = {
 # Customer-facing copy per status (mirrors the frontend ORDER_STATUS_META).
 STATUS_META = {
     OrderStatus.PENDING: ("Pending Payment", "Awaiting payment"),
-    OrderStatus.QUEUE: ("In Queue", "Paid — waiting to be sourced"),
-    OrderStatus.SOURCING: ("Sourcing", "Being bought from China"),
+    OrderStatus.QUEUE: ("Sourcing", "Paid — we're buying your items"),
+    OrderStatus.SOURCED: ("Sourced", "Bought — waiting to ship"),
     OrderStatus.TRANSIT: ("In Transit", "On its way to you"),
     OrderStatus.DELIVERED: ("Delivered", "Delivered"),
     OrderStatus.CANCELLED: ("Cancelled", "Order cancelled"),
@@ -64,7 +67,7 @@ STATUS_META = {
 STATUS_RANK = {
     OrderStatus.PENDING: 0,
     OrderStatus.QUEUE: 1,
-    OrderStatus.SOURCING: 2,
+    OrderStatus.SOURCED: 2,
     OrderStatus.TRANSIT: 3,
     OrderStatus.DELIVERED: 4,
 }
@@ -260,8 +263,15 @@ class Shipment(models.Model):
             else f"Your {self.label} order ({ref}) has been delivered. Enjoy!"
         )
         bodies = {
-            OrderStatus.QUEUE: f"Payment received — your {self.label} ({ref}) is queued to be sourced.",
-            OrderStatus.SOURCING: f"We're sourcing your {self.label} items in order {ref}.",
+            OrderStatus.QUEUE: f"Payment received — we're now sourcing your {self.label} items ({ref}).",
+            OrderStatus.SOURCED: (
+                f"We've sourced & purchased your {self.label} items in order {ref} — "
+                + (
+                    "they're at our China hub waiting to ship."
+                    if self.warehouse == "china"
+                    else "they're being prepared for delivery."
+                )
+            ),
             OrderStatus.TRANSIT: f"Your {self.label} shipment for order {ref} is on its way.",
             OrderStatus.DELIVERED: delivered,
             OrderStatus.CANCELLED: f"Your {self.label} shipment for order {ref} was cancelled.",

@@ -34,12 +34,14 @@ export const ORDER_BUCKETS: OrderBucket[] = [
     ring: "bg-rose-500/10",
   },
   {
+    // Slug stays "queue" (it's in URLs); the labels now describe both statuses
+    // this tab holds: being bought, and bought-but-not-yet-shipped.
     slug: "queue",
-    label: "In Queue",
+    label: "Sourcing",
     note: "Paid · being sourced",
-    title: "In Queue",
-    subtitle: "Paid orders being sourced from China",
-    empty: "Nothing in the queue right now.",
+    title: "Sourcing",
+    subtitle: "Paid orders being bought and prepared to ship",
+    empty: "Nothing being sourced right now.",
     statuses: ["queue", "sourcing"],
     icon: Clock,
     tint: "text-amber-500 dark:text-amber-400",

@@ -25,7 +25,7 @@ _ORDER_PREFETCH = (_ITEMS_PREFETCH, _SHIPMENTS_PREFETCH)
 # Reverse of BUCKET_BY_STATUS: a tab maps to the statuses it contains.
 BUCKET_STATUSES = {
     "pending": [OrderStatus.PENDING],
-    "queue": [OrderStatus.QUEUE, OrderStatus.SOURCING],
+    "queue": [OrderStatus.QUEUE, OrderStatus.SOURCED],
     "transit": [OrderStatus.TRANSIT],
     "delivered": [OrderStatus.DELIVERED],
     "cancelled": [OrderStatus.CANCELLED],

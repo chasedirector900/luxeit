@@ -26,7 +26,7 @@ class OrderModelTests(TestCase):
         self.assertEqual(float(order.total), 25.0)
 
     def test_bucket_mapping(self):
-        order = Order.objects.create(user=self.user, status=OrderStatus.SOURCING)
+        order = Order.objects.create(user=self.user, status=OrderStatus.SOURCED)
         self.assertEqual(order.bucket, "queue")
 
     def test_shipment_set_status_posts_inbox_update(self):
@@ -40,8 +40,8 @@ class OrderModelTests(TestCase):
     def test_shipment_set_status_logs_a_timeline_event(self):
         order = Order.objects.create(user=self.user)
         sh = self._shipment(order, status=OrderStatus.QUEUE)
-        sh.set_status(OrderStatus.SOURCING)
-        self.assertTrue(sh.events.filter(status=OrderStatus.SOURCING).exists())
+        sh.set_status(OrderStatus.SOURCED)
+        self.assertTrue(sh.events.filter(status=OrderStatus.SOURCED).exists())
 
     def test_order_status_rolls_up_to_least_advanced_shipment(self):
         order = Order.objects.create(user=self.user)
@@ -86,10 +86,10 @@ class ItemLevelFulfilmentTests(TestCase):
     def test_advancing_one_product_leaves_shipment_at_least_advanced(self):
         from .fulfilment import advance_items
 
-        customers, units = advance_items([self.shoes], OrderStatus.SOURCING)
+        customers, units = advance_items([self.shoes], OrderStatus.SOURCED)
         self.assertEqual((customers, units), (1, 200))
         self.shoes.refresh_from_db(); self.bags.refresh_from_db(); self.sh.refresh_from_db()
-        self.assertEqual(self.shoes.status, OrderStatus.SOURCING)
+        self.assertEqual(self.shoes.status, OrderStatus.SOURCED)
         self.assertEqual(self.bags.status, OrderStatus.QUEUE)  # untouched
         # Shipment is only as far along as its least-advanced item.
         self.assertEqual(self.sh.status, OrderStatus.QUEUE)
@@ -97,15 +97,15 @@ class ItemLevelFulfilmentTests(TestCase):
     def test_shipment_rolls_up_once_all_items_advance(self):
         from .fulfilment import advance_items
 
-        advance_items([self.shoes, self.bags], OrderStatus.SOURCING)
+        advance_items([self.shoes, self.bags], OrderStatus.SOURCED)
         self.sh.refresh_from_db()
-        self.assertEqual(self.sh.status, OrderStatus.SOURCING)
-        self.assertEqual(Order.objects.get(pk=self.order.pk).status, OrderStatus.SOURCING)
+        self.assertEqual(self.sh.status, OrderStatus.SOURCED)
+        self.assertEqual(Order.objects.get(pk=self.order.pk).status, OrderStatus.SOURCED)
 
     def test_advance_notifies_the_customer_about_the_product(self):
         from .fulfilment import advance_items
 
-        advance_items([self.shoes], OrderStatus.SOURCING)
+        advance_items([self.shoes], OrderStatus.SOURCED)
         thread = self.user.threads.get(slug=f"order-{self.order.reference.lower()}")
         self.assertTrue(thread.messages.filter(body__icontains="Shoes").exists())
         self.assertTrue(thread.messages.filter(body__icontains="sourced").exists())
@@ -146,7 +146,7 @@ class FulfilmentBoardViewTests(TestCase):
         res = self.client.post(url, data={"line": "__all__"})
         self.assertEqual(res.status_code, 302)  # redirects back to the batch
         self.item.refresh_from_db()
-        self.assertEqual(self.item.status, OrderStatus.SOURCING)
+        self.assertEqual(self.item.status, OrderStatus.SOURCED)
         thread = self.customer.threads.get(slug=f"order-{self.order.reference.lower()}")
         self.assertTrue(thread.messages.filter(body__icontains="Shoes").exists())
 
@@ -184,9 +184,9 @@ class FulfilmentBoardViewTests(TestCase):
     def test_ship_stage_moves_sourced_to_transit_and_notifies(self):
         from django.urls import reverse
 
-        self.item.status = OrderStatus.SOURCING
+        self.item.status = OrderStatus.SOURCED
         self.item.save(update_fields=["status"])
-        self.sh.status = OrderStatus.SOURCING
+        self.sh.status = OrderStatus.SOURCED
         self.sh.save(update_fields=["status"])
         url = reverse("admin:orders_shipment_fulfilment_batch", args=["ship", self.day, "air"])
         self.assertEqual(self.client.get(url).status_code, 200)  # shows in "To ship"
@@ -349,7 +349,7 @@ class OrderApiTests(TestCase):
 
     def test_list_and_bucket_filter(self):
         Order.objects.create(user=self.user, status=OrderStatus.QUEUE)
-        Order.objects.create(user=self.user, status=OrderStatus.SOURCING)
+        Order.objects.create(user=self.user, status=OrderStatus.SOURCED)
         Order.objects.create(user=self.user, status=OrderStatus.DELIVERED)
         self.assertEqual(len(self.client.get("/api/orders").json()), 3)
         self.assertEqual(len(self.client.get("/api/orders?bucket=queue").json()), 2)

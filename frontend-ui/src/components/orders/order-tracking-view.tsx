@@ -12,14 +12,35 @@ import { getOrder, type OrderApi, type OrderApiShipment } from "@/lib/auth/api";
 const CARD =
   "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
 
-// The fulfilment journey, in order. Matches the backend statuses.
-const STAGES = [
-  { key: "pending", label: "Order placed", desc: "We received your order", icon: Wallet },
-  { key: "queue", label: "Payment confirmed", desc: "Paid — queued to be sourced", icon: Clock },
-  { key: "sourcing", label: "Sourcing", desc: "Preparing your items", icon: Package },
-  { key: "transit", label: "In transit", desc: "On its way to you", icon: Truck },
-  { key: "delivered", label: "Delivered", desc: "Completed", icon: PackageCheck },
-] as const;
+// The fulfilment journey, in order. Matches the backend statuses — note the
+// "sourcing" status means the goods are already BOUGHT and waiting to ship, so
+// it reads as "Sourced" here (the buying itself happens during "queue").
+// Wording is hub-aware: China goods wait to leave China, local stock doesn't.
+function stagesFor(warehouse?: string) {
+  const china = warehouse === "china";
+  return [
+    { key: "pending", label: "Order placed", desc: "We received your order", icon: Wallet },
+    { key: "queue", label: "Sourcing", desc: "Paid — we're buying your items", icon: Clock },
+    {
+      key: "sourcing",
+      label: "Sourced",
+      desc: china ? "Bought — waiting to leave China" : "Bought — preparing for delivery",
+      icon: Package,
+    },
+    {
+      key: "transit",
+      label: "In transit",
+      desc: china ? "Left China — on its way to you" : "On its way to you",
+      icon: Truck,
+    },
+    {
+      key: "delivered",
+      label: "Delivered",
+      desc: china ? "Arrived — ready for collection" : "Completed",
+      icon: PackageCheck,
+    },
+  ];
+}
 
 const STAGE_INDEX: Record<string, number> = { pending: 0, queue: 1, sourcing: 2, transit: 3, delivered: 4 };
 
@@ -152,7 +173,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
               ) : null}
 
               <div className="mt-3.5">
-                <ShipmentTimeline events={sh.events ?? []} currentStatus={sh.status} />
+                <ShipmentTimeline events={sh.events ?? []} currentStatus={sh.status} warehouse={sh.warehouse} />
               </div>
 
               {/* Items in this shipment */}
@@ -209,7 +230,15 @@ export function OrderTrackingView({ reference }: { reference: string }) {
   );
 }
 
-function ShipmentTimeline({ events, currentStatus }: { events: Array<{ status: string; at: string }>; currentStatus: string }) {
+function ShipmentTimeline({
+  events,
+  currentStatus,
+  warehouse,
+}: {
+  events: Array<{ status: string; at: string }>;
+  currentStatus: string;
+  warehouse?: string;
+}) {
   if (currentStatus === "cancelled") {
     return (
       <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
@@ -220,16 +249,17 @@ function ShipmentTimeline({ events, currentStatus }: { events: Array<{ status: s
   }
   const delivered = currentStatus === "delivered";
   const currentIndex = STAGE_INDEX[currentStatus] ?? 0;
+  const stages = stagesFor(warehouse);
   const at: Record<string, string> = {};
   for (const e of events) at[e.status] = e.at;
 
   return (
     <ol className="relative">
-      {STAGES.map((stage, i) => {
+      {stages.map((stage, i) => {
         const Icon = stage.icon;
         const done = i < currentIndex || delivered;
         const current = i === currentIndex && !delivered;
-        const isLast = i === STAGES.length - 1;
+        const isLast = i === stages.length - 1;
         const stamp = at[stage.key];
         return (
           <li key={stage.key} className="relative flex gap-4 pb-5 last:pb-0">

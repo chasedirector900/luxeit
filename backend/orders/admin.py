@@ -16,7 +16,7 @@ from .models import Order, OrderItem, OrderStatus, Shipment
 _STATUS_BADGE = {
     OrderStatus.PENDING: ("secondary", "fa-hourglass-half"),
     OrderStatus.QUEUE: ("warning", "fa-clock"),
-    OrderStatus.SOURCING: ("info", "fa-cart-shopping"),
+    OrderStatus.SOURCED: ("info", "fa-cart-shopping"),
     OrderStatus.TRANSIT: ("primary", "fa-truck-fast"),
     OrderStatus.DELIVERED: ("success", "fa-circle-check"),
     OrderStatus.CANCELLED: ("danger", "fa-ban"),
@@ -290,7 +290,7 @@ class ShipmentAdmin(admin.ModelAdmin):
             return None
         if obj.warehouse == "zambia":
             return "deliver"
-        return {OrderStatus.QUEUE: "source", OrderStatus.SOURCING: "ship", OrderStatus.TRANSIT: "arrive"}.get(obj.status)
+        return {OrderStatus.QUEUE: "source", OrderStatus.SOURCED: "ship", OrderStatus.TRANSIT: "arrive"}.get(obj.status)
 
     @admin.display(description="On board")
     def board_link(self, obj):
@@ -310,14 +310,14 @@ class ShipmentAdmin(admin.ModelAdmin):
     STAGES = {
         "source": {
             "title": "To source", "warehouse": "china",
-            "statuses": [OrderStatus.QUEUE], "target": OrderStatus.SOURCING,
+            "statuses": [OrderStatus.QUEUE], "target": OrderStatus.SOURCED,
             "action": "Mark sourced & purchased", "done": "sourced & purchased",
             "hint": "Paid orders waiting to be bought from the China hub.",
             "icon": "fa-cart-shopping", "color": "warning",
         },
         "ship": {
             "title": "To ship", "warehouse": "china",
-            "statuses": [OrderStatus.SOURCING], "target": OrderStatus.TRANSIT,
+            "statuses": [OrderStatus.SOURCED], "target": OrderStatus.TRANSIT,
             "action": "Mark shipped (left China)", "done": "shipped",
             "hint": "Sourced & purchased — mark a product shipped once it leaves China.",
             "icon": "fa-plane-departure", "color": "info",
@@ -332,7 +332,7 @@ class ShipmentAdmin(admin.ModelAdmin):
         },
         "deliver": {
             "title": "Lusaka local", "warehouse": "zambia",
-            "statuses": [OrderStatus.QUEUE, OrderStatus.SOURCING, OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
+            "statuses": [OrderStatus.QUEUE, OrderStatus.SOURCED, OrderStatus.TRANSIT], "target": OrderStatus.DELIVERED,
             "action": "Mark delivered", "done": "delivered",
             "hint": "Local-stock orders — the rider delivers per customer; mark each drop as it's done.",
             "icon": "fa-truck", "color": "success",
@@ -542,7 +542,7 @@ class ShipmentAdmin(admin.ModelAdmin):
 
     @admin.action(description="Mark Sourced & purchased (→ Sourcing)")
     def mark_sourcing(self, request, queryset):
-        self._bulk(request, queryset, OrderStatus.SOURCING)
+        self._bulk(request, queryset, OrderStatus.SOURCED)
 
     @admin.action(description="Mark Shipped (→ In transit)")
     def mark_transit(self, request, queryset):

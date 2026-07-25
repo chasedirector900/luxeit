@@ -14,7 +14,7 @@ from products.models import Product
 
 User = get_user_model()
 
-STAGES = [OrderStatus.PENDING, OrderStatus.QUEUE, OrderStatus.SOURCING, OrderStatus.TRANSIT, OrderStatus.DELIVERED]
+STAGES = [OrderStatus.PENDING, OrderStatus.QUEUE, OrderStatus.SOURCED, OrderStatus.TRANSIT, OrderStatus.DELIVERED]
 
 # A plausible demo variant per product type, so the fulfilment board shows the
 # buyer what to source (real variants come from the customer's selection).
@@ -38,7 +38,7 @@ PLAN = [
     (2, True, [("china", "air", OrderStatus.QUEUE, 1), ("china", "sea", OrderStatus.QUEUE, 1)]),
     (4, True, [("china", "sea", OrderStatus.QUEUE, 1)]),
     # Sourced & purchased — these sit in the "To ship" stage.
-    (9, True, [("china", "sea", OrderStatus.SOURCING, 2)]),
+    (9, True, [("china", "sea", OrderStatus.SOURCED, 2)]),
     (16, True, [("china", "air", OrderStatus.TRANSIT, 1)]),
     # Premium showcase: one order, two parcels at different stages.
     (30, True, [("china", "air", OrderStatus.DELIVERED, 1), ("china", "sea", OrderStatus.TRANSIT, 1)]),

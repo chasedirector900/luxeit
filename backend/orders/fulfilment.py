@@ -18,7 +18,7 @@ def _notify_items(order, items, status) -> None:
     names = ", ".join(dict.fromkeys(it.title for it in items))  # unique, order-kept
     warehouse = items[0].warehouse
 
-    if status == OrderStatus.SOURCING:
+    if status == OrderStatus.SOURCED:
         body = f"Good news — we've sourced & purchased your {names} (order {ref}). It's being prepared for shipping."
     elif status == OrderStatus.TRANSIT:
         body = (

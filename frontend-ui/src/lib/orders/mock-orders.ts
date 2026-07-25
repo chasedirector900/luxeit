@@ -30,14 +30,16 @@ export const ORDER_STATUS_META: Record<
     dot: "bg-rose-500",
   },
   queue: {
-    label: "In Queue",
-    description: "Paid — waiting to be sourced",
+    label: "Sourcing",
+    description: "Paid — we're buying your items",
     tint: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
     dot: "bg-amber-500",
   },
+  // The backend's "sourcing" status means the goods are already BOUGHT and
+  // waiting for a shipment to depart — hence "Sourced" here.
   sourcing: {
-    label: "Sourcing",
-    description: "Being bought from China",
+    label: "Sourced",
+    description: "Bought — waiting to ship",
     tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
     dot: "bg-sky-500",
   },
