@@ -18,7 +18,7 @@ export function ReviewsRatingSkeleton() {
           ))}
         </div>
 
-        <section className="mt-3 rounded-2xl border border-slate-200 bg-white/90 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+        <section className="mt-3 rounded-2xl border border-gold-200/70 bg-white/90 p-3 dark:border-gold-900/40 dark:bg-zinc-900/70">
           <div className="grid grid-cols-[auto_1fr] gap-3">
             <div>
               <div className="h-10 w-14 rounded bg-slate-200 dark:bg-zinc-800" />
@@ -36,7 +36,7 @@ export function ReviewsRatingSkeleton() {
           {Array.from({ length: 3 }).map((_, i) => (
             <section
               key={i}
-              className="rounded-2xl border border-slate-200 bg-white/90 p-3 dark:border-zinc-800 dark:bg-zinc-900/60"
+              className="rounded-2xl border border-gold-200/70 bg-white/90 p-3 dark:border-gold-900/40 dark:bg-zinc-900/60"
             >
               <div className="mb-2 flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-zinc-800" />

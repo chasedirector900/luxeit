@@ -1,4 +1,4 @@
-const CARD = "rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900/70";
 const GHOST = "rounded bg-slate-200 dark:bg-zinc-800";
 
 function ShipmentCardSkeleton() {
@@ -23,7 +23,7 @@ function ShipmentCardSkeleton() {
         ))}
       </div>
       {/* Items */}
-      <div className="mt-4 space-y-3 border-t border-slate-100 pt-4 dark:border-zinc-800">
+      <div className="mt-4 space-y-3 border-t border-gold-100/70 pt-4 dark:border-gold-900/40">
         {Array.from({ length: 2 }).map((_, idx) => (
           <div key={idx} className="flex items-center gap-3">
             <div className="h-11 w-11 shrink-0 rounded-xl bg-slate-200 dark:bg-zinc-800" />

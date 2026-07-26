@@ -4,7 +4,7 @@ import type { ProductShippingMethod, Warehouse } from "@/types/product";
 // fast; items in the China hub ship by the carrier chosen at checkout.
 export const WAREHOUSE_META: Record<Warehouse, { label: string; badge: string }> = {
   zambia: { label: "Zambia", badge: "bg-emerald-500 text-white" },
-  china: { label: "China", badge: "bg-sky-500 text-white" },
+  china: { label: "China", badge: "bg-gold-500 text-white" },
 };
 
 /** Compact estimate for cards. */

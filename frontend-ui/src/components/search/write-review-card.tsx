@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getMyReview, submitReview } from "@/lib/auth/api";
 
 const CARD =
-  "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none";
+  "rounded-2xl border border-gold-200/70 bg-white p-4 shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/60 dark:shadow-none";
 
 export function WriteReviewCard({ productSlug }: { productSlug: string }) {
   const router = useRouter();
@@ -103,7 +103,7 @@ export function WriteReviewCard({ productSlug }: { productSlug: string }) {
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 transition-transform active:scale-95 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-gold-200/70 bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 transition-transform active:scale-95 dark:border-gold-900/50 dark:bg-zinc-900 dark:text-zinc-300"
           >
             <Pencil className="h-3.5 w-3.5" />
             Edit
@@ -147,7 +147,7 @@ export function WriteReviewCard({ productSlug }: { productSlug: string }) {
         onChange={(e) => setText(e.target.value)}
         rows={3}
         placeholder="What did you like or dislike? (optional)"
-        className="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
+        className="mt-3 w-full resize-none rounded-xl border border-gold-200/70 bg-white p-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
       />
 
       {error ? <p className="mt-2 text-[12px] font-semibold text-rose-600 dark:text-rose-400">{error}</p> : null}
@@ -167,7 +167,7 @@ export function WriteReviewCard({ productSlug }: { productSlug: string }) {
             type="button"
             onClick={() => setEditing(false)}
             disabled={submitting}
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 transition-transform active:scale-95 disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-gold-200/70 bg-white px-4 text-sm font-bold text-slate-700 transition-transform active:scale-95 disabled:opacity-60 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
           >
             Cancel
           </button>

@@ -40,12 +40,12 @@ const SHIPPING_METHODS: Array<{ key: "air" | "sea"; label: string; eta: string }
 ];
 
 const CARD_CLASS =
-  "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none";
+  "rounded-2xl border border-gold-200/70 bg-white p-4 shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/60 dark:shadow-none";
 
 const SELECT_ACTIVE =
   "border-gold-500 bg-gold-500/10 text-gold-600 dark:border-gold-400 dark:text-gold-300";
 const SELECT_IDLE =
-  "border-slate-300 bg-white text-slate-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300";
+  "border-slate-300 bg-white text-slate-700 dark:border-gold-900/50 dark:bg-zinc-900 dark:text-zinc-300";
 
 export function SearchProductDetailClient({
   product,
@@ -205,7 +205,7 @@ export function SearchProductDetailClient({
           <button
             type="button"
             onClick={() => router.push(backHref)}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
             aria-label="Go back"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
@@ -216,7 +216,7 @@ export function SearchProductDetailClient({
           </div>
         </header>
 
-        <section className="reveal-up overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none" style={{ animationDelay: "60ms" }}>
+        <section className="reveal-up overflow-hidden rounded-3xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none" style={{ animationDelay: "60ms" }}>
           <div className="relative aspect-[4/5] w-full bg-slate-100 dark:bg-zinc-950">
             {activeMedia.type === "video" ? (
               <video
@@ -244,7 +244,7 @@ export function SearchProductDetailClient({
                 </span>
               ) : null}
               {product.importTag ? (
-                <span className="rounded-md bg-sky-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+                <span className="rounded-md bg-gold-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink shadow-sm">
                   {product.importTag}
                 </span>
               ) : null}
@@ -337,7 +337,7 @@ export function SearchProductDetailClient({
             </div>
 
             {warehouse && deliveryInfo ? (
-              <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900/70">
+              <div className="flex items-center gap-2.5 rounded-xl border border-gold-200/70 bg-slate-50 px-3 py-2.5 dark:border-gold-900/40 dark:bg-zinc-900/70">
                 <Truck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <p className="text-[12px] leading-snug text-slate-600 dark:text-zinc-300">
                   <span className="font-bold text-slate-900 dark:text-zinc-100">Ships from {warehouse.label}</span> · {deliveryInfo}
@@ -362,7 +362,7 @@ export function SearchProductDetailClient({
                         className={`rounded-xl border p-3 text-left transition-transform active:scale-[0.98] ${
                           active
                             ? "border-gold-500/60 bg-gold-500/10 dark:border-gold-400/50 dark:bg-gold-500/15"
-                            : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+                            : "border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900"
                         }`}
                       >
                         <div className="flex items-center gap-1.5">
@@ -381,10 +381,10 @@ export function SearchProductDetailClient({
               </div>
             ) : null}
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+            <div className="rounded-xl border border-gold-200/70 bg-slate-50 p-3 dark:border-gold-900/40 dark:bg-zinc-900/70">
               <div className="flex items-center justify-between">
                 <p className="text-[12px] font-semibold text-slate-500 dark:text-zinc-400">Quantity</p>
-                <div className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950">
+                <div className="inline-flex items-center gap-1 rounded-xl border border-gold-200/70 bg-white p-1 dark:border-gold-900/40 dark:bg-zinc-950">
                   <button
                     type="button"
                     onClick={() => setQuantity((value) => Math.max(1, value - 1))}
@@ -408,7 +408,7 @@ export function SearchProductDetailClient({
             </div>
 
             {product.options && product.options.length > 0 ? (
-              <div className="space-y-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+              <div className="space-y-2.5 rounded-xl border border-gold-200/70 bg-slate-50 p-3 dark:border-gold-900/40 dark:bg-zinc-900/70">
                 <h3 className="text-[12px] font-semibold text-slate-500 dark:text-zinc-400">Options</h3>
                 <div className="space-y-2.5">
                   {product.options.map((option) => (
@@ -451,7 +451,7 @@ export function SearchProductDetailClient({
             ) : null}
 
             {product.compatibility?.fields?.length ? (
-              <div className="space-y-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+              <div className="space-y-2.5 rounded-xl border border-gold-200/70 bg-slate-50 p-3 dark:border-gold-900/40 dark:bg-zinc-900/70">
                 <h3 className="text-[12px] font-semibold text-slate-500 dark:text-zinc-400">
                   {product.compatibility.title}
                 </h3>
@@ -508,7 +508,7 @@ export function SearchProductDetailClient({
               </div>
               <Link
                 href={`${productHrefBase}/${product.slug}/reviews-rating`}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-transform duration-100 active:scale-95 dark:border-zinc-700 dark:text-zinc-300"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold-200/70 text-slate-600 transition-transform duration-100 active:scale-95 dark:border-gold-900/50 dark:text-zinc-300"
                 aria-label="Open full reviews"
               >
                 <ArrowRight className="h-4 w-4" />
@@ -552,7 +552,7 @@ export function SearchProductDetailClient({
                 {ratings.reviewTags.slice(0, 4).map((tag) => (
                   <span
                     key={tag.label}
-                    className="rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-600 dark:border-zinc-700 dark:text-zinc-300"
+                    className="rounded-full border border-gold-200/70 px-3 py-1 text-[11px] font-semibold text-slate-600 dark:border-gold-900/50 dark:text-zinc-300"
                   >
                     {tag.label} {tag.count}
                   </span>
@@ -640,7 +640,7 @@ export function SearchProductDetailClient({
       </div>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4.4rem+env(safe-area-inset-bottom))] z-40 px-4 md:hidden">
-        <div className="pointer-events-auto mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-lg shadow-slate-900/10 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95 dark:shadow-black/40">
+        <div className="pointer-events-auto mx-auto w-full max-w-md rounded-2xl border border-gold-200/70 bg-white/95 p-2 shadow-lg shadow-slate-900/10 backdrop-blur dark:border-gold-900/40 dark:bg-zinc-950/95 dark:shadow-black/40">
           {showAddSuccess ? (
             <div className="mb-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
               Added to cart successfully.

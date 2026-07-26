@@ -136,7 +136,7 @@ export function PromoBannerCard({
                 {idx === activeIndex && (
                   <motion.span
                     layoutId="promo-active-dot"
-                    className="absolute inset-0 rounded-full bg-cyan-400 dark:bg-cyan-300"
+                    className="absolute inset-0 rounded-full bg-gold-400 dark:bg-gold-300"
                     transition={springTransition}
                   />
                 )}

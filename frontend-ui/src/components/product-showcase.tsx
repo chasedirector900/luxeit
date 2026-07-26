@@ -158,14 +158,14 @@ export function ProductShowcase({ isLoading = false }: ProductShowcaseProps) {
           <button
             type="button"
             onClick={() => scrollTrack("left")}
-            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-300/90 bg-white text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 dark:border-zinc-800/70 dark:bg-zinc-900/60 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200 md:h-8 md:w-8"
+            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-300/90 bg-white text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 dark:border-gold-900/40/70 dark:bg-zinc-900/60 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200 md:h-8 md:w-8"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"
             onClick={() => scrollTrack("right")}
-            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-300/90 bg-white text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 dark:border-zinc-800/70 dark:bg-zinc-900/60 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200 md:h-8 md:w-8"
+            className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-300/90 bg-white text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900 dark:border-gold-900/40/70 dark:bg-zinc-900/60 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200 md:h-8 md:w-8"
           >
             <ChevronRight className="h-3.5 w-3.5" />
           </button>

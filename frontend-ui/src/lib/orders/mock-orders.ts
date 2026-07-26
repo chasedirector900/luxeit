@@ -40,8 +40,8 @@ export const ORDER_STATUS_META: Record<
   sourcing: {
     label: "Sourced",
     description: "Bought — waiting to ship",
-    tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-    dot: "bg-sky-500",
+    tint: "bg-gold-500/10 text-gold-600 dark:text-gold-400",
+    dot: "bg-gold-500",
   },
   transit: {
     label: "In Transit",

@@ -28,7 +28,7 @@ export const CHANNEL_META: Record<NotificationType, ChannelMeta> = {
   order: { icon: Package, solid: "bg-gold-500", tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   delivery: { icon: Truck, solid: "bg-gold-500", tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   promo: { icon: Gift, solid: "bg-rose-500", tint: "text-rose-500 dark:text-rose-400", ring: "bg-rose-500/10" },
-  system: { icon: Sparkles, solid: "bg-sky-500", tint: "text-sky-500 dark:text-sky-400", ring: "bg-sky-500/10" },
+  system: { icon: Sparkles, solid: "bg-gold-500", tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   support: { icon: MessageCircle, solid: "bg-emerald-500", tint: "text-emerald-500 dark:text-emerald-400", ring: "bg-emerald-500/10" },
 };
 

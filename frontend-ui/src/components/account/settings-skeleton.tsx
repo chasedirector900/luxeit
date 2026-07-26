@@ -1,9 +1,9 @@
-const CARD = "rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900/70";
 const GHOST = "rounded bg-slate-200 dark:bg-zinc-800";
 
 function RowGroup({ rows, trailing }: { rows: number; trailing?: "toggle" | "chevron" }) {
   return (
-    <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+    <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
       {Array.from({ length: rows }).map((_, idx) => (
         <div key={idx} className="flex items-center gap-3 px-4 py-3.5">
           {trailing !== "toggle" ? <div className="h-9 w-9 shrink-0 rounded-full bg-slate-200 dark:bg-zinc-800" /> : null}

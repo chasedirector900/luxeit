@@ -31,7 +31,7 @@ const categoryChips = [
 
 const browseItems = [
   { label: "Footwear", href: "/category/footwear", icon: Footprints, tint: "text-rose-500 dark:text-rose-400", ring: "bg-rose-500/10" },
-  { label: "Watches", href: "/explore/search?q=watch", icon: Watch, tint: "text-sky-500 dark:text-sky-400", ring: "bg-sky-500/10" },
+  { label: "Watches", href: "/explore/search?q=watch", icon: Watch, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { label: "Car Parts", href: "/explore/search?q=car+parts", icon: CarFront, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { label: "Electronics", href: "/category/electronics", icon: Cpu, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { label: "Security", href: "/category/security", icon: ShieldCheck, tint: "text-emerald-500 dark:text-emerald-400", ring: "bg-emerald-500/10" },
@@ -103,7 +103,7 @@ export default async function ExplorePage() {
         <Link
           href="/explore/search"
           style={{ animationDelay: "60ms" }}
-          className="reveal-up flex h-12 items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 shadow-sm shadow-slate-900/[0.03] transition-transform duration-100 active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
+          className="reveal-up flex h-12 items-center gap-2.5 rounded-xl border border-gold-200/70 bg-white px-4 shadow-sm shadow-slate-900/[0.03] transition-transform duration-100 active:scale-[0.99] dark:border-gold-900/40 dark:bg-zinc-900 dark:shadow-none"
         >
           <Search className="h-[18px] w-[18px] shrink-0 text-slate-400 dark:text-zinc-500" />
           <span className="truncate text-sm text-slate-400 dark:text-zinc-500">Search products, brands, parts...</span>
@@ -122,7 +122,7 @@ export default async function ExplorePage() {
                 className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl border px-3.5 text-[13px] font-bold transition-colors duration-150 active:scale-95 ${
                   index === 0
                     ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
-                    : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                    : "border-gold-200/70 bg-white text-slate-700 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
                 }`}
               >
                 <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
@@ -135,7 +135,7 @@ export default async function ExplorePage() {
         {/* Hero */}
         <section
           style={{ animationDelay: "180ms" }}
-          className="reveal-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 via-gold-600 to-gold-700 p-5 text-white shadow-lg shadow-gold-900/25"
+          className="reveal-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-gold-500 via-gold-600 to-gold-700 p-5 text-white shadow-lg shadow-gold-900/25"
         >
           <div className="pointer-events-none absolute -right-8 -top-10 h-44 w-44 rounded-full bg-white/20 blur-3xl transform-gpu" />
           <div className="pointer-events-none absolute -bottom-12 right-4 h-40 w-40 rounded-full bg-white/10 blur-3xl transform-gpu" />
@@ -163,7 +163,7 @@ export default async function ExplorePage() {
               <Link
                 key={label}
                 href={href}
-                className="flex h-[92px] flex-col items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-1 text-center shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
+                className="flex h-[92px] flex-col items-center justify-center gap-2 rounded-2xl border border-gold-200/70 bg-white px-1 text-center shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:shadow-none"
               >
                 <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${ring}`}>
                   <Icon className={`h-5 w-5 ${tint}`} strokeWidth={2} />
@@ -184,7 +184,7 @@ export default async function ExplorePage() {
                   key={`deal-${product.id}`}
                   href={`/explore/search/product/${product.slug}`}
                   prefetch={false}
-                  className="w-[150px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
+                  className="w-[150px] shrink-0 overflow-hidden rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-[0.98] dark:border-gold-900/40 dark:bg-zinc-900 dark:shadow-none"
                 >
                   <div className="relative aspect-square w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
                     <Image src={product.image} alt={product.title} fill sizes="150px" className="object-cover" />

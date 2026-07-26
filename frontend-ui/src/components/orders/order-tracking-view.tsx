@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getOrder, type OrderApi, type OrderApiShipment } from "@/lib/auth/api";
 
 const CARD =
-  "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
+  "rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none";
 
 // The fulfilment journey, in order. Matches the backend statuses — note the
 // "sourcing" status means the goods are already BOUGHT and waiting to ship, so
@@ -177,7 +177,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
               </div>
 
               {/* Items in this shipment */}
-              <div className="mt-3 space-y-2.5 border-t border-slate-100 pt-3 dark:border-zinc-800">
+              <div className="mt-3 space-y-2.5 border-t border-gold-100/70 pt-3 dark:border-gold-900/40">
                 {sh.items.map((item, idx) => (
                   <div key={`${item.title}-${idx}`} className="flex items-center gap-3">
                     <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800">
@@ -221,7 +221,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
 
         <Link
           href="/account/notifications/support"
-          className="reveal-up inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+          className="reveal-up inline-flex h-11 w-full items-center justify-center rounded-xl border border-gold-200/70 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
         >
           Need help with this order?
         </Link>
@@ -308,7 +308,7 @@ function BackHeader({ reference }: { reference: string }) {
       <Link
         href="/account"
         aria-label="Back to account"
-        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
       >
         <ArrowLeft className="h-[18px] w-[18px]" />
       </Link>

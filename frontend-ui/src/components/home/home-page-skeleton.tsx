@@ -26,7 +26,7 @@ export function HomePageSkeleton() {
           {Array.from({ length: 10 }).map((_, idx) => (
             <div
               key={idx}
-              className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70"
+              className="overflow-hidden rounded-2xl border border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900/70"
             >
               <div className="aspect-[4/3] w-full bg-slate-200 dark:bg-zinc-800" />
               <div className="space-y-1.5 p-3">

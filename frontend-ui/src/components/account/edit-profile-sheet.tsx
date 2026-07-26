@@ -18,7 +18,7 @@ type EditProfileSheetProps = {
 };
 
 const FIELD_CLASS =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
+  "h-12 w-full rounded-xl border border-gold-200/70 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 const LABEL_TEXT = "text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 const LABEL_CLASS = `mb-1.5 block ${LABEL_TEXT}`;
 
@@ -112,7 +112,7 @@ export function EditProfileSheet({
             onClick={onClose}
           />
           <motion.div
-            className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[88vh] w-full max-w-md transform-gpu flex-col rounded-t-3xl border-t border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+            className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[88vh] w-full max-w-md transform-gpu flex-col rounded-t-3xl border-t border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-950"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -128,7 +128,7 @@ export function EditProfileSheet({
                   type="button"
                   onClick={onClose}
                   aria-label="Close"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:text-zinc-400"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gold-200/70 text-slate-500 transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:text-zinc-400"
                 >
                   <X className="h-[18px] w-[18px]" />
                 </button>
@@ -186,7 +186,7 @@ export function EditProfileSheet({
               )}
             </div>
 
-            <div className="shrink-0 border-t border-slate-200 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] dark:border-zinc-800">
+            <div className="shrink-0 border-t border-gold-200/70 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] dark:border-gold-900/40">
               <button
                 type="button"
                 onClick={handleSave}

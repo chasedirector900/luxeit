@@ -12,7 +12,7 @@ export function ContactSkeleton() {
             <div className={`h-3 w-48 ${GHOST}`} />
           </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900/70">
+        <div className="rounded-2xl border border-gold-200/70 bg-white p-4 dark:border-gold-900/40 dark:bg-zinc-900/70">
           <div className={`h-3 w-24 ${GHOST}`} />
           <div className="mt-2 h-12 w-full rounded-xl bg-slate-200 dark:bg-zinc-800" />
           <div className={`mt-3 h-3 w-56 ${GHOST}`} />

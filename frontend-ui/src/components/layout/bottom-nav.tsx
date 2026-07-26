@@ -141,7 +141,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/95 backdrop-blur md:hidden dark:border-white/10 dark:bg-surface/95"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-gold-200/70/80 bg-white/95 backdrop-blur md:hidden dark:border-white/10 dark:bg-surface/95"
     >
       <ul
         className="mx-auto grid w-full max-w-md grid-cols-5 gap-0.5 px-1 py-1"
@@ -164,7 +164,7 @@ export function BottomNav() {
                   <span className="relative inline-flex">
                     <NavIcon name={item.icon} />
                     {item.icon === "cart" && cartCount > 0 ? (
-                      <span className="absolute -right-2 -top-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-sky-500 px-1 text-[9px] font-bold text-white">
+                      <span className="absolute -right-2 -top-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[9px] font-bold text-ink">
                         {cartCount > 99 ? "99+" : cartCount}
                       </span>
                     ) : null}

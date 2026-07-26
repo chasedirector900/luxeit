@@ -9,7 +9,7 @@ import { addPaymentMethod } from "@/lib/auth/api";
 import { tokenizeCard } from "@/lib/payments/gateway";
 
 const FIELD =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
+  "h-12 w-full rounded-xl border border-gold-200/70 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 const LABEL = "mb-1.5 block text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 
 const onlyDigits = (value: string) => value.replace(/\D/g, "");
@@ -105,7 +105,7 @@ export function AddPaymentMethodView({ brand }: { brand: PaymentBrand }) {
         <Link
           href="/account/payment-methods"
           aria-label="Back to payment methods"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
         >
           <ArrowLeft className="h-[18px] w-[18px]" />
         </Link>
@@ -149,7 +149,7 @@ export function AddPaymentMethodView({ brand }: { brand: PaymentBrand }) {
       {/* Form */}
       <section
         style={{ animationDelay: "120ms" }}
-        className="reveal-up space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
+        className="reveal-up space-y-4 rounded-2xl border border-gold-200/70 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none"
       >
         {kind === "card" ? (
           <>

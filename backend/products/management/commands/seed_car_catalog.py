@@ -48,18 +48,18 @@ FEATURES = [
 
 # (sub_category, part name, price, original_price|None, from, to)
 PART_TEMPLATES = [
-    ("brakes", "Front Brake Pads", 38.99, 49.99, "#0a0a0a", "#dc2626"),
-    ("brakes", "Brake Discs (Pair)", 89.99, None, "#1c1917", "#57534e"),
-    ("filters", "Air Filter", 12.99, None, "#134e4a", "#14b8a6"),
-    ("filters", "Oil Filter (3-Pack)", 21.99, 27.99, "#422006", "#a16207"),
-    ("engine", "Iridium Spark Plugs", 44.99, None, "#1e1b4b", "#4338ca"),
-    ("engine", "Timing Belt Kit", 79.99, None, "#0c4a6e", "#0ea5e9"),
-    ("suspension", "Shock Absorbers (Pair)", 119.99, 149.99, "#1c1917", "#f59e0b"),
-    ("suspension", "Lower Control Arm", 64.99, None, "#27272a", "#71717a"),
-    ("electrical", "Battery 12V", 74.99, 89.99, "#052e16", "#16a34a"),
-    ("electrical", "Alternator", 129.99, None, "#1e293b", "#64748b"),
-    ("lights", "LED Headlight", 134.99, None, "#0f172a", "#38bdf8"),
-    ("body", "Side Mirror", 54.99, 69.99, "#0a0a0a", "#52525b"),
+    ("brakes", "Front Brake Pads", 38.99, 49.99, "#0a0a0a", "#d4af37"),
+    ("brakes", "Brake Discs (Pair)", 89.99, None, "#2a1f03", "#b8860b"),
+    ("filters", "Air Filter", 12.99, None, "#1a1305", "#f8e7a1"),
+    ("filters", "Oil Filter (3-Pack)", 21.99, 27.99, "#241b02", "#8f6a09"),
+    ("engine", "Iridium Spark Plugs", 44.99, None, "#4a3705", "#dfbb48"),
+    ("engine", "Timing Belt Kit", 79.99, None, "#151005", "#e9c95f"),
+    ("suspension", "Shock Absorbers (Pair)", 119.99, 149.99, "#0a0a0a", "#6b5007"),
+    ("suspension", "Lower Control Arm", 64.99, None, "#2a1f03", "#d4af37"),
+    ("electrical", "Battery 12V", 74.99, 89.99, "#1a1305", "#b8860b"),
+    ("electrical", "Alternator", 129.99, None, "#241b02", "#f8e7a1"),
+    ("lights", "LED Headlight", 134.99, None, "#4a3705", "#8f6a09"),
+    ("body", "Side Mirror", 54.99, 69.99, "#151005", "#dfbb48"),
 ]
 
 BRANDS = [
@@ -73,12 +73,12 @@ BRANDS = [
 
 # (sub_category, name, price, original|None, from, to)
 UNIVERSAL_PARTS = [
-    ("lights", "LED Headlight Bulbs H4/H7", 16.99, None, "#0f172a", "#38bdf8"),
-    ("body", "Wiper Blade Set", 12.99, None, "#1e293b", "#475569"),
-    ("body", "Universal Seat Covers", 34.99, 44.99, "#3b0764", "#a855f7"),
-    ("electrical", "Car Phone Holder", 9.99, None, "#0c4a6e", "#0ea5e9"),
-    ("electrical", "Dash Cam 1080p", 39.99, 54.99, "#0a0a0a", "#ef4444"),
-    ("filters", "Cabin Air Freshener (5-Pack)", 7.99, None, "#134e4a", "#10b981"),
+    ("lights", "LED Headlight Bulbs H4/H7", 16.99, None, "#0a0a0a", "#e9c95f"),
+    ("body", "Wiper Blade Set", 12.99, None, "#2a1f03", "#6b5007"),
+    ("body", "Universal Seat Covers", 34.99, 44.99, "#1a1305", "#d4af37"),
+    ("electrical", "Car Phone Holder", 9.99, None, "#241b02", "#b8860b"),
+    ("electrical", "Dash Cam 1080p", 39.99, 54.99, "#4a3705", "#f8e7a1"),
+    ("filters", "Cabin Air Freshener (5-Pack)", 7.99, None, "#151005", "#8f6a09"),
 ]
 
 

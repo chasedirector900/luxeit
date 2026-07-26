@@ -12,7 +12,7 @@ function CartHeader({ cartCount }: { cartCount: number }) {
       <Link
         href="/"
         aria-label="Back"
-        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
       >
         <ArrowLeft className="h-[18px] w-[18px]" />
       </Link>
@@ -44,7 +44,7 @@ export function CartPageClient() {
 
         <div
           style={{ animationDelay: "60ms" }}
-          className="reveal-up flex flex-col items-center rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none"
+          className="reveal-up flex flex-col items-center rounded-2xl border border-gold-200/70 bg-white px-6 py-14 text-center shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/60 dark:shadow-none"
         >
           <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-500/10 text-gold-500 dark:text-gold-400">
             <ShoppingCart className="h-7 w-7" strokeWidth={1.8} />

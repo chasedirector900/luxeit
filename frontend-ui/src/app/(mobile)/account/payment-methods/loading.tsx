@@ -10,11 +10,11 @@ export default function PaymentMethodsLoading() {
           </div>
         </div>
 
-        <div className="h-40 w-full rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70" />
+        <div className="h-40 w-full rounded-2xl border border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900/70" />
 
         <div className="space-y-2">
           <div className="h-3 w-40 rounded bg-slate-200 dark:bg-zinc-800" />
-          <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70">
+          <div className="divide-y divide-gold-200/70 rounded-2xl border border-gold-200/70 bg-white dark:divide-gold-900/40 dark:border-gold-900/40 dark:bg-zinc-900/70">
             {Array.from({ length: 5 }).map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 px-4 py-3.5">
                 <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-200 dark:bg-zinc-800" />

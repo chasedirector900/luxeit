@@ -7,7 +7,7 @@ import { WriteReviewCard } from "@/components/search/write-review-card";
 import type { ProductRatings } from "@/types/product";
 
 const CARD_CLASS =
-  "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none";
+  "rounded-2xl border border-gold-200/70 bg-white p-4 shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/60 dark:shadow-none";
 
 const SORTS = [
   { key: "relevant", label: "Most relevant" },
@@ -73,7 +73,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
         <header className="reveal-up flex items-center gap-3">
           <Link
             href={backHref}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
             aria-label="Back to product details"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
@@ -93,7 +93,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search reviews"
             aria-label="Search reviews"
-            className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-10 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
+            className="h-12 w-full rounded-xl border border-gold-200/70 bg-white pl-11 pr-10 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
           />
           {query ? (
             <button
@@ -120,7 +120,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                   className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                     active
                       ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
-                      : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                      : "border-gold-200/70 bg-white text-slate-700 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
                   }`}
                 >
                   {tag.label} {tag.count}
@@ -143,7 +143,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                 className={`whitespace-nowrap rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                   active
                     ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
-                    : "border-slate-200 bg-white text-slate-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                    : "border-gold-200/70 bg-white text-slate-600 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
                 }`}
               >
                 {option.label}
@@ -274,7 +274,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                         className={`inline-flex items-center gap-1 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                           userVote === "up"
                             ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                            : "border-slate-200 bg-white text-slate-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                            : "border-gold-200/70 bg-white text-slate-700 dark:border-gold-900/50 dark:bg-zinc-900 dark:text-zinc-300"
                         }`}
                       >
                         {userVote === "up" ? <Check className="h-3.5 w-3.5" /> : null}
@@ -287,7 +287,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                         className={`inline-flex items-center gap-1 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                           userVote === "down"
                             ? "border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                            : "border-slate-200 bg-white text-slate-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                            : "border-gold-200/70 bg-white text-slate-700 dark:border-gold-900/50 dark:bg-zinc-900 dark:text-zinc-300"
                         }`}
                       >
                         No
@@ -296,7 +296,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                   </div>
 
                   {review.sellerReply ? (
-                    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div className="mt-3 rounded-xl border border-gold-200/70 bg-slate-50 p-3 dark:border-gold-900/50 dark:bg-zinc-900">
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <p className="text-sm font-bold">{review.sellerReply.author}</p>
                         <p className="text-[11px] text-slate-500 dark:text-zinc-400">{review.sellerReply.date}</p>
@@ -309,7 +309,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
             })}
           </div>
         ) : (
-          <div className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-zinc-900/60">
+          <div className="flex flex-col items-center rounded-2xl border border-gold-200/70 bg-white px-6 py-12 text-center dark:border-gold-900/40 dark:bg-zinc-900/60">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-zinc-800 dark:text-zinc-500">
               <Search className="h-6 w-6" />
             </span>

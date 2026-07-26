@@ -57,13 +57,13 @@ export function FullScreenSearch({ isOpen, onClose }: FullScreenSearchProps) {
           className="fixed inset-0 z-[100] bg-white/95 p-6 text-neutral-900 backdrop-blur-xl dark:bg-zinc-950/95 dark:text-white"
         >
           <div className="mx-auto flex h-full w-full max-w-3xl flex-col">
-            <div className="flex items-center justify-between border-b border-slate-200/60 pb-6 pt-4 dark:border-zinc-900/60">
+            <div className="flex items-center justify-between border-b border-gold-200/70/60 pb-6 pt-4 dark:border-zinc-900/60">
               <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
                 Global Search
               </span>
               <button
                 onClick={onClose}
-                className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-500 transition-colors hover:text-slate-900 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:text-white"
+                className="rounded-xl border border-gold-200/70 bg-slate-50 p-2 text-slate-500 transition-colors hover:text-slate-900 dark:border-gold-900/40 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:text-white"
                 aria-label="Close search overlay"
               >
                 <X className="h-4 w-4" />
@@ -107,7 +107,7 @@ export function FullScreenSearch({ isOpen, onClose }: FullScreenSearchProps) {
                       {trendingSearches.map((keyword) => (
                         <button
                           key={keyword}
-                          className="rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-medium transition-all hover:bg-slate-100 dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:bg-zinc-900"
+                          className="rounded-full border border-gold-200/70 bg-slate-50 px-3.5 py-1.5 text-xs font-medium transition-all hover:bg-slate-100 dark:border-gold-900/40 dark:bg-zinc-900/40 dark:hover:bg-zinc-900"
                         >
                           {keyword}
                         </button>

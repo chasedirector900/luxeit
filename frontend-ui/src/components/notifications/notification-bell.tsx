@@ -24,7 +24,7 @@ export function NotificationBell() {
         onClick={() => setOpen(true)}
         aria-label={`Notifications${totalUnread > 0 ? `, ${totalUnread} unread` : ""}`}
         aria-haspopup="dialog"
-        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+        className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
       >
         <Bell className="h-[18px] w-[18px]" />
         {totalUnread > 0 ? (
@@ -48,13 +48,13 @@ export function NotificationBell() {
                     onClick={() => setOpen(false)}
                   />
                   <motion.div
-                    className="absolute right-3 top-[4.25rem] flex max-h-[70vh] w-[min(22rem,calc(100vw-1.5rem))] origin-top-right flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950"
+                    className="absolute right-3 top-[4.25rem] flex max-h-[70vh] w-[min(22rem,calc(100vw-1.5rem))] origin-top-right flex-col overflow-hidden rounded-2xl border border-gold-200/70 bg-white shadow-2xl dark:border-gold-900/40 dark:bg-zinc-950"
                     initial={{ opacity: 0, scale: 0.95, y: -8 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -8 }}
                     transition={{ type: "spring", stiffness: 420, damping: 34 }}
                   >
-                    <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-200 px-4 py-3 dark:border-zinc-800">
+                    <div className="flex shrink-0 items-center justify-between gap-2 border-b border-gold-200/70 px-4 py-3 dark:border-gold-900/40">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">Notifications</p>
                         {totalUnread > 0 ? (
@@ -75,7 +75,7 @@ export function NotificationBell() {
                     </div>
 
                     {recent.length > 0 ? (
-                      <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto dark:divide-zinc-800/70">
+                      <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto dark:divide-gold-900/40/70">
                         <AnimatePresence initial={false}>
                           {recent.map((channel) => {
                             const meta = CHANNEL_META[channel.type];
@@ -137,7 +137,7 @@ export function NotificationBell() {
                     <Link
                       href="/account/notifications"
                       onClick={() => setOpen(false)}
-                      className="block shrink-0 border-t border-slate-200 px-4 py-3 text-center text-[13px] font-semibold text-gold-600 transition-colors active:bg-slate-50 dark:border-zinc-800 dark:text-gold-400 dark:active:bg-zinc-800/50"
+                      className="block shrink-0 border-t border-gold-200/70 px-4 py-3 text-center text-[13px] font-semibold text-gold-600 transition-colors active:bg-slate-50 dark:border-gold-900/40 dark:text-gold-400 dark:active:bg-zinc-800/50"
                     >
                       See all notifications
                     </Link>

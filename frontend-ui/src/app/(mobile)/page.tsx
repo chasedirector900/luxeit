@@ -52,7 +52,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center dark:border-zinc-800 dark:bg-zinc-900/60">
+              <div className="flex flex-col items-center rounded-2xl border border-gold-200/70 bg-white px-6 py-12 text-center dark:border-gold-900/40 dark:bg-zinc-900/60">
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-zinc-800 dark:text-zinc-500">
                   <SearchX className="h-6 w-6" />
                 </span>

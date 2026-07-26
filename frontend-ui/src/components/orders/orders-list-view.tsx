@@ -12,7 +12,7 @@ import { getOrderBucket } from "@/lib/orders/order-buckets";
 import { ORDER_STATUS_META, type Order } from "@/lib/orders/mock-orders";
 
 const CARD =
-  "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
+  "rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none";
 
 function money(value: number) {
   return `K${value.toFixed(2)}`;
@@ -59,7 +59,7 @@ export function OrdersListView({ slug }: { slug: string }) {
           <Link
             href="/account"
             aria-label="Back to account"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </Link>
@@ -130,7 +130,7 @@ function OrderCard({ order, bucketSlug, delay }: { order: Order; bucketSlug: str
         ))}
       </div>
 
-      <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-zinc-800">
+      <div className="mt-3 flex items-center justify-between border-t border-gold-100/70 pt-3 dark:border-gold-900/40">
         <span className="text-[12px] text-slate-500 dark:text-zinc-400">Total (shipping incl.)</span>
         <span className="text-sm font-extrabold text-slate-900 dark:text-zinc-100">{money(order.total)}</span>
       </div>
@@ -156,7 +156,7 @@ function OrderAction({ bucketSlug, reference }: { bucketSlug: string; reference:
       className={
         action.solid
           ? "mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-gold-500 text-[13px] font-bold text-ink shadow-sm shadow-gold-900/25 transition-transform active:scale-[0.98]"
-          : "mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-[13px] font-bold text-slate-700 transition-transform active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+          : "mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl border border-gold-200/70 bg-white text-[13px] font-bold text-slate-700 transition-transform active:scale-[0.98] dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-200"
       }
     >
       {action.label}

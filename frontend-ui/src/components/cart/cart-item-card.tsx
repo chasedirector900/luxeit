@@ -16,7 +16,7 @@ export function CartItemCard({ item, onIncrement, onDecrement, onRemove }: CartI
   const lineTotal = item.price * item.quantity;
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none">
+    <article className="rounded-2xl border border-gold-200/70 bg-white p-3 shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none">
       <div className="flex gap-3">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800">
           <Image
@@ -46,7 +46,7 @@ export function CartItemCard({ item, onIncrement, onDecrement, onRemove }: CartI
       </div>
 
       <div className="mt-3 flex items-center justify-between">
-        <div className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="inline-flex items-center gap-1 rounded-xl border border-gold-200/70 bg-white p-1 dark:border-gold-900/40 dark:bg-zinc-950">
           <button
             type="button"
             aria-label={`Decrease quantity for ${item.title}`}

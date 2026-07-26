@@ -50,7 +50,7 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
   const initial = (user?.fullName || user?.email || user?.phone || "?").trim().charAt(0).toUpperCase();
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 hidden h-14 items-center gap-3 border-b border-slate-200 bg-white/95 px-3 backdrop-blur md:flex dark:border-zinc-800 dark:bg-black/95">
+    <header className="fixed inset-x-0 top-0 z-50 hidden h-14 items-center gap-3 border-b border-gold-200/70 bg-white/95 px-3 backdrop-blur md:flex dark:border-gold-900/40 dark:bg-black/95">
       <button type="button" aria-label="Toggle menu" onClick={onToggleSidebar} className={iconBtn}>
         <Menu className="h-5 w-5" />
       </button>
@@ -65,7 +65,7 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
       <button
         type="button"
         onClick={onOpenSearch}
-        className="mx-auto flex h-10 w-full max-w-xl items-center gap-2.5 rounded-full border border-slate-200 bg-slate-50 px-4 text-left text-sm text-slate-400 transition-colors hover:border-slate-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-500 dark:hover:border-zinc-700"
+        className="mx-auto flex h-10 w-full max-w-xl items-center gap-2.5 rounded-full border border-gold-200/70 bg-slate-50 px-4 text-left text-sm text-slate-400 transition-colors hover:border-slate-300 dark:border-gold-900/40 dark:bg-zinc-900/60 dark:text-zinc-500 dark:hover:border-zinc-700"
       >
         <Search className="h-[18px] w-[18px] shrink-0" />
         <span className="truncate">Search products, brands, and more…</span>
@@ -88,7 +88,7 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
         <Link href="/cart" aria-label="Cart" className={`relative ${iconBtn}`}>
           <ShoppingCart className="h-5 w-5" />
           {cartCount > 0 ? (
-            <span className="absolute right-1 top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-sky-500 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-black">
+            <span className="absolute right-1 top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-ink ring-2 ring-white dark:ring-black">
               {cartCount > 99 ? "99+" : cartCount}
             </span>
           ) : null}

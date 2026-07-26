@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { requestContactChange, verifyContactChange } from "@/lib/auth/api";
 
 const FIELD =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
+  "h-12 w-full rounded-xl border border-gold-200/70 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 const LABEL = "mb-1.5 block text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 const ONLY_DIGITS = /\D/g;
 
@@ -97,7 +97,7 @@ export function ChangeContactView() {
           <Link
             href="/account/settings"
             aria-label="Back to settings"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </Link>
@@ -110,7 +110,7 @@ export function ChangeContactView() {
         </header>
 
         {done ? (
-          <section className="reveal-up rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70">
+          <section className="reveal-up rounded-2xl border border-gold-200/70 bg-white p-6 text-center shadow-sm dark:border-gold-900/40 dark:bg-zinc-900/70">
             <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-500 dark:text-emerald-400">
               <Check className="h-7 w-7" strokeWidth={3} />
             </span>
@@ -124,9 +124,9 @@ export function ChangeContactView() {
             </Link>
           </section>
         ) : step === "identify" ? (
-          <form onSubmit={sendCode} className="reveal-up space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70">
+          <form onSubmit={sendCode} className="reveal-up space-y-4 rounded-2xl border border-gold-200/70 bg-white p-5 shadow-sm dark:border-gold-900/40 dark:bg-zinc-900/70">
             {availableModes.length > 1 ? (
-              <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+              <div className="grid grid-cols-2 gap-1 rounded-xl border border-gold-200/70 bg-slate-100 p-1 dark:border-gold-900/40 dark:bg-zinc-900">
                 {availableModes.map((m) => (
                   <button
                     key={m}
@@ -154,7 +154,7 @@ export function ChangeContactView() {
 
             <div>
               <label className={LABEL}>New {mode === "email" ? "email address" : "phone number"}</label>
-              <div className="flex h-12 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 focus-within:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-gold-500">
+              <div className="flex h-12 w-full items-center gap-2 rounded-xl border border-gold-200/70 bg-white px-3.5 focus-within:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:focus-within:border-gold-500">
                 {mode === "email" ? (
                   <Mail className="h-[18px] w-[18px] shrink-0 text-slate-400 dark:text-zinc-500" />
                 ) : (
@@ -191,7 +191,7 @@ export function ChangeContactView() {
             </button>
           </form>
         ) : (
-          <form onSubmit={verify} className="reveal-up space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70">
+          <form onSubmit={verify} className="reveal-up space-y-4 rounded-2xl border border-gold-200/70 bg-white p-5 shadow-sm dark:border-gold-900/40 dark:bg-zinc-900/70">
             <p className="text-[13px] text-slate-600 dark:text-zinc-300">
               Enter the 6-digit code we sent to <span className="font-semibold text-slate-900 dark:text-zinc-100">{destination}</span>.
             </p>

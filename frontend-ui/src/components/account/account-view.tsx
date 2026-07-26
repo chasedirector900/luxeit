@@ -29,7 +29,7 @@ import { ORDER_BUCKETS, bucketCount } from "@/lib/orders/order-buckets";
 import type { Order } from "@/lib/orders/mock-orders";
 import type { Profile } from "@/lib/profile/profile-storage";
 
-const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none";
 const ROW_CLASS = "flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-slate-50 dark:active:bg-zinc-800/50";
 const ROW_ICON = "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300";
 
@@ -183,7 +183,7 @@ export function AccountView() {
 
       {/* Complete your profile — checklist with live progress */}
       {completedSteps < checklist.length ? (
-        <section style={{ animationDelay: "100ms" }} className={`reveal-up ${CARD} divide-y divide-slate-100 dark:divide-zinc-800/70`}>
+        <section style={{ animationDelay: "100ms" }} className={`reveal-up ${CARD} divide-y divide-slate-100 dark:divide-gold-900/40/70`}>
           <div className="px-4 pb-3.5 pt-3.5">
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-slate-900 dark:text-zinc-100">Complete your profile</p>
@@ -280,7 +280,7 @@ export function AccountView() {
       >
         <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-gold-500/15 blur-3xl transform-gpu dark:bg-gold-400/10" />
         <div className="relative flex items-center gap-3">
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold-400 to-orange-500 text-white shadow-md shadow-gold-900/20">
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold-400 to-gold-500 text-white shadow-md shadow-gold-900/20">
             <Gift className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -291,7 +291,7 @@ export function AccountView() {
           </div>
           <button
             type="button"
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-br from-gold-400 to-orange-500 px-3.5 text-xs font-bold text-white shadow-md shadow-gold-900/20 transition-transform duration-100 active:scale-95"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-br from-gold-400 to-gold-500 px-3.5 text-xs font-bold text-white shadow-md shadow-gold-900/20 transition-transform duration-100 active:scale-95"
           >
             <Share2 className="h-3.5 w-3.5" />
             Invite
@@ -302,7 +302,7 @@ export function AccountView() {
       {/* Account section */}
       <section style={{ animationDelay: "220ms" }} className="reveal-up">
         <h2 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Account</h2>
-        <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+        <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
           <Link href="/account/saved" className={ROW_CLASS}>
             <span className={ROW_ICON}><Heart className="h-[18px] w-[18px]" strokeWidth={2} /></span>
             <span className="flex-1 text-sm font-semibold text-slate-800 dark:text-zinc-200">Saved items</span>
@@ -345,7 +345,7 @@ export function AccountView() {
       {/* More section */}
       <section style={{ animationDelay: "260ms" }} className="reveal-up">
         <h2 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">More</h2>
-        <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+        <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
           <Link href="/account/notifications/support" className={ROW_CLASS}>
             <span className={ROW_ICON}><HelpCircle className="h-[18px] w-[18px]" strokeWidth={2} /></span>
             <span className="flex-1 text-sm font-semibold text-slate-800 dark:text-zinc-200">Help &amp; support</span>
@@ -366,7 +366,7 @@ export function AccountView() {
           router.replace("/login");
         }}
         style={{ animationDelay: "300ms" }}
-        className="reveal-up inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-rose-600 transition-transform duration-100 active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-rose-400"
+        className="reveal-up inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-gold-200/70 bg-white text-sm font-bold text-rose-600 transition-transform duration-100 active:scale-[0.99] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:text-rose-400"
       >
         <LogOut className="h-4 w-4" />
         Logout

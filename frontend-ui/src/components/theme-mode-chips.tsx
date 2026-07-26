@@ -26,7 +26,7 @@ export function ThemeModeChips() {
   }, []);
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 p-0.5 dark:border-zinc-800 dark:bg-zinc-900/70">
+    <div className="inline-flex items-center gap-1 rounded-full border border-gold-200/70 bg-slate-100 p-0.5 dark:border-gold-900/40 dark:bg-zinc-900/70">
       {(["auto", "light", "dark"] as const).map((item) => (
         <button
           key={item}

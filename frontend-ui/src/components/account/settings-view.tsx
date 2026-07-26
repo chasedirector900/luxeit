@@ -22,7 +22,7 @@ import { ThemeModeChips } from "@/components/theme-mode-chips";
 import { useAuth } from "@/hooks/use-auth";
 import { getPreferences, updatePreferences, type NotificationPrefs } from "@/lib/auth/api";
 
-const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none";
 const ROW_CLASS = "flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors active:bg-slate-50 dark:active:bg-zinc-800/50";
 const ROW_ICON = "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300";
 const SECTION = "mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500";
@@ -95,7 +95,7 @@ export function SettingsView() {
           <Link
             href="/account"
             aria-label="Back to account"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </Link>
@@ -122,7 +122,7 @@ export function SettingsView() {
         {/* Notification preferences */}
         <section style={{ animationDelay: "90ms" }} className="reveal-up">
           <h2 className={SECTION}>Notification preferences</h2>
-          <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+          <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
             {PREF_ROWS.map(({ key, label, desc }) => (
               <div key={key} className="flex items-center gap-3 px-4 py-3.5">
                 <span className="min-w-0 flex-1">
@@ -142,7 +142,7 @@ export function SettingsView() {
         {/* Account */}
         <section style={{ animationDelay: "120ms" }} className="reveal-up">
           <h2 className={SECTION}>Account</h2>
-          <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+          <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
             <Link href="/account/settings/contact" className={ROW_CLASS}>
               <span className={ROW_ICON}><Mail className="h-[18px] w-[18px]" strokeWidth={2} /></span>
               <span className="min-w-0 flex-1">
@@ -165,7 +165,7 @@ export function SettingsView() {
         {/* Support & legal */}
         <section style={{ animationDelay: "150ms" }} className="reveal-up">
           <h2 className={SECTION}>Support &amp; legal</h2>
-          <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+          <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
             <Link href="/terms" className={ROW_CLASS}>
               <span className={ROW_ICON}><FileText className="h-[18px] w-[18px]" strokeWidth={2} /></span>
               <span className="flex-1 text-sm font-semibold text-slate-800 dark:text-zinc-200">Terms of service</span>
@@ -260,7 +260,7 @@ function DeleteAccountSheet({ open, onClose }: { open: boolean; onClose: () => v
             onClick={deleting ? undefined : onClose}
           />
           <motion.div
-            className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-slate-200 bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-zinc-800 dark:bg-zinc-950"
+            className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-gold-200/70 bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-gold-900/40 dark:bg-zinc-950"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -275,7 +275,7 @@ function DeleteAccountSheet({ open, onClose }: { open: boolean; onClose: () => v
                 onClick={onClose}
                 disabled={deleting}
                 aria-label="Close"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-transform duration-100 active:scale-95 disabled:opacity-50 dark:border-zinc-800 dark:text-zinc-400"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gold-200/70 text-slate-500 transition-transform duration-100 active:scale-95 disabled:opacity-50 dark:border-gold-900/40 dark:text-zinc-400"
               >
                 <X className="h-[18px] w-[18px]" />
               </button>
@@ -304,7 +304,7 @@ function DeleteAccountSheet({ open, onClose }: { open: boolean; onClose: () => v
               type="button"
               onClick={onClose}
               disabled={deleting}
-              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl border border-gold-200/70 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
             >
               Cancel
             </button>

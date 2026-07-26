@@ -68,7 +68,7 @@ export function NewArrivalsSection() {
   return (
     <section className="w-full px-3 pb-8 pt-2 select-none transform-gpu sm:px-4 sm:pb-10">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="flex items-center justify-between border-b border-slate-200/60 pb-3 dark:border-zinc-800/80">
+        <div className="flex items-center justify-between border-b border-gold-200/70/60 pb-3 dark:border-gold-900/40/80">
           <div className="inline-flex items-center gap-2 text-slate-900 dark:text-zinc-100">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold-500/10 text-gold-500 shadow-sm">
               <Bolt className="h-4 w-4 fill-amber-500/10" />
@@ -89,7 +89,7 @@ export function NewArrivalsSection() {
           {arrivalProducts.map((product) => (
             <article
               key={product.id}
-              className="group relative w-[192px] min-[390px]:w-[206px] sm:w-[260px] md:w-[240px] shrink-0 snap-start overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 transition-all duration-200 hover:border-zinc-700/60 dark:border-zinc-800/60 dark:bg-gradient-to-b dark:from-zinc-900/90 dark:to-zinc-950/95 sm:rounded-2xl sm:p-2"
+              className="group relative w-[192px] min-[390px]:w-[206px] sm:w-[260px] md:w-[240px] shrink-0 snap-start overflow-hidden rounded-xl border border-gold-200/70 bg-white p-1.5 transition-all duration-200 hover:border-zinc-700/60 dark:border-gold-900/40/60 dark:bg-gradient-to-b dark:from-zinc-900/90 dark:to-zinc-950/95 sm:rounded-2xl sm:p-2"
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-zinc-100 shadow-inner dark:bg-zinc-950 sm:aspect-[4/5] sm:rounded-xl">
                 <Image
@@ -113,17 +113,17 @@ export function NewArrivalsSection() {
                 </span>
               </div>
 
-              <div className="mt-1.5 space-y-1 rounded-lg border border-slate-100/50 bg-zinc-50/60 p-1.5 dark:border-zinc-900/40 dark:bg-zinc-900/40 sm:mt-2.5 sm:space-y-1.5 sm:rounded-xl sm:p-2">
+              <div className="mt-1.5 space-y-1 rounded-lg border border-gold-100/70/50 bg-zinc-50/60 p-1.5 dark:border-zinc-900/40 dark:bg-zinc-900/40 sm:mt-2.5 sm:space-y-1.5 sm:rounded-xl sm:p-2">
                 <h3 className="line-clamp-2 text-[12px] font-bold leading-tight tracking-tight text-slate-900 transition-colors duration-150 group-hover:text-gold-500 dark:text-zinc-100 dark:group-hover:text-gold-400 sm:line-clamp-1 sm:text-sm">
                   {product.title}
                 </h3>
 
-                <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-1 dark:border-zinc-900/60 sm:pt-1.5">
+                <div className="flex items-center justify-between gap-2 border-t border-gold-100/70 pt-1 dark:border-zinc-900/60 sm:pt-1.5">
                   <p className="truncate text-[9px] font-bold uppercase tracking-wide text-slate-400 dark:text-zinc-500 sm:text-[10px]">
                     {product.category}
                   </p>
 
-                  <span className="inline-flex shrink-0 items-center gap-0.5 text-[9px] font-extrabold uppercase tracking-tight text-orange-600 dark:text-orange-400 sm:text-[10px]">
+                  <span className="inline-flex shrink-0 items-center gap-0.5 text-[9px] font-extrabold uppercase tracking-tight text-gold-600 dark:text-gold-400 sm:text-[10px]">
                     <Flame className="h-2.5 w-2.5 fill-orange-500/10 sm:h-3 sm:w-3" />
                     <span>{product.salesCount}</span>
                   </span>

@@ -27,7 +27,7 @@ const FILTER_CHIPS: Array<{ key: SearchFilter; label: string }> = [
 ];
 
 const TERM_PILL_CLASS =
-  "rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition-transform duration-100 active:scale-95 md:hover:bg-slate-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:md:hover:bg-zinc-800";
+  "rounded-full border border-gold-200/70 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition-transform duration-100 active:scale-95 md:hover:bg-slate-100 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:md:hover:bg-zinc-800";
 
 type SearchPageClientProps = {
   /** Where the back button goes. */
@@ -127,7 +127,7 @@ export function SearchPageClient({
           <Link
             href={backHref}
             aria-label="Go back"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </Link>
@@ -146,7 +146,7 @@ export function SearchPageClient({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search products"
-            className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
+            className="h-12 w-full rounded-xl border border-gold-200/70 bg-white pl-11 pr-4 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
           />
         </div>
 
@@ -162,7 +162,7 @@ export function SearchPageClient({
                 className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                   active
                     ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
-                    : "border-slate-200 bg-white text-slate-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400"
+                    : "border-gold-200/70 bg-white text-slate-600 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-400"
                 }`}
               >
                 {chip.label}
@@ -223,7 +223,7 @@ export function SearchPageClient({
             </div>
 
             {results.length === 0 && !isSearching ? (
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center dark:border-zinc-800 dark:bg-zinc-900/60">
+              <div className="rounded-2xl border border-gold-200/70 bg-white p-6 text-center dark:border-gold-900/40 dark:bg-zinc-900/60">
                 <p className="text-sm font-medium text-slate-800 dark:text-zinc-300">No matching products found</p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">Try another keyword or switch a filter chip.</p>
               </div>

@@ -14,7 +14,7 @@ export function SecuritySkeleton() {
         </div>
         <div>
           <div className={`mb-2 ml-1 h-3 w-32 ${GHOST}`} />
-          <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70">
+          <div className="divide-y divide-gold-200/70 rounded-2xl border border-gold-200/70 bg-white dark:divide-gold-900/40 dark:border-gold-900/40 dark:bg-zinc-900/70">
             {Array.from({ length: 3 }).map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 px-4 py-3.5">
                 <div className="h-9 w-9 shrink-0 rounded-full bg-slate-200 dark:bg-zinc-800" />
@@ -26,7 +26,7 @@ export function SecuritySkeleton() {
             ))}
           </div>
         </div>
-        <div className="h-12 w-full rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70" />
+        <div className="h-12 w-full rounded-2xl border border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900/70" />
       </div>
     </main>
   );

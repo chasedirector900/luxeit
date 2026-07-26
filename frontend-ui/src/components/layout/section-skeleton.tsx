@@ -20,13 +20,13 @@ export function SectionSkeleton() {
         </div>
 
         {/* Uncommitted content blocks — plausible before any child page */}
-        <div className="h-40 w-full rounded-2xl border border-slate-200 bg-white md:h-52 dark:border-zinc-800 dark:bg-zinc-900/70" />
+        <div className="h-40 w-full rounded-2xl border border-gold-200/70 bg-white md:h-52 dark:border-gold-900/40 dark:bg-zinc-900/70" />
         {/* A responsive card grid so desktop doesn't flash a narrow column. */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {Array.from({ length: 10 }).map((_, idx) => (
             <div
               key={idx}
-              className="aspect-[3/4] rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70"
+              className="aspect-[3/4] rounded-2xl border border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900/70"
             />
           ))}
         </div>

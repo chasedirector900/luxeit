@@ -1,6 +1,6 @@
 function SideCardSkeleton({ glowClass }: { glowClass: string }) {
   return (
-    <article className="relative hidden overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-100 p-5 shadow-xl shadow-slate-200/50 lg:block dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/40">
+    <article className="relative hidden overflow-hidden rounded-3xl border border-gold-200/70/80 bg-slate-100 p-5 shadow-xl shadow-slate-200/50 lg:block dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/40">
       <div className={`pointer-events-none absolute inset-0 ${glowClass}`} />
       <div className="relative z-10 flex min-h-[360px] flex-col animate-pulse">
         <div className="h-8 w-48 rounded-md bg-zinc-200/60 dark:bg-white/5" />
@@ -32,7 +32,7 @@ export function PromoBannerSkeleton() {
             <div className="absolute bottom-2 left-1/2 h-12 w-[85%] -translate-x-1/2 rounded-[999px] bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.24),rgba(59,130,246,0.08),transparent_72%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(79,70,229,0.35),rgba(59,130,246,0.12),transparent_72%)] blur-md" />
             <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-3">
               <div className="z-0 h-30 w-20 translate-y-[6px] rotate-[-5deg] rounded-xl border border-slate-300/70 bg-zinc-200/70 dark:border-white/10 dark:bg-white/5 sm:h-36 sm:w-24" />
-              <div className="z-10 h-36 w-24 -translate-y-[8px] scale-105 rounded-xl border border-cyan-300/40 bg-zinc-200/70 dark:border-cyan-200/25 dark:bg-white/5 sm:h-42 sm:w-28" />
+              <div className="z-10 h-36 w-24 -translate-y-[8px] scale-105 rounded-xl border border-gold-300/40 bg-zinc-200/70 dark:border-gold-200/25 dark:bg-white/5 sm:h-42 sm:w-28" />
               <div className="z-0 h-30 w-20 translate-y-[6px] rotate-[5deg] rounded-xl border border-slate-300/70 bg-zinc-200/70 dark:border-white/10 dark:bg-white/5 sm:h-36 sm:w-24" />
             </div>
           </div>
@@ -43,7 +43,7 @@ export function PromoBannerSkeleton() {
             <div className="h-7 rounded-full border border-slate-300/70 bg-zinc-200/70 dark:border-white/10 dark:bg-white/5" />
           </div>
           <div className="mt-3 flex justify-center gap-1.5">
-            <div className="h-1.5 w-4 rounded-full bg-cyan-300/70 dark:bg-cyan-300/60" />
+            <div className="h-1.5 w-4 rounded-full bg-gold-300/70 dark:bg-gold-300/60" />
             <div className="h-1.5 w-4 rounded-full bg-zinc-300 dark:bg-white/20" />
             <div className="h-1.5 w-4 rounded-full bg-zinc-300 dark:bg-white/20" />
           </div>

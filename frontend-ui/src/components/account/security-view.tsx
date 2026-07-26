@@ -8,7 +8,7 @@ import { SecuritySkeleton } from "@/components/account/security-skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { listSessions, logoutOtherSessions, revokeSession, type DeviceSession } from "@/lib/auth/api";
 
-const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none";
 
 function relativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -92,7 +92,7 @@ export function SecurityView() {
           <Link
             href="/account"
             aria-label="Back to account"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </Link>
@@ -112,7 +112,7 @@ export function SecurityView() {
               <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
             </div>
           ) : (
-            <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+            <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
               {sessions.map((s) => {
                 const Icon = isMobile(s.deviceLabel) ? Smartphone : Monitor;
                 return (
@@ -164,7 +164,7 @@ export function SecurityView() {
             onClick={handleLogoutOthers}
             disabled={busyOthers}
             style={{ animationDelay: "120ms" }}
-            className="reveal-up inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-rose-600 transition-transform duration-100 active:scale-[0.99] disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-rose-400"
+            className="reveal-up inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-gold-200/70 bg-white text-sm font-bold text-rose-600 transition-transform duration-100 active:scale-[0.99] disabled:opacity-50 dark:border-gold-900/40 dark:bg-zinc-900/70 dark:text-rose-400"
           >
             {busyOthers ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
             Log out all other devices

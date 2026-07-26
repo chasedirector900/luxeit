@@ -7,7 +7,7 @@ export default function Loading() {
           <div className="h-6 w-40 rounded bg-slate-200 dark:bg-zinc-800" />
         </div>
         <div className="aspect-[1.586/1] w-full rounded-2xl bg-slate-200 dark:bg-zinc-800" />
-        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/70">
+        <div className="space-y-4 rounded-2xl border border-gold-200/70 bg-white p-5 dark:border-gold-900/40 dark:bg-zinc-900/70">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-12 w-full rounded-xl bg-slate-200 dark:bg-zinc-800" />
           ))}

@@ -1,4 +1,4 @@
-const CARD = "rounded-2xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900/70";
 const GHOST = "rounded bg-slate-200 dark:bg-zinc-800";
 
 /** Mirrors the Account page 1:1 — hero (avatar/name/chips), checklist with
@@ -24,7 +24,7 @@ export function AccountSkeleton() {
         </div>
 
         {/* Complete your profile: title + count, progress bar, rows */}
-        <div className={`${CARD} divide-y divide-slate-100 dark:divide-zinc-800/70`}>
+        <div className={`${CARD} divide-y divide-slate-100 dark:divide-gold-900/40/70`}>
           <div className="px-4 pb-3.5 pt-3.5">
             <div className="flex items-center justify-between">
               <div className={`h-4 w-44 ${GHOST}`} />
@@ -72,7 +72,7 @@ export function AccountSkeleton() {
         {/* ACCOUNT rows */}
         <div>
           <div className={`mb-2 ml-1 h-3 w-16 ${GHOST}`} />
-          <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+          <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
             {Array.from({ length: 4 }).map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 px-4 py-3.5">
                 <div className="h-9 w-9 shrink-0 rounded-full bg-slate-200 dark:bg-zinc-800" />
@@ -85,7 +85,7 @@ export function AccountSkeleton() {
         {/* MORE rows */}
         <div>
           <div className={`mb-2 ml-1 h-3 w-12 ${GHOST}`} />
-          <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+          <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
             {Array.from({ length: 2 }).map((_, idx) => (
               <div key={idx} className="flex items-center gap-3 px-4 py-3.5">
                 <div className="h-9 w-9 shrink-0 rounded-full bg-slate-200 dark:bg-zinc-800" />

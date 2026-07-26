@@ -21,9 +21,9 @@ import { WAREHOUSE_META } from "@/lib/products/warehouse";
 import { getPaymentBrand, type PaymentBrand } from "@/lib/payments/payment-methods";
 import type { CartItem, ShippingMethod } from "@/types/cart";
 
-const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none";
 const FIELD =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
+  "h-12 w-full rounded-xl border border-gold-200/70 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 
 function formatAddress(a: AddressApi): string {
   return [a.line1, a.city, a.area].filter(Boolean).join(", ");
@@ -218,7 +218,7 @@ export function CheckoutClient() {
           </Link>
           <Link
             href="/explore"
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-gold-200/70 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
           >
             Continue shopping
           </Link>
@@ -286,7 +286,7 @@ export function CheckoutClient() {
                   className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-transform active:scale-[0.99] ${
                     active
                       ? "border-gold-500/60 bg-gold-500/10 dark:border-gold-400/50 dark:bg-gold-500/15"
-                      : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+                      : "border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900"
                   }`}
                 >
                   <span className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${active ? "bg-gold-500/15 text-gold-600 dark:text-gold-400" : "bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-300"}`}>
@@ -342,7 +342,7 @@ export function CheckoutClient() {
                   className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-transform active:scale-[0.99] ${
                     active
                       ? "border-gold-500/60 bg-gold-500/10 dark:border-gold-400/50 dark:bg-gold-500/15"
-                      : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+                      : "border-gold-200/70 bg-white dark:border-gold-900/40 dark:bg-zinc-900"
                   }`}
                 >
                   <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${meta.ring}`}>
@@ -396,7 +396,7 @@ export function CheckoutClient() {
                 const method = methodFor(item);
                 return (
                   <div key={itemKey(item)} className="flex items-start gap-3">
-                    <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100 dark:border-zinc-800 dark:bg-zinc-800">
+                    <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gold-200/70 bg-slate-100 dark:border-gold-900/40 dark:bg-zinc-800">
                       <Image src={item.image} alt={item.title} fill sizes="48px" className="object-cover" />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -405,7 +405,7 @@ export function CheckoutClient() {
                         Qty {item.quantity} · {formatKwacha(unitPriceFor(item, method))}
                       </p>
                       {isDual(item) ? (
-                        <div className="mt-1.5 inline-flex overflow-hidden rounded-lg border border-slate-200 dark:border-zinc-700">
+                        <div className="mt-1.5 inline-flex overflow-hidden rounded-lg border border-gold-200/70 dark:border-gold-900/50">
                           {(["sea", "air"] as const).map((m) => {
                             const on = method === m;
                             return (
@@ -432,7 +432,7 @@ export function CheckoutClient() {
               })}
             </div>
 
-            <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-[12px] dark:border-zinc-800">
+            <div className="mt-3 flex items-center justify-between border-t border-gold-100/70 pt-3 text-[12px] dark:border-gold-900/40">
               <span className="text-slate-500 dark:text-zinc-400">Shipment subtotal</span>
               <span className="font-bold text-slate-900 dark:text-zinc-100">{formatKwacha(shipTotal)}</span>
             </div>
@@ -452,7 +452,7 @@ export function CheckoutClient() {
           </span>
           <span className="font-semibold text-emerald-600 dark:text-emerald-400">Included</span>
         </div>
-        <div className="my-3 border-t border-slate-200 dark:border-zinc-800" />
+        <div className="my-3 border-t border-gold-200/70 dark:border-gold-900/40" />
         <div className="flex items-end justify-between">
           <span className="text-sm font-medium text-slate-500 dark:text-zinc-400">Total</span>
           <span className="text-2xl font-black leading-none text-slate-900 dark:text-zinc-100">{formatKwacha(subtotal)}</span>
@@ -527,7 +527,7 @@ function AddressSheet({
             onClick={onClose}
           />
           <motion.div
-            className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-slate-200 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-zinc-800 dark:bg-zinc-950"
+            className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-gold-200/70 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-gold-900/40 dark:bg-zinc-950"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -553,7 +553,7 @@ function AddressSheet({
             <button
               type="button"
               onClick={onClose}
-              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl border border-gold-200/70 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
             >
               Cancel
             </button>
@@ -570,7 +570,7 @@ function Header() {
       <Link
         href="/cart"
         aria-label="Back to cart"
-        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
       >
         <ArrowLeft className="h-[18px] w-[18px]" />
       </Link>

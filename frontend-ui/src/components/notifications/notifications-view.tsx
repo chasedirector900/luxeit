@@ -16,7 +16,7 @@ export function NotificationsView() {
           <Link
             href="/account"
             aria-label="Back to account"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </Link>
@@ -42,7 +42,7 @@ export function NotificationsView() {
       {channels.length > 0 ? (
         <div
           style={{ animationDelay: "60ms" }}
-          className="reveal-up divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
+          className="reveal-up divide-y divide-gold-200/70 overflow-hidden rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:divide-gold-900/40 dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none"
         >
           <AnimatePresence initial={false}>
             {channels.map((channel) => {
@@ -90,7 +90,7 @@ export function NotificationsView() {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="reveal-up flex flex-col items-center rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none">
+        <div className="reveal-up flex flex-col items-center rounded-2xl border border-gold-200/70 bg-white px-6 py-16 text-center shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/60 dark:shadow-none">
           <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 dark:bg-zinc-800 dark:text-zinc-500">
             <BellOff className="h-7 w-7" strokeWidth={1.8} />
           </span>

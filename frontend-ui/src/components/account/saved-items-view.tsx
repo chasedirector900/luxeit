@@ -17,7 +17,7 @@ export function SavedItemsView() {
           <Link
             href="/account"
             aria-label="Back to account"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </Link>
@@ -46,7 +46,7 @@ export function SavedItemsView() {
               key={item.id}
               whileTap={{ scale: 0.985 }}
               transition={{ type: "spring", stiffness: 400, damping: 28 }}
-              className="transform-gpu overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
+              className="transform-gpu overflow-hidden rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none"
             >
               <Link href={item.href} className="block">
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
@@ -80,7 +80,7 @@ export function SavedItemsView() {
                     type="button"
                     aria-label="Remove from saved"
                     onClick={() => removeSaved(item.id)}
-                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-400 transition-transform active:scale-90 dark:border-zinc-800 dark:text-zinc-500"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gold-200/70 text-slate-400 transition-transform active:scale-90 dark:border-gold-900/40 dark:text-zinc-500"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -90,7 +90,7 @@ export function SavedItemsView() {
           ))}
         </div>
       ) : (
-        <div className="reveal-up flex flex-col items-center rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none">
+        <div className="reveal-up flex flex-col items-center rounded-2xl border border-gold-200/70 bg-white px-6 py-16 text-center shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/60 dark:shadow-none">
           <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 dark:text-rose-400">
             <Heart className="h-7 w-7" strokeWidth={1.8} />
           </span>

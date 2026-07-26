@@ -12,7 +12,7 @@ import {
   type PaymentMethodApi,
 } from "@/lib/auth/api";
 
-const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
+const CARD = "rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none";
 
 export function PaymentMethodsView() {
   // Methods live on the ACCOUNT (backend) — never on the device, so a shared
@@ -50,7 +50,7 @@ export function PaymentMethodsView() {
         <Link
           href="/account"
           aria-label="Back to account"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
         >
           <ArrowLeft className="h-[18px] w-[18px]" />
         </Link>
@@ -80,7 +80,7 @@ export function PaymentMethodsView() {
                     exit={{ opacity: 0, x: 24 }}
                     transition={{ duration: 0.18 }}
                     className={`flex items-center gap-3 rounded-2xl border bg-white p-3.5 shadow-sm shadow-slate-900/[0.04] dark:bg-zinc-900/70 dark:shadow-none ${
-                      method.isDefault ? "border-gold-500/50 ring-1 ring-gold-500/30" : "border-slate-200 dark:border-zinc-800"
+                      method.isDefault ? "border-gold-500/50 ring-1 ring-gold-500/30" : "border-gold-200/70 dark:border-gold-900/40"
                     }`}
                   >
                     <span className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white ${meta.gradient}`}>
@@ -135,7 +135,7 @@ export function PaymentMethodsView() {
       {/* Add a method */}
       <section style={{ animationDelay: "120ms" }} className="reveal-up">
         <h2 className="mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Add a payment method</h2>
-        <div className={`${CARD} divide-y divide-slate-200 dark:divide-zinc-800`}>
+        <div className={`${CARD} divide-y divide-gold-200/70 dark:divide-gold-900/40`}>
           {PAYMENT_BRANDS.map(({ brand, label, desc, icon: Icon, tint, ring }) => (
             <Link
               key={brand}

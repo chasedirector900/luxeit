@@ -31,7 +31,7 @@ type QuickCategory = {
 
 const quickCategories: QuickCategory[] = [
   { label: "Footwear", href: "/category/footwear", icon: Footprints, tint: "text-rose-500 dark:text-rose-400", ring: "bg-rose-500/10" },
-  { label: "Watches", href: "/category/watches", icon: Watch, tint: "text-sky-500 dark:text-sky-400", ring: "bg-sky-500/10" },
+  { label: "Watches", href: "/category/watches", icon: Watch, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { label: "Electronics", href: "/category/electronics", icon: Cpu, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { label: "Security", href: "/category/security", icon: ShieldCheck, tint: "text-emerald-500 dark:text-emerald-400", ring: "bg-emerald-500/10" },
 ];
@@ -56,7 +56,7 @@ type CarPart = {
 
 const universalCarParts: CarPart[] = [
   { title: "LED Headlight Bulbs", subtitle: "Common sockets for many vehicles", href: "/explore/search?q=universal+led+headlight+bulbs", icon: Lightbulb, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
-  { title: "Wiper Blade Sets", subtitle: "Multi-size fit for most cars", href: "/explore/search?q=universal+wiper+blades", icon: Wind, tint: "text-sky-500 dark:text-sky-400", ring: "bg-sky-500/10" },
+  { title: "Wiper Blade Sets", subtitle: "Multi-size fit for most cars", href: "/explore/search?q=universal+wiper+blades", icon: Wind, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { title: "Seat Covers", subtitle: "Universal interior fit options", href: "/explore/search?q=universal+seat+covers", icon: Armchair, tint: "text-emerald-500 dark:text-emerald-400", ring: "bg-emerald-500/10" },
   { title: "Phone Holders", subtitle: "Dashboard and vent mount types", href: "/explore/search?q=car+phone+holder", icon: Smartphone, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
 ];
@@ -101,7 +101,7 @@ export default async function CategoryPage() {
               <Link
                 key={label}
                 href={href}
-                className="flex h-[88px] flex-col items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white p-1 text-center shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 md:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none dark:md:hover:border-zinc-700"
+                className="flex h-[88px] flex-col items-center justify-center gap-2 rounded-2xl border border-gold-200/70 bg-white p-1 text-center shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 md:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 dark:border-gold-900/40 dark:bg-zinc-900 dark:shadow-none dark:md:hover:border-zinc-700"
               >
                 <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${ring}`}>
                   <Icon className={`h-[18px] w-[18px] ${tint}`} strokeWidth={2} />
@@ -114,7 +114,7 @@ export default async function CategoryPage() {
 
         <section
           style={{ animationDelay: "120ms" }}
-          className="reveal-up relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 via-gold-500 to-gold-600 p-4 text-white shadow-lg shadow-gold-900/20"
+          className="reveal-up relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-gold-500 via-gold-500 to-gold-600 p-4 text-white shadow-lg shadow-gold-900/20"
         >
           {/* Pure-CSS decorative glow — composited once, no repaint */}
           <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/20 blur-3xl transform-gpu" />
@@ -144,7 +144,7 @@ export default async function CategoryPage() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-2.5 py-2 transition-transform duration-100 active:scale-[0.98] md:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 dark:border-zinc-800 dark:bg-zinc-900 dark:md:hover:border-zinc-700"
+                className="flex items-center gap-2 rounded-2xl border border-gold-200/70 bg-white px-2.5 py-2 transition-transform duration-100 active:scale-[0.98] md:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 dark:border-gold-900/40 dark:bg-zinc-900 dark:md:hover:border-zinc-700"
               >
                 <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-white ring-1 ring-slate-200 dark:ring-zinc-700">
                   <Image src={item.logo} alt={`${item.label} logo`} width={28} height={28} unoptimized className="h-6 w-6 object-contain" />
@@ -168,7 +168,7 @@ export default async function CategoryPage() {
               <Link
                 key={title}
                 href={href}
-                className="rounded-xl border border-slate-200 bg-white p-3 transition-transform duration-100 active:scale-[0.98] md:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 dark:border-zinc-800 dark:bg-zinc-900 dark:md:hover:border-zinc-700"
+                className="rounded-xl border border-gold-200/70 bg-white p-3 transition-transform duration-100 active:scale-[0.98] md:hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 dark:border-gold-900/40 dark:bg-zinc-900 dark:md:hover:border-zinc-700"
               >
                 <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${ring}`}>
                   <Icon className={`h-[18px] w-[18px] ${tint}`} strokeWidth={2} />
@@ -182,7 +182,7 @@ export default async function CategoryPage() {
 
         <section
           style={{ animationDelay: "300ms" }}
-          className="reveal-up relative mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="reveal-up relative mt-5 overflow-hidden rounded-2xl border border-gold-200/70 bg-white p-4 dark:border-gold-900/40 dark:bg-zinc-900"
         >
           <div className="flex items-start gap-3">
             <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">

@@ -123,7 +123,7 @@ export function NotificationThreadView({ slug }: { slug: string }) {
         <Link
           href="/account/notifications"
           aria-label="Back to notifications"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
         >
           <ArrowLeft className="h-[18px] w-[18px]" />
         </Link>
@@ -160,7 +160,7 @@ export function NotificationThreadView({ slug }: { slug: string }) {
                     className={
                       message.fromUser
                         ? "max-w-[80%] rounded-2xl rounded-tr-md bg-gold-500 px-3.5 py-2.5 text-ink shadow-sm"
-                        : "max-w-[80%] rounded-2xl rounded-tl-md border border-slate-200 bg-white px-3.5 py-2.5 shadow-sm shadow-slate-900/[0.03] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
+                        : "max-w-[80%] rounded-2xl rounded-tl-md border border-gold-200/70 bg-white px-3.5 py-2.5 shadow-sm shadow-slate-900/[0.03] dark:border-gold-900/40 dark:bg-zinc-900 dark:shadow-none"
                     }
                   >
                     {!message.fromUser && message.agentName ? (
@@ -196,7 +196,7 @@ export function NotificationThreadView({ slug }: { slug: string }) {
           {sendError ? (
             <p className="mb-2 text-center text-[11px] font-semibold text-rose-600 dark:text-rose-400">{sendError}</p>
           ) : null}
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex items-center gap-2 rounded-2xl border border-gold-200/70 bg-white p-1.5 shadow-sm dark:border-gold-900/40 dark:bg-zinc-900">
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -214,7 +214,7 @@ export function NotificationThreadView({ slug }: { slug: string }) {
           </div>
         </form>
       ) : (
-        <div className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-center text-[12px] text-slate-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+        <div className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl border border-gold-200/70 bg-slate-100 px-4 py-3 text-center text-[12px] text-slate-500 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-400">
           <Lock className="h-3.5 w-3.5" />
           You can&apos;t reply to these messages
         </div>
@@ -237,7 +237,7 @@ function BackHeader({ title, subtitle }: { title: string; subtitle: string }) {
       <Link
         href="/account/notifications"
         aria-label="Back to notifications"
-        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
       >
         <ArrowLeft className="h-[18px] w-[18px]" />
       </Link>
@@ -289,7 +289,7 @@ function MessageActionsSheet({
             onClick={onClose}
           />
           <motion.div
-            className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-slate-200 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-zinc-800 dark:bg-zinc-950"
+            className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-gold-200/70 bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-gold-900/40 dark:bg-zinc-950"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -323,7 +323,7 @@ function MessageActionsSheet({
             <button
               type="button"
               onClick={onClose}
-              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+              className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl border border-gold-200/70 bg-white text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
             >
               Cancel
             </button>

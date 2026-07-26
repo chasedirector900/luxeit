@@ -82,7 +82,7 @@ export function ListingFilterSheet() {
         onClick={openSheet}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
-        className="relative inline-flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-900/[0.03] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+        className="relative inline-flex h-12 items-center gap-2 rounded-xl border border-gold-200/70 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-900/[0.03] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
       >
         <Filter className="h-[18px] w-[18px]" />
         Filter
@@ -105,7 +105,7 @@ export function ListingFilterSheet() {
                     onClick={closeSheet}
                   />
                   <motion.div
-                    className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-slate-200 bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-zinc-800 dark:bg-zinc-950"
+                    className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-md transform-gpu rounded-t-3xl border-t border-gold-200/70 bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl dark:border-gold-900/40 dark:bg-zinc-950"
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
                     exit={{ y: "100%" }}
@@ -119,7 +119,7 @@ export function ListingFilterSheet() {
                         type="button"
                         onClick={closeSheet}
                         aria-label="Close filters"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:text-zinc-400"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gold-200/70 text-slate-500 transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:text-zinc-400"
                       >
                         <X className="h-[18px] w-[18px]" />
                       </button>
@@ -137,7 +137,7 @@ export function ListingFilterSheet() {
                             className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition-colors active:scale-[0.99] ${
                               selected
                                 ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
-                                : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                                : "border-gold-200/70 bg-white text-slate-700 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
                             }`}
                           >
                             {option.label}
@@ -159,7 +159,7 @@ export function ListingFilterSheet() {
                             className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition-colors active:scale-[0.99] ${
                               selected
                                 ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
-                                : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                                : "border-gold-200/70 bg-white text-slate-700 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
                             }`}
                           >
                             {option.label}
@@ -177,7 +177,7 @@ export function ListingFilterSheet() {
                           setPendingPrice("all");
                         }}
                         disabled={!pendingDirty}
-                        className="flex-1 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] disabled:opacity-40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                        className="flex-1 rounded-xl border border-gold-200/70 bg-white py-3 text-sm font-bold text-slate-700 transition-transform duration-100 active:scale-[0.98] disabled:opacity-40 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300"
                       >
                         Clear
                       </button>

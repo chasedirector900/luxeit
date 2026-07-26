@@ -37,7 +37,7 @@ const COUNTRY_OPTIONS: CountryOption[] = [
 
 const LABEL = "mb-1.5 block text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 const FIELD_WRAP =
-  "flex h-12 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 transition-colors focus-within:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-gold-500";
+  "flex h-12 w-full items-center gap-2 rounded-xl border border-gold-200/70 bg-white px-3.5 transition-colors focus-within:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:focus-within:border-gold-500";
 
 // ── 6-digit code input ──────────────────────────────────────────────────────
 type OtpInputProps = {
@@ -102,7 +102,7 @@ function OtpInput({ value, onChange, onComplete, disabled }: OtpInputProps) {
           value={value[i] ?? ""}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="h-14 w-full rounded-xl border border-slate-200 bg-white text-center text-xl font-bold text-slate-900 outline-none transition-colors focus:border-gold-400 disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-gold-500"
+          className="h-14 w-full rounded-xl border border-gold-200/70 bg-white text-center text-xl font-bold text-slate-900 outline-none transition-colors focus:border-gold-400 disabled:opacity-50 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-gold-500"
         />
       ))}
     </div>
@@ -231,7 +231,7 @@ export function LoginForm() {
         <Link
           href="/"
           aria-label="Back to home"
-          className="reveal-up absolute left-5 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+          className="reveal-up absolute left-5 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
         >
           <ArrowLeft className="h-[18px] w-[18px]" />
         </Link>
@@ -240,7 +240,7 @@ export function LoginForm() {
           type="button"
           onClick={editIdentifier}
           aria-label="Go back"
-          className="reveal-up absolute left-5 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
+          className="reveal-up absolute left-5 top-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-gold-200/70 bg-white text-slate-700 shadow-sm shadow-slate-900/[0.04] transition-transform duration-100 active:scale-95 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-300 dark:shadow-none"
         >
           <ArrowLeft className="h-[18px] w-[18px]" />
         </button>
@@ -267,13 +267,13 @@ export function LoginForm() {
       {step === "identify" ? (
         <form
           onSubmit={submitIdentify}
-          className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
+          className="space-y-4 rounded-2xl border border-gold-200/70 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none"
         >
           {/* Email / Phone segmented control — only shown once phone/SMS sign-in
               is live. While it's off, the page is email-only with no hint that
               phone is missing (flip PHONE_LOGIN_ENABLED to bring it back). */}
           {PHONE_LOGIN_ENABLED ? (
-            <div className="grid grid-cols-2 gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="grid grid-cols-2 gap-1 rounded-xl border border-gold-200/70 bg-slate-100 p-1 dark:border-gold-900/40 dark:bg-zinc-900">
               {(["email", "phone"] as const).map((mode) => (
                 <button
                   key={mode}
@@ -342,7 +342,7 @@ export function LoginForm() {
                     <ChevronDown className="h-3.5 w-3.5 text-slate-400 dark:text-zinc-500" />
                   </button>
                   {isCountryPickerOpen ? (
-                    <div className="absolute left-0 top-[calc(100%+8px)] z-20 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+                    <div className="absolute left-0 top-[calc(100%+8px)] z-20 w-56 overflow-hidden rounded-xl border border-gold-200/70 bg-white shadow-lg dark:border-gold-900/40 dark:bg-zinc-900">
                       {COUNTRY_OPTIONS.map((c) => {
                         const Flag = c.Flag;
                         const active = c.code === selectedCountryCode;
@@ -410,7 +410,7 @@ export function LoginForm() {
       ) : (
         <form
           onSubmit={submitVerify}
-          className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
+          className="space-y-4 rounded-2xl border border-gold-200/70 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none"
         >
           <div className="mb-1 flex justify-center">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10 text-gold-600 dark:text-gold-300">

@@ -85,7 +85,7 @@ export function PersonalizedFeed({
         {Array.from({ length: limit }).map((_, i) => (
           <div
             key={i}
-            className="aspect-[3/4] animate-pulse rounded-2xl border border-slate-200 bg-slate-100 dark:border-zinc-800 dark:bg-zinc-900/60"
+            className="aspect-[3/4] animate-pulse rounded-2xl border border-gold-200/70 bg-slate-100 dark:border-gold-900/40 dark:bg-zinc-900/60"
           />
         ))}
       </div>

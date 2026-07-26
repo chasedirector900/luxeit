@@ -62,12 +62,12 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
 
   return (
     <aside
-      className={`fixed left-0 top-14 z-40 hidden h-[calc(100dvh-3.5rem)] flex-col overflow-y-auto border-r border-slate-200 bg-white px-2 py-3 transition-[width] duration-200 md:flex dark:border-zinc-800 dark:bg-black ${
+      className={`fixed left-0 top-14 z-40 hidden h-[calc(100dvh-3.5rem)] flex-col overflow-y-auto border-r border-gold-200/70 bg-white px-2 py-3 transition-[width] duration-200 md:flex dark:border-gold-900/40 dark:bg-black ${
         collapsed ? "w-[76px]" : "w-56"
       }`}
     >
       <nav className="flex flex-col gap-1">{PRIMARY.map(renderItem)}</nav>
-      <div className="my-3 border-t border-slate-200 dark:border-zinc-800" />
+      <div className="my-3 border-t border-gold-200/70 dark:border-gold-900/40" />
       <nav className="flex flex-col gap-1">{ACCOUNT.map(renderItem)}</nav>
 
       {!collapsed ? (

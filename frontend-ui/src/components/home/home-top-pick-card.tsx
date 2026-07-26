@@ -30,7 +30,7 @@ export function HomeTopPickCard({ product }: HomeTopPickCardProps) {
     <motion.article
       whileTap={{ scale: 0.985 }}
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
-      className="transform-gpu overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
+      className="transform-gpu overflow-hidden rounded-2xl border border-gold-200/70 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-gold-900/40 dark:bg-zinc-900/70 dark:shadow-none"
     >
       <Link href={`/product/${product.slug}`} prefetch className="block">
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">

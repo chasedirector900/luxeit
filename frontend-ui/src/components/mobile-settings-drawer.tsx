@@ -42,13 +42,13 @@ export function MobileSettingsDrawer({ open, onClose }: MobileSettingsDrawerProp
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
-            className="fixed bottom-0 left-0 right-0 z-[80] max-h-[85vh] rounded-t-[24px] border-t border-slate-200/80 bg-white/95 p-5 pb-8 shadow-2xl backdrop-blur-xl dark:border-zinc-800/60 dark:bg-zinc-950/90 text-neutral-900 dark:text-white lg:hidden"
+            className="fixed bottom-0 left-0 right-0 z-[80] max-h-[85vh] rounded-t-[24px] border-t border-gold-200/70/80 bg-white/95 p-5 pb-8 shadow-2xl backdrop-blur-xl dark:border-gold-900/40/60 dark:bg-zinc-950/90 text-neutral-900 dark:text-white lg:hidden"
           >
             {/* Visual Pull Handle Indicator bar for native mobile feel */}
             <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-slate-200 dark:bg-zinc-800" />
 
             {/* Header Container Area */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-zinc-900/60">
+            <div className="flex items-center justify-between pb-3.5 border-b border-gold-100/70 dark:border-zinc-900/60">
               <div className="flex flex-col">
                 <h2 className="text-[15px] font-bold tracking-tight uppercase">Quick Settings</h2>
                 <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">Configure app environment</p>
@@ -56,7 +56,7 @@ export function MobileSettingsDrawer({ open, onClose }: MobileSettingsDrawerProp
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 hover:text-slate-900 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:text-white transition-colors"
+                className="p-1.5 rounded-xl border border-gold-200/70 bg-slate-50 text-slate-500 hover:text-slate-900 dark:border-gold-900/40 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:text-white transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -67,7 +67,7 @@ export function MobileSettingsDrawer({ open, onClose }: MobileSettingsDrawerProp
               {/* Option Row: Mode Shift Trigger */}
               <button
                 onClick={() => setTheme(isDark ? "light" : "dark")}
-                className="flex w-full items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-100/60 dark:border-zinc-900/30 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/80 transition-all text-left group"
+                className="flex w-full items-center justify-between p-3 rounded-xl border border-gold-100/70 bg-slate-50/50 hover:bg-slate-100/60 dark:border-zinc-900/30 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/80 transition-all text-left group"
               >
                 <span className="inline-flex items-center gap-3">
                   <span
@@ -79,13 +79,13 @@ export function MobileSettingsDrawer({ open, onClose }: MobileSettingsDrawerProp
                   </span>
                   <span className="text-[13px] font-semibold text-slate-700 dark:text-zinc-200">Light Mode</span>
                 </span>
-                <span className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold tracking-wider text-slate-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 uppercase">
+                <span className="rounded-md border border-gold-200/70 bg-white px-2 py-0.5 text-[10px] font-bold tracking-wider text-slate-600 dark:border-gold-900/50 dark:bg-zinc-800 dark:text-zinc-300 uppercase">
                   {theme}
                 </span>
               </button>
 
               {/* Option Row: Region Picker Slot */}
-              <button className="flex w-full items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-100/60 dark:border-zinc-900/30 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/80 transition-all text-left group">
+              <button className="flex w-full items-center justify-between p-3 rounded-xl border border-gold-100/70 bg-slate-50/50 hover:bg-slate-100/60 dark:border-zinc-900/30 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/80 transition-all text-left group">
                 <span className="inline-flex items-center gap-3">
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                     <Globe className="h-4 w-4" />
@@ -99,9 +99,9 @@ export function MobileSettingsDrawer({ open, onClose }: MobileSettingsDrawerProp
               </button>
 
               {/* Option Row: Language Selector */}
-              <button className="flex w-full items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-100/60 dark:border-zinc-900/30 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/80 transition-all text-left group">
+              <button className="flex w-full items-center justify-between p-3 rounded-xl border border-gold-100/70 bg-slate-50/50 hover:bg-slate-100/60 dark:border-zinc-900/30 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/80 transition-all text-left group">
                 <span className="inline-flex items-center gap-3">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-gold-500/10 text-gold-600 dark:text-gold-400">
                     <Languages className="h-4 w-4" />
                   </span>
                   <span className="text-[13px] font-semibold text-slate-700 dark:text-zinc-200">Language</span>

@@ -27,15 +27,17 @@ def listing_image(label: str, c_from: str, c_to: str) -> str:
 
 
 FEATURES = [
-    {"icon": "ShieldCheck", "title": "Trusted Suppliers", "subtitle": "Quality you can trust", "tint": "text-emerald-500", "ring": "bg-emerald-500/10"},
-    {"icon": "Truck", "title": "Fast Shipping", "subtitle": "China & Lusaka hubs", "tint": "text-sky-500", "ring": "bg-sky-500/10"},
-    {"icon": "RotateCcw", "title": "Easy Returns", "subtitle": "Hassle-free returns", "tint": "text-violet-500", "ring": "bg-violet-500/10"},
+    {"icon": "ShieldCheck", "title": "Trusted Suppliers", "subtitle": "Quality you can trust", "tint": "text-gold-500", "ring": "bg-gold-500/10"},
+    {"icon": "Truck", "title": "Fast Shipping", "subtitle": "China & Lusaka hubs", "tint": "text-gold-400", "ring": "bg-gold-400/10"},
+    {"icon": "RotateCcw", "title": "Easy Returns", "subtitle": "Hassle-free returns", "tint": "text-gold-300", "ring": "bg-gold-300/10"},
 ]
 
+# Placeholder tiles stay inside the LUXE iT palette: near-black into a gold,
+# varied across the scale so a grid of products still reads with contrast.
 PALETTE = [
-    ("#1e1b4b", "#4338ca"), ("#0c4a6e", "#0ea5e9"), ("#451a03", "#b45309"),
-    ("#134e4a", "#14b8a6"), ("#4c0519", "#e11d48"), ("#3b0764", "#a855f7"),
-    ("#052e16", "#16a34a"), ("#0a0a0a", "#52525b"),
+    ("#0a0a0a", "#d4af37"), ("#2a1f03", "#b8860b"), ("#1a1305", "#f8e7a1"),
+    ("#0a0a0a", "#8f6a09"), ("#4a3705", "#dfbb48"), ("#151005", "#e9c95f"),
+    ("#241b02", "#d4af37"), ("#0a0a0a", "#6b5007"),
 ]
 
 # Each product: (sub_category, name, subtitle, sea_price, warehouse, original_price|None)

@@ -54,7 +54,7 @@ export function PromoBannerGrid() {
       <motion.article
         whileHover={{ y: -6, scale: 1.01 }}
         transition={hoverSpring}
-        className="relative hidden overflow-hidden rounded-3xl border border-slate-200/80 bg-white text-slate-900 shadow-xl shadow-slate-200/50 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/40 lg:col-span-1 lg:block"
+        className="relative hidden overflow-hidden rounded-3xl border border-gold-200/70/80 bg-white text-slate-900 shadow-xl shadow-slate-200/50 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/40 lg:col-span-1 lg:block"
       >
         <div className="relative h-full min-h-[360px] w-full">
           <Image
@@ -97,7 +97,7 @@ export function PromoBannerGrid() {
       <motion.article
         whileHover={{ y: -6, scale: 1.01 }}
         transition={hoverSpring}
-        className="relative hidden overflow-hidden rounded-3xl border border-slate-200/80 bg-white text-slate-900 shadow-xl shadow-slate-200/50 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/40 lg:col-span-1 lg:block"
+        className="relative hidden overflow-hidden rounded-3xl border border-gold-200/70/80 bg-white text-slate-900 shadow-xl shadow-slate-200/50 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:shadow-black/40 lg:col-span-1 lg:block"
       >
         <div className="relative h-full min-h-[360px] w-full">
           <Image
