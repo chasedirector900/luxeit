@@ -7,6 +7,7 @@ from urllib.parse import quote
 
 from django.core.management.base import BaseCommand
 
+from ._demo_catalog import EXTRA_PRODUCTS, NEW_CATEGORIES
 from products.models import Category, Product, ProductType, Warehouse, Origin, ShippingMethod
 
 
@@ -155,7 +156,8 @@ class Command(BaseCommand):
     help = "Seed footwear/watches/electronics/security categories and products."
 
     def handle(self, *args, **options):
-        managed = [c["slug"] for c in CATEGORIES]
+        all_categories = CATEGORIES + NEW_CATEGORIES
+        managed = [c["slug"] for c in all_categories]
         # Clean slate for these categories (and drop any legacy one-off products).
         Product.objects.filter(category__slug__in=managed).delete()
         Product.objects.filter(slug__in=[
@@ -164,7 +166,7 @@ class Command(BaseCommand):
         ]).delete()
 
         cats = prods = 0
-        for ci, cdef in enumerate(CATEGORIES):
+        for ci, cdef in enumerate(all_categories):
             category, _ = Category.objects.update_or_create(
                 slug=cdef["slug"],
                 defaults={
@@ -180,7 +182,8 @@ class Command(BaseCommand):
                 },
             )
             cats += 1
-            for pi, (sub, name, subtitle, price, wh, original) in enumerate(cdef["products"]):
+            items = cdef["products"] + EXTRA_PRODUCTS.get(cdef["slug"], [])
+            for pi, (sub, name, subtitle, price, wh, original) in enumerate(items):
                 c_from, c_to = PALETTE[pi % len(PALETTE)]
                 china = wh == "china"
                 Product.objects.create(
