@@ -5,6 +5,7 @@ import { Bell, Menu, Moon, Search, ShoppingCart, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useOptionalCart } from "@/hooks/use-cart";
 import { useNotifications } from "@/hooks/use-notifications";
+import { LuxeitLogo } from "@/components/brand/luxeit-logo";
 import { useAuth } from "@/hooks/use-auth";
 
 /**
@@ -53,8 +54,11 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
       <button type="button" aria-label="Toggle menu" onClick={onToggleSidebar} className={iconBtn}>
         <Menu className="h-5 w-5" />
       </button>
-      <Link href="/" className="text-[1.4rem] font-black leading-none tracking-tight text-gold-600 dark:text-gold-500">
-        LUXE<span className="text-slate-500 dark:text-zinc-300">iT</span>
+      <Link href="/" aria-label="Luxeit home" className="flex items-center gap-2">
+        <LuxeitLogo size={34} priority className="rounded-lg" />
+        <span className="font-brand text-[1.3rem] font-black leading-none tracking-tight text-gold-600 dark:text-gold-500">
+          LUXE<span className="text-slate-500 dark:text-zinc-300">iT</span>
+        </span>
       </Link>
 
       {/* Search — click opens the full-screen search overlay */}
@@ -75,7 +79,7 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
         <Link href="/account/notifications" aria-label="Notifications" className={`relative ${iconBtn}`}>
           <Bell className="h-5 w-5" />
           {totalUnread > 0 ? (
-            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-black">
+            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-ink ring-2 ring-white dark:ring-black">
               {totalUnread > 9 ? "9+" : totalUnread}
             </span>
           ) : null}

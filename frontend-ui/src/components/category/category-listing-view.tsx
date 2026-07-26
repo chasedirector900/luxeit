@@ -84,7 +84,7 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
         {isBrowsing ? (
           <section
             style={{ animationDelay: "180ms" }}
-            className="reveal-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 p-5 text-white shadow-lg shadow-indigo-900/25"
+            className="reveal-up relative overflow-hidden rounded-3xl bg-gold-500 p-5 text-ink shadow-lg shadow-gold-900/25"
           >
             <div className="pointer-events-none absolute -right-6 top-1/2 h-52 w-52 -translate-y-1/2 rounded-full bg-white/20 blur-3xl transform-gpu" />
             <div className="relative max-w-[62%]">
@@ -95,7 +95,7 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
               <p className="mt-2 text-[13px] text-white/90">{config.hero.subtitle}</p>
               <a
                 href="#listing-products"
-                className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-extrabold text-indigo-700 shadow-md transition-transform duration-100 active:scale-95"
+                className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-extrabold text-gold-700 shadow-md transition-transform duration-100 active:scale-95"
               >
                 Shop Now
                 <ArrowRight className="h-4 w-4" />
@@ -111,7 +111,7 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
         {isBrowsing ? (
           <section style={{ animationDelay: "200ms" }} className="reveal-up">
             <h3 className="mb-3 flex items-center gap-1.5 text-lg font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">
-              <Sparkles className="h-4 w-4 text-indigo-500" /> Recommended for you
+              <Sparkles className="h-4 w-4 text-gold-500" /> Recommended for you
             </h3>
             <PersonalizedFeed
               card="product"
@@ -135,7 +135,7 @@ export function CategoryListingView({ config, params }: CategoryListingViewProps
               <Link
                 href={`/category/${config.slug}?view=all`}
                 scroll={false}
-                className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-indigo-600 transition-colors active:text-indigo-500 dark:text-indigo-400"
+                className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-gold-600 transition-colors active:text-gold-500 dark:text-gold-400"
               >
                 View all
                 <ChevronRight className="h-4 w-4" />

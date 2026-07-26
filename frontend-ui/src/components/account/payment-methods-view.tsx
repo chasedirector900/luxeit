@@ -61,7 +61,7 @@ export function PaymentMethodsView() {
       </header>
 
       {notice ? (
-        <p className="reveal-up rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] font-medium text-amber-700 dark:text-amber-400">{notice}</p>
+        <p className="reveal-up rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-[12px] font-medium text-gold-700 dark:text-gold-400">{notice}</p>
       ) : null}
 
       {/* Saved methods */}
@@ -80,7 +80,7 @@ export function PaymentMethodsView() {
                     exit={{ opacity: 0, x: 24 }}
                     transition={{ duration: 0.18 }}
                     className={`flex items-center gap-3 rounded-2xl border bg-white p-3.5 shadow-sm shadow-slate-900/[0.04] dark:bg-zinc-900/70 dark:shadow-none ${
-                      method.isDefault ? "border-indigo-500/50 ring-1 ring-indigo-500/30" : "border-slate-200 dark:border-zinc-800"
+                      method.isDefault ? "border-gold-500/50 ring-1 ring-gold-500/30" : "border-slate-200 dark:border-zinc-800"
                     }`}
                   >
                     <span className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white ${meta.gradient}`}>
@@ -90,7 +90,7 @@ export function PaymentMethodsView() {
                       <div className="flex items-center gap-2">
                         <p className="truncate text-sm font-bold text-slate-900 dark:text-zinc-100">{meta.label}</p>
                         {method.isDefault ? (
-                          <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                          <span className="inline-flex items-center rounded-full bg-gold-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-600 dark:text-gold-400">
                             Default
                           </span>
                         ) : null}
@@ -102,7 +102,7 @@ export function PaymentMethodsView() {
                         <button
                           type="button"
                           onClick={() => setDefault(method.id)}
-                          className="rounded-lg px-2 py-1 text-[12px] font-semibold text-indigo-600 transition-colors active:scale-95 dark:text-indigo-400"
+                          className="rounded-lg px-2 py-1 text-[12px] font-semibold text-gold-600 transition-colors active:scale-95 dark:text-gold-400"
                         >
                           Set default
                         </button>
@@ -123,7 +123,7 @@ export function PaymentMethodsView() {
           </div>
         ) : (
           <div className={`${CARD} flex flex-col items-center px-6 py-10 text-center`}>
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400">
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-500/10 text-gold-500 dark:text-gold-400">
               <Wallet className="h-7 w-7" strokeWidth={1.8} />
             </span>
             <h3 className="mt-4 text-base font-extrabold tracking-tight">No payment method yet</h3>

@@ -141,7 +141,7 @@ export function ProductShowcase({ isLoading = false }: ProductShowcaseProps) {
     <section className="w-full select-none px-0 pb-5 pt-0 transform-gpu">
       <div className="mb-2 flex items-center justify-between gap-2 px-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500 text-neutral-950 shadow-sm shadow-amber-500/20">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold-500 text-neutral-950 shadow-sm shadow-gold-500/20">
             <Zap className="h-3 w-3" fill="currentColor" />
           </div>
           <div className="min-w-0">
@@ -172,7 +172,7 @@ export function ProductShowcase({ isLoading = false }: ProductShowcaseProps) {
           <span className="mx-1 h-4 w-[1px] bg-slate-300 dark:bg-zinc-800/80" />
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-full border border-amber-500/25 bg-amber-500/12 px-2 py-0.5 text-[8px] font-bold tracking-wide text-amber-400 transition hover:bg-amber-500/20 hover:text-amber-300 md:px-2.5 md:py-1 md:text-[9px]"
+            className="inline-flex items-center gap-1 rounded-full border border-gold-500/25 bg-gold-500/12 px-2 py-0.5 text-[8px] font-bold tracking-wide text-gold-400 transition hover:bg-gold-500/20 hover:text-gold-300 md:px-2.5 md:py-1 md:text-[9px]"
           >
             <span>View all</span>
             <ArrowRight className="h-3 w-3" />
@@ -185,7 +185,7 @@ export function ProductShowcase({ isLoading = false }: ProductShowcaseProps) {
           {displayProducts.map((product) => (
             <article
               key={product.id}
-              className="group relative w-[198px] shrink-0 overflow-hidden rounded-2xl border border-zinc-700/80 bg-zinc-900/95 transition-colors duration-200 hover:border-amber-500/70 hover:shadow-[0_0_0_1px_rgba(245,158,11,0.35)] sm:w-[250px] md:w-[278px] md:rounded-[22px]"
+              className="group relative w-[198px] shrink-0 overflow-hidden rounded-2xl border border-zinc-700/80 bg-zinc-900/95 transition-colors duration-200 hover:border-gold-500/70 hover:shadow-[0_0_0_1px_rgba(245,158,11,0.35)] sm:w-[250px] md:w-[278px] md:rounded-[22px]"
             >
             <div className="relative h-[272px] w-full overflow-hidden bg-zinc-950 sm:h-[352px] md:h-[390px]">
               <Image
@@ -201,12 +201,12 @@ export function ProductShowcase({ isLoading = false }: ProductShowcaseProps) {
               <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950 via-zinc-950/35 to-zinc-900/5" />
 
               <div className="absolute left-2 right-2 top-2 z-20 flex items-center justify-between gap-1.5 md:left-2.5 md:right-2.5 md:top-2.5">
-                <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/55 bg-amber-500/20 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md md:px-3 md:py-1 md:text-[9px]">
-                  <span className="inline-block h-2 w-2 rounded-full border border-amber-400/90" />
+                <span className="inline-flex items-center gap-1 rounded-full border border-gold-500/55 bg-gold-500/20 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-gold-300 backdrop-blur-md md:px-3 md:py-1 md:text-[9px]">
+                  <span className="inline-block h-2 w-2 rounded-full border border-gold-400/90" />
                   Pre-Order
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700/70 bg-zinc-950/80 px-2 py-0.5 text-[9px] font-bold tracking-tight text-zinc-200 backdrop-blur-md md:px-2.5 md:py-1 md:text-[10px]">
-                  <Calendar className="h-2.5 w-2.5 text-amber-400 md:h-3 md:w-3" />
+                  <Calendar className="h-2.5 w-2.5 text-gold-400 md:h-3 md:w-3" />
                   {product.countdown}
                 </span>
               </div>
@@ -216,7 +216,7 @@ export function ProductShowcase({ isLoading = false }: ProductShowcaseProps) {
               </div>
 
               <div className="absolute inset-x-0 bottom-0 z-20 p-2 md:p-3">
-                <div className="mb-0.5 flex items-center gap-1 text-[9px] font-bold text-amber-400 md:mb-1.5 md:text-[11px]">
+                <div className="mb-0.5 flex items-center gap-1 text-[9px] font-bold text-gold-400 md:mb-1.5 md:text-[11px]">
                   <Calendar className="h-2.5 w-2.5 md:h-3 md:w-3" />
                   <span>{product.releaseDate}</span>
                 </div>

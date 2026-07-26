@@ -32,8 +32,8 @@ const categoryChips = [
 const browseItems = [
   { label: "Footwear", href: "/category/footwear", icon: Footprints, tint: "text-rose-500 dark:text-rose-400", ring: "bg-rose-500/10" },
   { label: "Watches", href: "/explore/search?q=watch", icon: Watch, tint: "text-sky-500 dark:text-sky-400", ring: "bg-sky-500/10" },
-  { label: "Car Parts", href: "/explore/search?q=car+parts", icon: CarFront, tint: "text-indigo-500 dark:text-indigo-400", ring: "bg-indigo-500/10" },
-  { label: "Electronics", href: "/category/electronics", icon: Cpu, tint: "text-violet-500 dark:text-violet-400", ring: "bg-violet-500/10" },
+  { label: "Car Parts", href: "/explore/search?q=car+parts", icon: CarFront, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
+  { label: "Electronics", href: "/category/electronics", icon: Cpu, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { label: "Security", href: "/category/security", icon: ShieldCheck, tint: "text-emerald-500 dark:text-emerald-400", ring: "bg-emerald-500/10" },
 ] as const;
 
@@ -43,7 +43,7 @@ function SectionHeader({ title, href }: { title: string; href: string }) {
       <h2 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">{title}</h2>
       <Link
         href={href}
-        className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-indigo-600 transition-colors active:text-indigo-500 dark:text-indigo-400"
+        className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-gold-600 transition-colors active:text-gold-500 dark:text-gold-400"
       >
         See all
         <ChevronRight className="h-4 w-4" />
@@ -121,7 +121,7 @@ export default async function ExplorePage() {
                 href={href}
                 className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl border px-3.5 text-[13px] font-bold transition-colors duration-150 active:scale-95 ${
                   index === 0
-                    ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400/50 dark:bg-indigo-500/15 dark:text-indigo-300"
+                    ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
                     : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                 }`}
               >
@@ -135,7 +135,7 @@ export default async function ExplorePage() {
         {/* Hero */}
         <section
           style={{ animationDelay: "180ms" }}
-          className="reveal-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 via-indigo-600 to-violet-700 p-5 text-white shadow-lg shadow-indigo-900/25"
+          className="reveal-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 via-gold-600 to-gold-700 p-5 text-white shadow-lg shadow-gold-900/25"
         >
           <div className="pointer-events-none absolute -right-8 -top-10 h-44 w-44 rounded-full bg-white/20 blur-3xl transform-gpu" />
           <div className="pointer-events-none absolute -bottom-12 right-4 h-40 w-40 rounded-full bg-white/10 blur-3xl transform-gpu" />
@@ -147,7 +147,7 @@ export default async function ExplorePage() {
             <p className="mt-2 text-[13px] text-white/85">Reserve the latest imports and we&apos;ll bring them to your door.</p>
             <Link
               href="/explore/search?q=preorder"
-              className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-extrabold text-indigo-700 shadow-md transition-transform duration-100 active:scale-95"
+              className="mt-4 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-extrabold text-gold-700 shadow-md transition-transform duration-100 active:scale-95"
             >
               Shop Now
               <ArrowRight className="h-4 w-4" />

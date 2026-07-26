@@ -70,7 +70,7 @@ export function NewArrivalsSection() {
       <div className="mx-auto w-full max-w-7xl">
         <div className="flex items-center justify-between border-b border-slate-200/60 pb-3 dark:border-zinc-800/80">
           <div className="inline-flex items-center gap-2 text-slate-900 dark:text-zinc-100">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 shadow-sm">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold-500/10 text-gold-500 shadow-sm">
               <Bolt className="h-4 w-4 fill-amber-500/10" />
             </div>
             <h2 className="text-xs font-black uppercase tracking-wider">New Arrivals Track</h2>
@@ -78,7 +78,7 @@ export function NewArrivalsSection() {
 
           <Link
             href="/explore"
-            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-amber-500 transition-colors duration-150 hover:text-amber-400"
+            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-gold-500 transition-colors duration-150 hover:text-gold-400"
           >
             <span>View all</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -108,13 +108,13 @@ export function NewArrivalsSection() {
                 </span>
 
                 <span className="absolute bottom-1.5 right-1.5 z-20 inline-flex h-4.5 items-center gap-1 rounded border border-zinc-800/20 bg-zinc-900/80 px-1.5 text-[8px] font-bold uppercase tracking-wider text-zinc-300 sm:bottom-2.5 sm:right-2.5 sm:h-5 sm:rounded-md sm:px-2 sm:text-[9px]">
-                  <Warehouse className="h-2.5 w-2.5 text-amber-500 sm:h-3 sm:w-3" />
+                  <Warehouse className="h-2.5 w-2.5 text-gold-500 sm:h-3 sm:w-3" />
                   <span>{product.warehouseTag}</span>
                 </span>
               </div>
 
               <div className="mt-1.5 space-y-1 rounded-lg border border-slate-100/50 bg-zinc-50/60 p-1.5 dark:border-zinc-900/40 dark:bg-zinc-900/40 sm:mt-2.5 sm:space-y-1.5 sm:rounded-xl sm:p-2">
-                <h3 className="line-clamp-2 text-[12px] font-bold leading-tight tracking-tight text-slate-900 transition-colors duration-150 group-hover:text-amber-500 dark:text-zinc-100 dark:group-hover:text-amber-400 sm:line-clamp-1 sm:text-sm">
+                <h3 className="line-clamp-2 text-[12px] font-bold leading-tight tracking-tight text-slate-900 transition-colors duration-150 group-hover:text-gold-500 dark:text-zinc-100 dark:group-hover:text-gold-400 sm:line-clamp-1 sm:text-sm">
                   {product.title}
                 </h3>
 

@@ -146,7 +146,7 @@ export function SearchPageClient({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search products"
-            className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-indigo-500"
+            className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
           />
         </div>
 
@@ -161,7 +161,7 @@ export function SearchPageClient({
                 onClick={() => setActiveFilter(chip.key)}
                 className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                   active
-                    ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400/50 dark:bg-indigo-500/15 dark:text-indigo-300"
+                    ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
                     : "border-slate-200 bg-white text-slate-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400"
                 }`}
               >

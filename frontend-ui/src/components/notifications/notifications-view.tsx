@@ -31,7 +31,7 @@ export function NotificationsView() {
           <button
             type="button"
             onClick={markAllRead}
-            className="inline-flex items-center gap-1 text-[12px] font-semibold text-indigo-600 transition-colors active:text-indigo-500 dark:text-indigo-400"
+            className="inline-flex items-center gap-1 text-[12px] font-semibold text-gold-600 transition-colors active:text-gold-500 dark:text-gold-400"
           >
             <CheckCheck className="h-3.5 w-3.5" />
             Mark all read
@@ -55,12 +55,12 @@ export function NotificationsView() {
                   layout
                   exit={{ opacity: 0, x: 24 }}
                   transition={{ duration: 0.18 }}
-                  className={`flex items-center gap-3 px-3.5 py-3.5 ${unread ? "bg-indigo-500/[0.04] dark:bg-indigo-500/[0.07]" : ""}`}
+                  className={`flex items-center gap-3 px-3.5 py-3.5 ${unread ? "bg-gold-500/[0.04] dark:bg-gold-500/[0.07]" : ""}`}
                 >
                   <span className={`relative inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white ${meta.solid}`}>
                     <Icon className="h-6 w-6" />
                     {unread ? (
-                      <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-zinc-900">
+                      <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-ink ring-2 ring-white dark:ring-zinc-900">
                         {channel.unreadCount}
                       </span>
                     ) : null}

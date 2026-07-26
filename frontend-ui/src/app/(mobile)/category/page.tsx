@@ -32,7 +32,7 @@ type QuickCategory = {
 const quickCategories: QuickCategory[] = [
   { label: "Footwear", href: "/category/footwear", icon: Footprints, tint: "text-rose-500 dark:text-rose-400", ring: "bg-rose-500/10" },
   { label: "Watches", href: "/category/watches", icon: Watch, tint: "text-sky-500 dark:text-sky-400", ring: "bg-sky-500/10" },
-  { label: "Electronics", href: "/category/electronics", icon: Cpu, tint: "text-indigo-500 dark:text-indigo-400", ring: "bg-indigo-500/10" },
+  { label: "Electronics", href: "/category/electronics", icon: Cpu, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { label: "Security", href: "/category/security", icon: ShieldCheck, tint: "text-emerald-500 dark:text-emerald-400", ring: "bg-emerald-500/10" },
 ];
 
@@ -55,10 +55,10 @@ type CarPart = {
 };
 
 const universalCarParts: CarPart[] = [
-  { title: "LED Headlight Bulbs", subtitle: "Common sockets for many vehicles", href: "/explore/search?q=universal+led+headlight+bulbs", icon: Lightbulb, tint: "text-amber-500 dark:text-amber-400", ring: "bg-amber-500/10" },
+  { title: "LED Headlight Bulbs", subtitle: "Common sockets for many vehicles", href: "/explore/search?q=universal+led+headlight+bulbs", icon: Lightbulb, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
   { title: "Wiper Blade Sets", subtitle: "Multi-size fit for most cars", href: "/explore/search?q=universal+wiper+blades", icon: Wind, tint: "text-sky-500 dark:text-sky-400", ring: "bg-sky-500/10" },
   { title: "Seat Covers", subtitle: "Universal interior fit options", href: "/explore/search?q=universal+seat+covers", icon: Armchair, tint: "text-emerald-500 dark:text-emerald-400", ring: "bg-emerald-500/10" },
-  { title: "Phone Holders", subtitle: "Dashboard and vent mount types", href: "/explore/search?q=car+phone+holder", icon: Smartphone, tint: "text-indigo-500 dark:text-indigo-400", ring: "bg-indigo-500/10" },
+  { title: "Phone Holders", subtitle: "Dashboard and vent mount types", href: "/explore/search?q=car+phone+holder", icon: Smartphone, tint: "text-gold-500 dark:text-gold-400", ring: "bg-gold-500/10" },
 ];
 
 function SectionHeader({ title, href }: { title: string; href?: string }) {
@@ -114,7 +114,7 @@ export default async function CategoryPage() {
 
         <section
           style={{ animationDelay: "120ms" }}
-          className="reveal-up relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 via-indigo-500 to-indigo-600 p-4 text-white shadow-lg shadow-indigo-900/20"
+          className="reveal-up relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 via-gold-500 to-gold-600 p-4 text-white shadow-lg shadow-gold-900/20"
         >
           {/* Pure-CSS decorative glow — composited once, no repaint */}
           <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/20 blur-3xl transform-gpu" />

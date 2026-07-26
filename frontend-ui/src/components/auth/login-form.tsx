@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronDown, Loader2, Mail, Pencil, RotateCcw, ShieldCheck } from "lucide-react";
+import { LuxeitLogo } from "@/components/brand/luxeit-logo";
 import { SocialAuth } from "@/components/auth/social-auth";
 import { useAuth } from "@/hooks/use-auth";
 import { US, ZA, ZM, KE, NG, GB } from "country-flag-icons/react/3x2";
@@ -36,7 +37,7 @@ const COUNTRY_OPTIONS: CountryOption[] = [
 
 const LABEL = "mb-1.5 block text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 const FIELD_WRAP =
-  "flex h-12 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 transition-colors focus-within:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-indigo-500";
+  "flex h-12 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 transition-colors focus-within:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-gold-500";
 
 // ── 6-digit code input ──────────────────────────────────────────────────────
 type OtpInputProps = {
@@ -101,7 +102,7 @@ function OtpInput({ value, onChange, onComplete, disabled }: OtpInputProps) {
           value={value[i] ?? ""}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="h-14 w-full rounded-xl border border-slate-200 bg-white text-center text-xl font-bold text-slate-900 outline-none transition-colors focus:border-indigo-400 disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-indigo-500"
+          className="h-14 w-full rounded-xl border border-slate-200 bg-white text-center text-xl font-bold text-slate-900 outline-none transition-colors focus:border-gold-400 disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:border-gold-500"
         />
       ))}
     </div>
@@ -247,9 +248,7 @@ export function LoginForm() {
 
       {/* Brand + heading */}
       <div className="mb-7 text-center">
-        <p className="text-[2rem] font-black leading-none tracking-tight text-emerald-900 dark:text-emerald-300">
-          Luxe<span className="text-amber-500">it</span>
-        </p>
+        <LuxeitLogo size={72} priority className="mx-auto rounded-2xl" />
         <h1 className="mt-5 text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">
           {step === "identify" ? "Sign in or sign up" : "Enter your code"}
         </h1>
@@ -299,7 +298,7 @@ export function LoginForm() {
           <div>
             <label className={LABEL}>{identifierMode === "email" ? "Email address" : "Phone number"}</label>
             {phoneDisabled ? (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/[0.07] px-3.5 py-3 text-[12px] leading-relaxed text-amber-800 dark:border-amber-400/25 dark:text-amber-300">
+              <div className="rounded-xl border border-gold-500/30 bg-gold-500/[0.07] px-3.5 py-3 text-[12px] leading-relaxed text-gold-800 dark:border-gold-400/25 dark:text-gold-300">
                 <span className="font-bold">Phone sign-in is coming soon.</span> We&apos;re setting up SMS
                 delivery, which needs a paid SMS service. For now, please sign in with your{" "}
                 <button
@@ -359,7 +358,7 @@ export function LoginForm() {
                             }}
                             className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-xs transition-colors ${
                               active
-                                ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300"
+                                ? "bg-gold-500/10 text-gold-600 dark:text-gold-300"
                                 : "text-slate-700 hover:bg-slate-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
                             }`}
                           >
@@ -394,7 +393,7 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={submitting || phoneDisabled}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {submitting ? "Sending code…" : "Send code"}
@@ -414,7 +413,7 @@ export function LoginForm() {
           className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none"
         >
           <div className="mb-1 flex justify-center">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10 text-gold-600 dark:text-gold-300">
               <ShieldCheck className="h-6 w-6" />
             </span>
           </div>
@@ -430,7 +429,7 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={submitting || code.length !== OTP_LENGTH}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-60"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-60"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {submitting ? "Verifying…" : "Verify & continue"}
@@ -449,7 +448,7 @@ export function LoginForm() {
               type="button"
               disabled={cooldown > 0 || submitting}
               onClick={() => void sendCode()}
-              className="inline-flex items-center gap-1.5 font-semibold text-indigo-600 transition-colors active:text-indigo-500 disabled:text-slate-400 dark:text-indigo-400 dark:disabled:text-zinc-600"
+              className="inline-flex items-center gap-1.5 font-semibold text-gold-600 transition-colors active:text-gold-500 disabled:text-slate-400 dark:text-gold-400 dark:disabled:text-zinc-600"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}

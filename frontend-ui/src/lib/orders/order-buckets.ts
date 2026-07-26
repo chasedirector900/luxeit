@@ -44,8 +44,8 @@ export const ORDER_BUCKETS: OrderBucket[] = [
     empty: "Nothing being sourced right now.",
     statuses: ["queue", "sourcing"],
     icon: Clock,
-    tint: "text-amber-500 dark:text-amber-400",
-    ring: "bg-amber-500/10",
+    tint: "text-gold-500 dark:text-gold-400",
+    ring: "bg-gold-500/10",
   },
   {
     slug: "transit",
@@ -56,8 +56,8 @@ export const ORDER_BUCKETS: OrderBucket[] = [
     empty: "Nothing is in transit right now.",
     statuses: ["transit"],
     icon: Truck,
-    tint: "text-violet-500 dark:text-violet-400",
-    ring: "bg-violet-500/10",
+    tint: "text-gold-500 dark:text-gold-400",
+    ring: "bg-gold-500/10",
   },
   {
     slug: "delivered",

@@ -60,7 +60,7 @@ function ProductCardBase({
 
           <div className="absolute left-2.5 top-2.5 inline-flex gap-1">
             {product.preorder ? (
-              <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+              <span className="rounded-md bg-gold-500 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink shadow-sm">
                 Preorder
               </span>
             ) : null}
@@ -107,7 +107,7 @@ function ProductCardBase({
         <div className="mt-1 flex items-center justify-between gap-2 text-[11px]">
           <span className="truncate text-slate-500 dark:text-zinc-400">{product.category ?? "General"}</span>
           {searchVariant && product.popularityLabel ? (
-            <span className="shrink-0 font-semibold text-amber-600 dark:text-amber-400">{product.popularityLabel} sold</span>
+            <span className="shrink-0 font-semibold text-gold-600 dark:text-gold-400">{product.popularityLabel} sold</span>
           ) : null}
         </div>
 
@@ -151,7 +151,7 @@ function ProductCardBase({
               className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-md transition-colors ${
                 added
                   ? "bg-emerald-500 shadow-emerald-900/20"
-                  : "bg-gradient-to-br from-indigo-500 to-violet-600 shadow-indigo-900/25"
+                  : "bg-gold-500 shadow-gold-900/25"
               }`}
             >
               {added ? <Check className="h-[17px] w-[17px]" /> : <ShoppingCart className="h-[17px] w-[17px]" />}

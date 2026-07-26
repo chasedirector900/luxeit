@@ -43,7 +43,7 @@ const CARD_CLASS =
   "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none";
 
 const SELECT_ACTIVE =
-  "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400 dark:text-indigo-300";
+  "border-gold-500 bg-gold-500/10 text-gold-600 dark:border-gold-400 dark:text-gold-300";
 const SELECT_IDLE =
   "border-slate-300 bg-white text-slate-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300";
 
@@ -239,7 +239,7 @@ export function SearchProductDetailClient({
             )}
             <div className="absolute left-3 top-3 inline-flex gap-1.5">
               {product.preorder ? (
-                <span className="rounded-md bg-amber-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+                <span className="rounded-md bg-gold-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink shadow-sm">
                   Preorder
                 </span>
               ) : null}
@@ -259,7 +259,7 @@ export function SearchProductDetailClient({
                       type="button"
                       onClick={() => setSelectedMediaIndex(idx)}
                       className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
-                        active ? "border-indigo-400" : "border-transparent"
+                        active ? "border-gold-400" : "border-transparent"
                       }`}
                       aria-label={`Select media ${idx + 1}`}
                     >
@@ -330,7 +330,7 @@ export function SearchProductDetailClient({
                 </span>
               )}
               {product.popularityLabel ? (
-                <span className="rounded-md bg-amber-500/15 px-2.5 py-1 font-semibold text-amber-600 dark:text-amber-400">
+                <span className="rounded-md bg-gold-500/15 px-2.5 py-1 font-semibold text-gold-600 dark:text-gold-400">
                   {product.popularityLabel} popular
                 </span>
               ) : null}
@@ -361,13 +361,13 @@ export function SearchProductDetailClient({
                         onClick={() => setSelectedShipping(opt.method)}
                         className={`rounded-xl border p-3 text-left transition-transform active:scale-[0.98] ${
                           active
-                            ? "border-indigo-500/60 bg-indigo-500/10 dark:border-indigo-400/50 dark:bg-indigo-500/15"
+                            ? "border-gold-500/60 bg-gold-500/10 dark:border-gold-400/50 dark:bg-gold-500/15"
                             : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
                         }`}
                       >
                         <div className="flex items-center gap-1.5">
-                          <Icon className={`h-4 w-4 ${active ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-zinc-400"}`} />
-                          <span className={`text-sm font-bold ${active ? "text-indigo-700 dark:text-indigo-300" : "text-slate-900 dark:text-zinc-100"}`}>{opt.label}</span>
+                          <Icon className={`h-4 w-4 ${active ? "text-gold-600 dark:text-gold-400" : "text-slate-500 dark:text-zinc-400"}`} />
+                          <span className={`text-sm font-bold ${active ? "text-gold-700 dark:text-gold-300" : "text-slate-900 dark:text-zinc-100"}`}>{opt.label}</span>
                           {opt.method === "sea" ? (
                             <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">Cheapest</span>
                           ) : null}
@@ -488,7 +488,7 @@ export function SearchProductDetailClient({
                   ))}
                 </div>
                 {product.compatibility.note ? (
-                  <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+                  <p className="rounded-lg border border-gold-500/30 bg-gold-500/10 px-2.5 py-1.5 text-[11px] text-gold-700 dark:text-gold-300">
                     {product.compatibility.note}
                   </p>
                 ) : null}
@@ -523,7 +523,7 @@ export function SearchProductDetailClient({
                     return (
                       <Star
                         key={idx}
-                        className={`h-3.5 w-3.5 ${active ? "fill-amber-400 text-amber-400" : "text-slate-300 dark:text-zinc-600"}`}
+                        className={`h-3.5 w-3.5 ${active ? "fill-amber-400 text-gold-400" : "text-slate-300 dark:text-zinc-600"}`}
                       />
                     );
                   })}
@@ -540,7 +540,7 @@ export function SearchProductDetailClient({
                     <div key={level} className="grid grid-cols-[10px_1fr] items-center gap-2">
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">{level}</span>
                       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
-                        <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.max(2, width)}%` }} />
+                        <div className="h-full rounded-full bg-gold-500" style={{ width: `${Math.max(2, width)}%` }} />
                       </div>
                     </div>
                   );
@@ -619,7 +619,7 @@ export function SearchProductDetailClient({
             <h3 className="text-base font-extrabold tracking-tight">You may also like</h3>
             <Link
               href={backHref}
-              className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-indigo-600 dark:text-indigo-400"
+              className="inline-flex items-center gap-0.5 text-[13px] font-semibold text-gold-600 dark:text-gold-400"
             >
               View all
               <ArrowRight className="h-3.5 w-3.5" />
@@ -657,8 +657,8 @@ export function SearchProductDetailClient({
             disabled={isAddingLocked}
             className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-white shadow-md transition-transform active:scale-[0.98] ${
               isAddingLocked
-                ? "bg-indigo-400 shadow-none"
-                : "bg-gradient-to-br from-indigo-500 to-violet-600 shadow-indigo-900/25"
+                ? "bg-gold-400 shadow-none"
+                : "bg-gold-500 shadow-gold-900/25"
             }`}
           >
             {addState === "added" ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}

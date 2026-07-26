@@ -80,7 +80,7 @@ export function PromoBannerGrid() {
             type="button"
             aria-label="Settings"
             onClick={() => setIsMenuOpen(true)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/45 bg-amber-200/70 text-amber-700 shadow-sm backdrop-blur-sm dark:border-amber-300/40 dark:bg-amber-300/20 dark:text-amber-200"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gold-400/45 bg-gold-200/70 text-gold-700 shadow-sm backdrop-blur-sm dark:border-gold-300/40 dark:bg-gold-300/20 dark:text-gold-200"
           >
             <Settings className="h-5.5 w-5.5" />
           </button>

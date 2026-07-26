@@ -143,17 +143,17 @@ export function AccountView() {
         style={{ animationDelay: "60ms" }}
         className={`reveal-up relative overflow-hidden px-6 pb-6 pt-7 text-center rounded-3xl ${CARD}`}
       >
-        <div className="pointer-events-none absolute inset-x-0 -top-16 mx-auto h-44 w-44 rounded-full bg-gradient-to-br from-indigo-500/20 to-violet-500/20 blur-3xl transform-gpu" />
+        <div className="pointer-events-none absolute inset-x-0 -top-16 mx-auto h-44 w-44 rounded-full bg-gradient-to-br from-gold-500/20 to-gold-500/20 blur-3xl transform-gpu" />
         <div className="relative">
           <div className="relative mx-auto h-20 w-20">
-            <span className="grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-2xl font-black text-white shadow-lg shadow-indigo-900/25 ring-2 ring-indigo-500/20 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900">
+            <span className="grid h-20 w-20 place-items-center rounded-full bg-gold-500 text-2xl font-black text-ink shadow-lg shadow-gold-900/25 ring-2 ring-gold-500/20 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900">
               {initial}
             </span>
             <button
               type="button"
               onClick={() => setEditing("profile")}
               aria-label="Edit profile"
-              className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-indigo-600 text-white shadow-md ring-2 ring-white transition-transform duration-100 active:scale-95 dark:ring-zinc-900"
+              className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-gold-500 text-ink shadow-md ring-2 ring-white transition-transform duration-100 active:scale-95 dark:ring-zinc-900"
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>
@@ -173,7 +173,7 @@ export function AccountView() {
                 Verified
               </span>
             ) : null}
-            <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/25 bg-indigo-500/[0.07] px-2.5 py-[5px] text-[11px] font-semibold text-indigo-600 dark:border-indigo-400/20 dark:text-indigo-400">
+            <span className="inline-flex items-center gap-1 rounded-full border border-gold-500/25 bg-gold-500/[0.07] px-2.5 py-[5px] text-[11px] font-semibold text-gold-600 dark:border-gold-400/20 dark:text-gold-400">
               <Star className="h-3.5 w-3.5" />
               {memberSince}
             </span>
@@ -194,7 +194,7 @@ export function AccountView() {
             {/* Progress bar — instantly shows how close they are */}
             <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-zinc-800" role="progressbar" aria-valuemin={0} aria-valuemax={checklist.length} aria-valuenow={completedSteps} aria-label="Profile completion">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-[width] duration-500 ease-out"
+                className="h-full rounded-full bg-gold-500 transition-[width] duration-500 ease-out"
                 style={{ width: `${(completedSteps / checklist.length) * 100}%` }}
               />
             </div>
@@ -221,7 +221,7 @@ export function AccountView() {
               >
                 <Circle className="h-5 w-5 shrink-0 text-slate-300 dark:text-zinc-600" />
                 <span className="flex-1 text-sm font-medium text-slate-800 dark:text-zinc-200">{item.label}</span>
-                <span className="text-[13px] font-bold text-indigo-600 dark:text-indigo-400">Add</span>
+                <span className="text-[13px] font-bold text-gold-600 dark:text-gold-400">Add</span>
                 <ChevronRight className="h-4 w-4 text-slate-300 dark:text-zinc-600" />
               </button>
             ),
@@ -235,14 +235,14 @@ export function AccountView() {
           <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">My Orders</h2>
           <Link
             href="/account/orders/queue"
-            className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-indigo-600 transition-colors active:text-indigo-500 dark:text-indigo-400"
+            className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-gold-600 transition-colors active:text-gold-500 dark:text-gold-400"
           >
             View all
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         {ordersError ? (
-          <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] font-medium text-amber-700 dark:text-amber-400">
+          <p className="mb-2 rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-[12px] font-medium text-gold-700 dark:text-gold-400">
             We couldn&apos;t load your order counts — check your connection and pull to refresh.
           </p>
         ) : null}
@@ -258,7 +258,7 @@ export function AccountView() {
                 <span className={`relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${ring}`}>
                   <Icon className={`h-5 w-5 ${tint}`} strokeWidth={2} />
                   {count > 0 ? (
-                    <span className="absolute -right-1.5 -top-1.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold tabular-nums text-white ring-2 ring-white dark:ring-zinc-900">
+                    <span className="absolute -right-1.5 -top-1.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold tabular-nums text-ink ring-2 ring-white dark:ring-zinc-900">
                       {count}
                     </span>
                   ) : null}
@@ -278,20 +278,20 @@ export function AccountView() {
         style={{ animationDelay: "180ms" }}
         className={`reveal-up relative overflow-hidden ${CARD} p-4`}
       >
-        <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-amber-500/15 blur-3xl transform-gpu dark:bg-amber-400/10" />
+        <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-gold-500/15 blur-3xl transform-gpu dark:bg-gold-400/10" />
         <div className="relative flex items-center gap-3">
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-900/20">
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold-400 to-orange-500 text-white shadow-md shadow-gold-900/20">
             <Gift className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold leading-tight text-slate-900 dark:text-zinc-100">Refer &amp; earn</p>
             <p className="mt-0.5 text-[12px] text-slate-500 dark:text-zinc-400">
-              Invite friends — you both get <span className="font-bold text-amber-600 dark:text-amber-400">K50 off</span>.
+              Invite friends — you both get <span className="font-bold text-gold-600 dark:text-gold-400">K50 off</span>.
             </p>
           </div>
           <button
             type="button"
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 px-3.5 text-xs font-bold text-white shadow-md shadow-amber-900/20 transition-transform duration-100 active:scale-95"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-br from-gold-400 to-orange-500 px-3.5 text-xs font-bold text-white shadow-md shadow-gold-900/20 transition-transform duration-100 active:scale-95"
           >
             <Share2 className="h-3.5 w-3.5" />
             Invite
@@ -328,12 +328,12 @@ export function AccountView() {
             <span className={`relative ${ROW_ICON}`}>
               <Bell className="h-[18px] w-[18px]" strokeWidth={2} />
               {totalUnread > 0 ? (
-                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-white dark:ring-zinc-900" />
+                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-gold-500 ring-2 ring-white dark:ring-zinc-900" />
               ) : null}
             </span>
             <span className="flex-1 text-sm font-semibold text-slate-800 dark:text-zinc-200">Notifications</span>
             {totalUnread > 0 ? (
-              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[11px] font-bold text-white">
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1.5 text-[11px] font-bold text-ink">
                 {totalUnread > 9 ? "9+" : totalUnread}
               </span>
             ) : null}

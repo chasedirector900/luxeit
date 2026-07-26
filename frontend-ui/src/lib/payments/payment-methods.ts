@@ -17,10 +17,10 @@ export type PaymentBrandMeta = {
 };
 
 export const PAYMENT_BRANDS: PaymentBrandMeta[] = [
-  { brand: "visa", label: "Visa", desc: "Credit / debit card", kind: "card", icon: CreditCard, tint: "text-blue-600 dark:text-blue-400", ring: "bg-blue-500/10", gradient: "from-blue-600 to-indigo-700" },
+  { brand: "visa", label: "Visa", desc: "Credit / debit card", kind: "card", icon: CreditCard, tint: "text-blue-600 dark:text-blue-400", ring: "bg-blue-500/10", gradient: "from-blue-600 to-gold-700" },
   { brand: "mastercard", label: "Mastercard", desc: "Credit / debit card", kind: "card", icon: CreditCard, tint: "text-orange-600 dark:text-orange-400", ring: "bg-orange-500/10", gradient: "from-orange-500 to-red-600" },
   { brand: "airtel", label: "Airtel Money", desc: "Mobile money", kind: "mobile", icon: Smartphone, tint: "text-red-600 dark:text-red-400", ring: "bg-red-500/10", gradient: "from-red-500 to-rose-600" },
-  { brand: "mtn", label: "MTN MoMo", desc: "Mobile money", kind: "mobile", icon: Smartphone, tint: "text-amber-600 dark:text-amber-400", ring: "bg-amber-500/10", gradient: "from-amber-400 to-yellow-500" },
+  { brand: "mtn", label: "MTN MoMo", desc: "Mobile money", kind: "mobile", icon: Smartphone, tint: "text-gold-600 dark:text-gold-400", ring: "bg-gold-500/10", gradient: "from-gold-400 to-yellow-500" },
 ];
 
 export function getPaymentBrand(brand: PaymentBrand): PaymentBrandMeta {

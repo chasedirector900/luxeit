@@ -9,7 +9,7 @@ import { addPaymentMethod } from "@/lib/auth/api";
 import { tokenizeCard } from "@/lib/payments/gateway";
 
 const FIELD =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-indigo-500";
+  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 const LABEL = "mb-1.5 block text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 
 const onlyDigits = (value: string) => value.replace(/\D/g, "");
@@ -23,7 +23,7 @@ function BrandMark({ brand }: { brand: PaymentBrand }) {
     return (
       <span className="flex items-center">
         <span className="h-6 w-6 rounded-full bg-red-500/90" />
-        <span className="-ml-2.5 h-6 w-6 rounded-full bg-amber-400/90 mix-blend-screen" />
+        <span className="-ml-2.5 h-6 w-6 rounded-full bg-gold-400/90 mix-blend-screen" />
       </span>
     );
   }
@@ -119,7 +119,7 @@ export function AddPaymentMethodView({ brand }: { brand: PaymentBrand }) {
       {kind === "card" ? (
         <div
           style={{ animationDelay: "60ms" }}
-          className={`reveal-up relative aspect-[1.586/1] w-full overflow-hidden rounded-2xl bg-gradient-to-br ${meta.gradient} p-5 text-white shadow-lg shadow-indigo-900/25`}
+          className={`reveal-up relative aspect-[1.586/1] w-full overflow-hidden rounded-2xl bg-gradient-to-br ${meta.gradient} p-5 text-white shadow-lg shadow-gold-900/25`}
         >
           <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/15 blur-3xl transform-gpu" />
           <div className="relative flex h-full flex-col justify-between">
@@ -189,7 +189,7 @@ export function AddPaymentMethodView({ brand }: { brand: PaymentBrand }) {
         >
           <span
             className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
-              saveInfo ? "border-indigo-500 bg-indigo-500 text-white" : "border-slate-300 dark:border-zinc-600"
+              saveInfo ? "border-gold-500 bg-gold-500 text-ink" : "border-slate-300 dark:border-zinc-600"
             }`}
           >
             {saveInfo ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : null}
@@ -211,7 +211,7 @@ export function AddPaymentMethodView({ brand }: { brand: PaymentBrand }) {
         onClick={() => void handleSave()}
         disabled={!valid || submitting}
         style={{ animationDelay: "180ms" }}
-        className="reveal-up inline-flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
+        className="reveal-up inline-flex h-12 w-full items-center justify-center rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
       >
         {submitting ? "Saving…" : "Save"}
       </button>

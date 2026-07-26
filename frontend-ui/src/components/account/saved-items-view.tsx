@@ -100,7 +100,7 @@ export function SavedItemsView() {
           </p>
           <Link
             href="/explore"
-            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 px-6 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-95"
+            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gold-500 px-6 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-95"
           >
             Browse products
           </Link>

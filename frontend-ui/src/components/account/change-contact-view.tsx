@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { requestContactChange, verifyContactChange } from "@/lib/auth/api";
 
 const FIELD =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-indigo-500";
+  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 const LABEL = "mb-1.5 block text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 const ONLY_DIGITS = /\D/g;
 
@@ -118,7 +118,7 @@ export function ChangeContactView() {
             <p className="mt-1 text-[13px] text-slate-500 dark:text-zinc-400">{destination} is now your sign-in {mode}.</p>
             <Link
               href="/account/settings"
-              className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 active:scale-[0.98]"
+              className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 active:scale-[0.98]"
             >
               Back to settings
             </Link>
@@ -154,7 +154,7 @@ export function ChangeContactView() {
 
             <div>
               <label className={LABEL}>New {mode === "email" ? "email address" : "phone number"}</label>
-              <div className="flex h-12 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 focus-within:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-indigo-500">
+              <div className="flex h-12 w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 focus-within:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus-within:border-gold-500">
                 {mode === "email" ? (
                   <Mail className="h-[18px] w-[18px] shrink-0 text-slate-400 dark:text-zinc-500" />
                 ) : (
@@ -184,7 +184,7 @@ export function ChangeContactView() {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 active:scale-[0.98] disabled:opacity-70"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 active:scale-[0.98] disabled:opacity-70"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {submitting ? "Sending…" : "Send code"}
@@ -211,7 +211,7 @@ export function ChangeContactView() {
             <button
               type="submit"
               disabled={submitting || code.length !== 6}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 active:scale-[0.98] disabled:opacity-60"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 active:scale-[0.98] disabled:opacity-60"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {submitting ? "Verifying…" : "Verify & update"}

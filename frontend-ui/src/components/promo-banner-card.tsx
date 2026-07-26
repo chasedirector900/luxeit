@@ -59,7 +59,7 @@ export function PromoBannerCard({
     setActiveIndex((prev) => (prev - 1 + safeItems.length) % safeItems.length);
 
   return (
-    <section className={`group relative overflow-hidden rounded-2xl border border-slate-300/80 bg-slate-50 p-2.5 text-slate-900 shadow-[0_10px_28px_rgba(15,23,42,0.14)] dark:border-indigo-300/20 dark:bg-[#070b1f] dark:text-white dark:shadow-[0_16px_44px_rgba(17,24,39,0.5)] h-full min-h-[260px] md:rounded-3xl md:p-4 md:min-h-[360px] ${className ?? ""}`}>
+    <section className={`group relative overflow-hidden rounded-2xl border border-slate-300/80 bg-slate-50 p-2.5 text-slate-900 shadow-[0_10px_28px_rgba(15,23,42,0.14)] dark:border-gold-300/20 dark:bg-[#070b1f] dark:text-white dark:shadow-[0_16px_44px_rgba(17,24,39,0.5)] h-full min-h-[260px] md:rounded-3xl md:p-4 md:min-h-[360px] ${className ?? ""}`}>
       {activeSlide && activeSlideSrc && (
         <Link href={activeSlide.link} className="absolute inset-0 z-0 block">
           <motion.div
@@ -142,7 +142,7 @@ export function PromoBannerCard({
                 )}
               </button>
             ))}
-            <Sparkles className="ml-1 h-3.5 w-3.5 text-violet-500/85 dark:text-violet-300/85" />
+            <Sparkles className="ml-1 h-3.5 w-3.5 text-gold-500/85 dark:text-gold-300/85" />
           </div>
         )}
       </div>

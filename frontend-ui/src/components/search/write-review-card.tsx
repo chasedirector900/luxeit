@@ -91,7 +91,7 @@ export function WriteReviewCard({ productSlug }: { productSlug: string }) {
             <div className="mt-1.5 flex items-center gap-1.5">
               <div className="flex items-center gap-0.5">
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <Star key={n} className={`h-4 w-4 ${n <= rating ? "fill-amber-400 text-amber-400" : "text-slate-300 dark:text-zinc-600"}`} />
+                  <Star key={n} className={`h-4 w-4 ${n <= rating ? "fill-amber-400 text-gold-400" : "text-slate-300 dark:text-zinc-600"}`} />
                 ))}
               </div>
               {reviewDate ? (
@@ -137,7 +137,7 @@ export function WriteReviewCard({ productSlug }: { productSlug: string }) {
             onMouseLeave={() => setHover(0)}
             className="transition-transform active:scale-90"
           >
-            <Star className={`h-7 w-7 ${n <= shown ? "fill-amber-400 text-amber-400" : "text-slate-300 dark:text-zinc-600"}`} />
+            <Star className={`h-7 w-7 ${n <= shown ? "fill-amber-400 text-gold-400" : "text-slate-300 dark:text-zinc-600"}`} />
           </button>
         ))}
       </div>
@@ -147,7 +147,7 @@ export function WriteReviewCard({ productSlug }: { productSlug: string }) {
         onChange={(e) => setText(e.target.value)}
         rows={3}
         placeholder="What did you like or dislike? (optional)"
-        className="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-indigo-500"
+        className="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
       />
 
       {error ? <p className="mt-2 text-[12px] font-semibold text-rose-600 dark:text-rose-400">{error}</p> : null}
@@ -157,7 +157,7 @@ export function WriteReviewCard({ productSlug }: { productSlug: string }) {
           type="button"
           onClick={handleSubmit}
           disabled={submitting}
-          className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-60"
+          className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-60"
         >
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {submitting ? "Posting…" : hasReview ? "Update review" : "Post review"}

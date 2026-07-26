@@ -80,7 +80,7 @@ export function OrdersListView({ slug }: { slug: string }) {
             <p className="mt-4 text-sm font-semibold text-slate-800 dark:text-zinc-200">{bucket.empty}</p>
             <Link
               href="/explore"
-              className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 px-6 text-sm font-bold text-white shadow-md shadow-indigo-900/25 active:scale-[0.98]"
+              className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gold-500 px-6 text-sm font-bold text-ink shadow-md shadow-gold-900/25 active:scale-[0.98]"
             >
               Start shopping
             </Link>
@@ -155,7 +155,7 @@ function OrderAction({ bucketSlug, reference }: { bucketSlug: string; reference:
       href={action.href}
       className={
         action.solid
-          ? "mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-[13px] font-bold text-white shadow-sm shadow-indigo-900/25 transition-transform active:scale-[0.98]"
+          ? "mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl bg-gold-500 text-[13px] font-bold text-ink shadow-sm shadow-gold-900/25 transition-transform active:scale-[0.98]"
           : "mt-3 inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-[13px] font-bold text-slate-700 transition-transform active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
       }
     >

@@ -17,7 +17,7 @@ export function HeaderCartButton() {
     >
       <ShoppingCart className="h-5 w-5" />
       {cartCount > 0 ? (
-        <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-black">
+        <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold text-ink ring-2 ring-white dark:ring-black">
           {cartCount > 99 ? "99+" : cartCount}
         </span>
       ) : null}

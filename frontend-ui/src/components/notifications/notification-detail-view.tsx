@@ -159,12 +159,12 @@ export function NotificationThreadView({ slug }: { slug: string }) {
                   <div
                     className={
                       message.fromUser
-                        ? "max-w-[80%] rounded-2xl rounded-tr-md bg-gradient-to-br from-indigo-500 to-violet-600 px-3.5 py-2.5 text-white shadow-sm"
+                        ? "max-w-[80%] rounded-2xl rounded-tr-md bg-gold-500 px-3.5 py-2.5 text-ink shadow-sm"
                         : "max-w-[80%] rounded-2xl rounded-tl-md border border-slate-200 bg-white px-3.5 py-2.5 shadow-sm shadow-slate-900/[0.03] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
                     }
                   >
                     {!message.fromUser && message.agentName ? (
-                      <p className="mb-0.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                      <p className="mb-0.5 text-[11px] font-bold text-gold-600 dark:text-gold-400">
                         {message.agentName}
                       </p>
                     ) : null}
@@ -207,7 +207,7 @@ export function NotificationThreadView({ slug }: { slug: string }) {
               type="submit"
               disabled={!draft.trim() || sending}
               aria-label="Send"
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white transition-transform active:scale-95 disabled:opacity-50"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-500 text-ink transition-transform active:scale-95 disabled:opacity-50"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </button>

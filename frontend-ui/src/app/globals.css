@@ -68,6 +68,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* `font-brand` — the serif for the LUXE iT wordmark, so type on screen reads
+   like the logo and the printed shirts. Georgia is the logo's own face, kept
+   as the fallback so the mark still looks right before the webfont loads. */
+.font-brand {
+  font-family: var(--font-brand-serif), Georgia, "Times New Roman", serif;
+}
+
 * {
   box-sizing: border-box;
 }

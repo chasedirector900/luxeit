@@ -23,7 +23,7 @@ import type { CartItem, ShippingMethod } from "@/types/cart";
 
 const CARD = "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/70 dark:shadow-none";
 const FIELD =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-indigo-500";
+  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 
 function formatAddress(a: AddressApi): string {
   return [a.line1, a.city, a.area].filter(Boolean).join(", ");
@@ -212,7 +212,7 @@ export function CheckoutClient() {
         <div className="mt-6 flex w-full max-w-[18rem] flex-col gap-2.5">
           <Link
             href="/account/orders/queue"
-            className="inline-flex h-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98]"
+            className="inline-flex h-12 items-center justify-center rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98]"
           >
             View my orders
           </Link>
@@ -240,7 +240,7 @@ export function CheckoutClient() {
           <p className="mt-1.5 text-[13px] text-slate-500 dark:text-zinc-400">Add items to your cart first.</p>
           <Link
             href="/explore"
-            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 px-6 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-95"
+            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gold-500 px-6 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-95"
           >
             Start Shopping
           </Link>
@@ -254,7 +254,7 @@ export function CheckoutClient() {
       <Header />
 
       {loadError ? (
-        <p className="reveal-up rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] font-medium text-amber-700 dark:text-amber-400">{loadError}</p>
+        <p className="reveal-up rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-[12px] font-medium text-gold-700 dark:text-gold-400">{loadError}</p>
       ) : null}
 
       {/* Deliver to — choose a saved address or add one */}
@@ -265,7 +265,7 @@ export function CheckoutClient() {
             <button
               type="button"
               onClick={() => setAddressSheetOpen(true)}
-              className="inline-flex items-center gap-1 text-[12px] font-semibold text-indigo-600 dark:text-indigo-400"
+              className="inline-flex items-center gap-1 text-[12px] font-semibold text-gold-600 dark:text-gold-400"
             >
               <Plus className="h-3.5 w-3.5" />
               Add new
@@ -285,11 +285,11 @@ export function CheckoutClient() {
                   onClick={() => chooseAddress(addr.id)}
                   className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-transform active:scale-[0.99] ${
                     active
-                      ? "border-indigo-500/60 bg-indigo-500/10 dark:border-indigo-400/50 dark:bg-indigo-500/15"
+                      ? "border-gold-500/60 bg-gold-500/10 dark:border-gold-400/50 dark:bg-gold-500/15"
                       : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
                   }`}
                 >
-                  <span className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${active ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400" : "bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-300"}`}>
+                  <span className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${active ? "bg-gold-500/15 text-gold-600 dark:text-gold-400" : "bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-300"}`}>
                     <MapPin className="h-[17px] w-[17px]" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -297,7 +297,7 @@ export function CheckoutClient() {
                     <span className="mt-0.5 block text-[13px] leading-snug text-slate-600 dark:text-zinc-300">{formatAddress(addr)}</span>
                     {user?.phone ? <span className="mt-0.5 block text-[12px] text-slate-500 dark:text-zinc-400">{user.phone}</span> : null}
                   </span>
-                  {active ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" /> : null}
+                  {active ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-600 dark:text-gold-400" /> : null}
                 </button>
               );
             })}
@@ -320,7 +320,7 @@ export function CheckoutClient() {
         <div className="mb-2.5 flex items-center justify-between">
           <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Payment method</h2>
           {methods.length > 0 ? (
-            <Link href="/account/payment-methods" className="inline-flex items-center gap-1 text-[12px] font-semibold text-indigo-600 dark:text-indigo-400">
+            <Link href="/account/payment-methods" className="inline-flex items-center gap-1 text-[12px] font-semibold text-gold-600 dark:text-gold-400">
               <Plus className="h-3.5 w-3.5" />
               Add new
             </Link>
@@ -341,7 +341,7 @@ export function CheckoutClient() {
                   onClick={() => setSelectedMethodId(method.id)}
                   className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-transform active:scale-[0.99] ${
                     active
-                      ? "border-indigo-500/60 bg-indigo-500/10 dark:border-indigo-400/50 dark:bg-indigo-500/15"
+                      ? "border-gold-500/60 bg-gold-500/10 dark:border-gold-400/50 dark:bg-gold-500/15"
                       : "border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
                   }`}
                 >
@@ -355,7 +355,7 @@ export function CheckoutClient() {
                     </span>
                     <span className="mt-0.5 block text-[12px] text-slate-500 dark:text-zinc-400">{method.detail}</span>
                   </span>
-                  {active ? <Check className="h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" /> : null}
+                  {active ? <Check className="h-4 w-4 shrink-0 text-gold-600 dark:text-gold-400" /> : null}
                 </button>
               );
             })}
@@ -416,7 +416,7 @@ export function CheckoutClient() {
                                 onClick={() => setItemMethod(item, m)}
                                 className={`px-2.5 py-1 text-[11px] font-bold transition-colors ${
                                   on
-                                    ? "bg-indigo-500 text-white"
+                                    ? "bg-gold-500 text-ink"
                                     : "bg-white text-slate-600 dark:bg-zinc-900 dark:text-zinc-400"
                                 }`}
                               >
@@ -464,7 +464,7 @@ export function CheckoutClient() {
           type="button"
           onClick={placeOrder}
           disabled={!canPlace || placing}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
         >
           {placing ? "Placing order…" : `Place order · ${formatKwacha(subtotal)}`}
         </button>
@@ -546,7 +546,7 @@ function AddressSheet({
             <button
               type="button"
               onClick={submit}
-              className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98]"
+              className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98]"
             >
               Save address
             </button>

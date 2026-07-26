@@ -35,7 +35,7 @@ export function CartSummary({ itemCount, subtotal, onClear }: CartSummaryProps) 
       {authed ? (
         <Link
           href="/cart/checkout"
-          className={`${BTN} bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-900/25`}
+          className={`${BTN} bg-gold-500 text-ink shadow-md shadow-gold-900/25`}
         >
           Checkout
         </Link>

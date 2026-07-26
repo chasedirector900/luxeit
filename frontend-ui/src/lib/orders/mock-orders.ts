@@ -32,8 +32,8 @@ export const ORDER_STATUS_META: Record<
   queue: {
     label: "Sourcing",
     description: "Paid — we're buying your items",
-    tint: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-    dot: "bg-amber-500",
+    tint: "bg-gold-500/10 text-gold-600 dark:text-gold-400",
+    dot: "bg-gold-500",
   },
   // The backend's "sourcing" status means the goods are already BOUGHT and
   // waiting for a shipment to depart — hence "Sourced" here.
@@ -46,8 +46,8 @@ export const ORDER_STATUS_META: Record<
   transit: {
     label: "In Transit",
     description: "On its way to you",
-    tint: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
-    dot: "bg-violet-500",
+    tint: "bg-gold-500/10 text-gold-600 dark:text-gold-400",
+    dot: "bg-gold-500",
   },
   delivered: {
     label: "Delivered",

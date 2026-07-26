@@ -58,7 +58,7 @@ export function NotificationBell() {
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">Notifications</p>
                         {totalUnread > 0 ? (
-                          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500/10 px-1.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500/10 px-1.5 text-[11px] font-bold text-gold-600 dark:text-gold-400">
                             {totalUnread}
                           </span>
                         ) : null}
@@ -67,7 +67,7 @@ export function NotificationBell() {
                         <button
                           type="button"
                           onClick={markAllRead}
-                          className="text-[12px] font-semibold text-indigo-600 transition-colors active:text-indigo-500 dark:text-indigo-400"
+                          className="text-[12px] font-semibold text-gold-600 transition-colors active:text-gold-500 dark:text-gold-400"
                         >
                           Mark all read
                         </button>
@@ -87,13 +87,13 @@ export function NotificationBell() {
                                 layout
                                 exit={{ opacity: 0, x: 24 }}
                                 transition={{ duration: 0.18 }}
-                                className={unread ? "bg-indigo-500/[0.05] dark:bg-indigo-500/[0.08]" : ""}
+                                className={unread ? "bg-gold-500/[0.05] dark:bg-gold-500/[0.08]" : ""}
                               >
                                 <div className="flex items-center gap-2.5 px-3 py-3">
                                   <span className={`relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${meta.solid}`}>
                                     <Icon className="h-5 w-5" />
                                     {unread ? (
-                                      <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-indigo-500 px-1 text-[9px] font-bold text-white ring-2 ring-white dark:ring-zinc-950">
+                                      <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[9px] font-bold text-ink ring-2 ring-white dark:ring-zinc-950">
                                         {channel.unreadCount}
                                       </span>
                                     ) : null}
@@ -137,7 +137,7 @@ export function NotificationBell() {
                     <Link
                       href="/account/notifications"
                       onClick={() => setOpen(false)}
-                      className="block shrink-0 border-t border-slate-200 px-4 py-3 text-center text-[13px] font-semibold text-indigo-600 transition-colors active:bg-slate-50 dark:border-zinc-800 dark:text-indigo-400 dark:active:bg-zinc-800/50"
+                      className="block shrink-0 border-t border-slate-200 px-4 py-3 text-center text-[13px] font-semibold text-gold-600 transition-colors active:bg-slate-50 dark:border-zinc-800 dark:text-gold-400 dark:active:bg-zinc-800/50"
                     >
                       See all notifications
                     </Link>

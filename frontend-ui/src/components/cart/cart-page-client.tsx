@@ -46,7 +46,7 @@ export function CartPageClient() {
           style={{ animationDelay: "60ms" }}
           className="reveal-up flex flex-col items-center rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm shadow-slate-900/[0.04] dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-none"
         >
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400">
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-500/10 text-gold-500 dark:text-gold-400">
             <ShoppingCart className="h-7 w-7" strokeWidth={1.8} />
           </span>
           <h2 className="mt-4 text-lg font-extrabold tracking-tight">Your cart is empty</h2>
@@ -55,7 +55,7 @@ export function CartPageClient() {
           </p>
           <Link
             href="/explore"
-            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 px-6 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-95"
+            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-gold-500 px-6 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-95"
           >
             Start Shopping
           </Link>

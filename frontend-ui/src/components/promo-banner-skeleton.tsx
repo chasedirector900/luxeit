@@ -19,7 +19,7 @@ export function PromoBannerSkeleton() {
         <SideCardSkeleton glowClass="bg-[radial-gradient(circle_at_20%_10%,rgba(59,130,246,0.14),transparent_36%),radial-gradient(circle_at_85%_85%,rgba(148,163,184,0.14),transparent_34%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(59,130,246,0.24),transparent_36%),radial-gradient(circle_at_85%_85%,rgba(148,163,184,0.2),transparent_34%)]" />
       </div>
 
-      <section className="relative overflow-hidden rounded-3xl border border-slate-300/80 bg-slate-100/90 p-4 shadow-[0_12px_36px_rgba(15,23,42,0.16)] backdrop-blur-md lg:col-span-2 dark:border-indigo-300/20 dark:bg-slate-900/80 dark:shadow-[0_20px_60px_rgba(17,24,39,0.6)]">
+      <section className="relative overflow-hidden rounded-3xl border border-slate-300/80 bg-slate-100/90 p-4 shadow-[0_12px_36px_rgba(15,23,42,0.16)] backdrop-blur-md lg:col-span-2 dark:border-gold-300/20 dark:bg-slate-900/80 dark:shadow-[0_20px_60px_rgba(17,24,39,0.6)]">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_25%_15%,rgba(56,189,248,0.12),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(147,51,234,0.11),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(59,130,246,0.1),transparent_40%)] dark:bg-[radial-gradient(circle_at_25%_15%,rgba(56,189,248,0.16),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(147,51,234,0.16),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(59,130,246,0.14),transparent_40%)]" />
         <div className="relative z-10 animate-pulse">
           <div className="mx-auto mb-2 h-4 w-20 rounded-full bg-zinc-200/60 dark:bg-white/5" />

@@ -93,7 +93,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search reviews"
             aria-label="Search reviews"
-            className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-10 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-indigo-500"
+            className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-10 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
           />
           {query ? (
             <button
@@ -119,7 +119,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                   onClick={() => setQuery(active ? "" : tag.label)}
                   className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                     active
-                      ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400/50 dark:bg-indigo-500/15 dark:text-indigo-300"
+                      ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
                       : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                   }`}
                 >
@@ -142,7 +142,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                 onClick={() => setSort(option.key)}
                 className={`whitespace-nowrap rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-transform duration-100 active:scale-95 ${
                   active
-                    ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400/50 dark:bg-indigo-500/15 dark:text-indigo-300"
+                    ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
                     : "border-slate-200 bg-white text-slate-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                 }`}
               >
@@ -164,7 +164,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                   return (
                     <Star
                       key={idx}
-                      className={`h-3.5 w-3.5 ${filled ? "fill-amber-400 text-amber-400" : "text-slate-300 dark:text-zinc-600"}`}
+                      className={`h-3.5 w-3.5 ${filled ? "fill-amber-400 text-gold-400" : "text-slate-300 dark:text-zinc-600"}`}
                     />
                   );
                 })}
@@ -186,12 +186,12 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                     onClick={() => setRatingFilter(active ? null : level)}
                     className="grid w-full grid-cols-[12px_1fr] items-center gap-2 transition-transform active:scale-[0.99]"
                   >
-                    <span className={`text-[11px] font-semibold ${active ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-zinc-400"}`}>
+                    <span className={`text-[11px] font-semibold ${active ? "text-gold-600 dark:text-gold-400" : "text-slate-500 dark:text-zinc-400"}`}>
                       {level}
                     </span>
                     <span className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-zinc-800">
                       <span
-                        className={`block h-full rounded-full ${active ? "bg-indigo-600 dark:bg-indigo-400" : "bg-indigo-500/70 dark:bg-indigo-500/60"}`}
+                        className={`block h-full rounded-full ${active ? "bg-gold-500 dark:bg-gold-400" : "bg-gold-500/70 dark:bg-gold-500/60"}`}
                         style={{ width: `${Math.max(2, width)}%` }}
                       />
                     </span>
@@ -215,7 +215,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
             <button
               type="button"
               onClick={clearFilters}
-              className="inline-flex items-center gap-1 text-[12px] font-semibold text-indigo-600 transition-transform active:scale-95 dark:text-indigo-400"
+              className="inline-flex items-center gap-1 text-[12px] font-semibold text-gold-600 transition-transform active:scale-95 dark:text-gold-400"
             >
               <X className="h-3.5 w-3.5" />
               Clear filters
@@ -232,7 +232,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
               return (
                 <article key={review.id} className={CARD_CLASS}>
                   <div className="mb-2.5 flex items-center gap-2.5">
-                    <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-sm font-bold text-indigo-600 dark:text-indigo-300">
+                    <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold-500/10 text-sm font-bold text-gold-600 dark:text-gold-300">
                       {review.avatarInitial ?? review.userName.charAt(0)}
                     </div>
                     <div className="min-w-0">
@@ -250,7 +250,7 @@ export function ReviewsRatingView({ title, ratings, backHref, productSlug }: Rev
                           {Array.from({ length: 5 }).map((_, idx) => (
                             <Star
                               key={idx}
-                              className={`h-3 w-3 ${idx < review.rating ? "fill-amber-400 text-amber-400" : "text-slate-300 dark:text-zinc-600"}`}
+                              className={`h-3 w-3 ${idx < review.rating ? "fill-amber-400 text-gold-400" : "text-slate-300 dark:text-zinc-600"}`}
                             />
                           ))}
                         </div>

@@ -87,7 +87,7 @@ export function ListingFilterSheet() {
         <Filter className="h-[18px] w-[18px]" />
         Filter
         {hasActiveFilters ? (
-          <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-indigo-500 ring-2 ring-slate-50 dark:ring-black" />
+          <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-gold-500 ring-2 ring-slate-50 dark:ring-black" />
         ) : null}
       </button>
 
@@ -136,7 +136,7 @@ export function ListingFilterSheet() {
                             onClick={() => setPendingSort(option.key)}
                             className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition-colors active:scale-[0.99] ${
                               selected
-                                ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400/50 dark:bg-indigo-500/15 dark:text-indigo-300"
+                                ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
                                 : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                             }`}
                           >
@@ -158,7 +158,7 @@ export function ListingFilterSheet() {
                             onClick={() => setPendingPrice(option.key)}
                             className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition-colors active:scale-[0.99] ${
                               selected
-                                ? "border-indigo-500/60 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400/50 dark:bg-indigo-500/15 dark:text-indigo-300"
+                                ? "border-gold-500/60 bg-gold-500/10 text-gold-600 dark:border-gold-400/50 dark:bg-gold-500/15 dark:text-gold-300"
                                 : "border-slate-200 bg-white text-slate-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                             }`}
                           >
@@ -184,7 +184,7 @@ export function ListingFilterSheet() {
                       <button
                         type="button"
                         onClick={closeSheet}
-                        className="flex-1 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 py-3 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98]"
+                        className="flex-1 rounded-xl bg-gold-500 py-3 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98]"
                       >
                         Show results
                       </button>

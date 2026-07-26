@@ -116,9 +116,9 @@ export function FullScreenSearch({ isOpen, onClose }: FullScreenSearchProps) {
                   </div>
                 </div>
 
-                <div className="group flex flex-col justify-between rounded-2xl border border-amber-500/10 bg-amber-500/[0.02] p-5 dark:border-amber-400/10 dark:bg-amber-400/[0.02]">
+                <div className="group flex flex-col justify-between rounded-2xl border border-gold-500/10 bg-gold-500/[0.02] p-5 dark:border-gold-400/10 dark:bg-gold-400/[0.02]">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/20 bg-amber-500/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-gold-500/20 bg-gold-500/[0.06] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-700 dark:text-gold-400">
                       <Sparkles className="h-3 w-3" /> AI Copilot
                     </span>
                     <h4 className="mt-3 text-lg font-semibold">Find products with natural language</h4>
@@ -126,7 +126,7 @@ export function FullScreenSearch({ isOpen, onClose }: FullScreenSearchProps) {
                       Ask for style, budget, or occasion and get curated luxury picks instantly.
                     </p>
                   </div>
-                  <button className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-amber-700 transition-colors group-hover:text-amber-600 dark:text-amber-400 dark:group-hover:text-amber-300">
+                  <button className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-gold-700 transition-colors group-hover:text-gold-600 dark:text-gold-400 dark:group-hover:text-gold-300">
                     Try Smart Search <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>

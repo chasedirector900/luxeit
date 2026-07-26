@@ -120,7 +120,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
               ? "bg-gradient-to-br from-rose-500 to-rose-700 shadow-rose-900/25"
               : delivered
                 ? "bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-emerald-900/25"
-                : "bg-gradient-to-br from-indigo-500 to-violet-600 shadow-indigo-900/25"
+                : "bg-gold-500 shadow-gold-900/25"
           }`}
         >
           <p className="text-[11px] font-bold uppercase tracking-widest text-white/80">{order.id}</p>
@@ -134,7 +134,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
         {/* Shipping address */}
         {order.shippingAddress ? (
           <section style={{ animationDelay: "100ms" }} className={`reveal-up ${CARD} flex items-start gap-3 p-4`}>
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gold-500/10 text-gold-500 dark:text-gold-400">
               <MapPin className="h-[18px] w-[18px]" />
             </span>
             <div className="min-w-0">
@@ -153,7 +153,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
             <section key={`${sh.label}-${si}`} style={{ animationDelay: `${140 + si * 60}ms` }} className={`reveal-up ${CARD} p-4`}>
               <div className="flex items-center justify-between gap-2">
                 <span className="inline-flex items-center gap-1.5 text-sm font-extrabold text-slate-900 dark:text-zinc-100">
-                  <CarrierIcon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                  <CarrierIcon className="h-4 w-4 text-gold-500 dark:text-gold-400" />
                   {sh.label || "Your order"}
                 </span>
                 <span
@@ -162,7 +162,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
                       ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                       : shCancelled
                         ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                        : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                        : "bg-gold-500/10 text-gold-600 dark:text-gold-400"
                   }`}
                 >
                   {sh.statusLabel}
@@ -195,7 +195,7 @@ export function OrderTrackingView({ reference }: { reference: string }) {
                     {item.reviewable && item.slug && item.categorySlug ? (
                       <Link
                         href={`/category/${item.categorySlug}/product/${item.slug}/reviews-rating`}
-                        className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-bold text-indigo-600 transition-transform active:scale-95 dark:text-indigo-400"
+                        className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-gold-500/40 bg-gold-500/10 px-2.5 py-1.5 text-[11px] font-bold text-gold-600 transition-transform active:scale-95 dark:text-gold-400"
                       >
                         <Star className="h-3.5 w-3.5" />
                         Review
@@ -275,7 +275,7 @@ function ShipmentTimeline({
                 done
                   ? "bg-emerald-500 text-white"
                   : current
-                    ? "bg-indigo-500 text-white ring-4 ring-indigo-500/20"
+                    ? "bg-gold-500 text-ink ring-4 ring-gold-500/20"
                     : "bg-slate-100 text-slate-400 dark:bg-zinc-800 dark:text-zinc-500"
               }`}
             >
@@ -290,7 +290,7 @@ function ShipmentTimeline({
               </div>
               <p className="mt-0.5 text-[11px] text-slate-500 dark:text-zinc-400">{stage.desc}</p>
               {current ? (
-                <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gold-500/10 px-2 py-0.5 text-[10px] font-bold text-gold-600 dark:text-gold-400">
                   In progress
                 </span>
               ) : null}

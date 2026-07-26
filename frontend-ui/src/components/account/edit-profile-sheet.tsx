@@ -18,7 +18,7 @@ type EditProfileSheetProps = {
 };
 
 const FIELD_CLASS =
-  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-indigo-500";
+  "h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-gold-500";
 const LABEL_TEXT = "text-[12px] font-semibold text-slate-600 dark:text-zinc-400";
 const LABEL_CLASS = `mb-1.5 block ${LABEL_TEXT}`;
 
@@ -33,7 +33,7 @@ function VerifiedPill() {
 
 function RecommendedPill() {
   return (
-    <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2 py-0.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+    <span className="inline-flex items-center rounded-full bg-gold-500/10 px-2 py-0.5 text-[11px] font-bold text-gold-600 dark:text-gold-400">
       Recommended
     </span>
   );
@@ -190,7 +190,7 @@ export function EditProfileSheet({
               <button
                 type="button"
                 onClick={handleSave}
-                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-md shadow-indigo-900/25 transition-transform duration-100 active:scale-[0.98]"
+                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-gold-500 text-sm font-bold text-ink shadow-md shadow-gold-900/25 transition-transform duration-100 active:scale-[0.98]"
               >
                 Save changes
               </button>

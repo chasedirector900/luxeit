@@ -72,7 +72,7 @@ export function MobileSettingsDrawer({ open, onClose }: MobileSettingsDrawerProp
                 <span className="inline-flex items-center gap-3">
                   <span
                     className={`inline-flex h-6 w-6 items-center justify-center rounded-lg transition-colors ${
-                      isDark ? "bg-violet-500/10 text-violet-400" : "bg-amber-500/10 text-amber-600"
+                      isDark ? "bg-gold-500/10 text-gold-400" : "bg-gold-500/10 text-gold-600"
                     }`}
                   >
                     {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}

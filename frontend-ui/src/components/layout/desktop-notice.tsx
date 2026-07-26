@@ -1,6 +1,7 @@
 "use client";
 
 import { Smartphone } from "lucide-react";
+import { LuxeitLogo } from "@/components/brand/luxeit-logo";
 import { useEffect, useState } from "react";
 
 // Flip this on (set NEXT_PUBLIC_DESKTOP_READY=true in Vercel) to retire the
@@ -39,11 +40,9 @@ export function DesktopNotice() {
   return (
     <div className="fixed inset-0 z-[9998] hidden flex-col items-center justify-center bg-slate-50 px-8 text-center text-slate-900 md:flex dark:bg-black dark:text-zinc-100">
       <div className="mx-auto max-w-md">
-        <p className="text-2xl font-black tracking-[0.35em]">
-          LUXE<span className="text-amber-500">IT</span>
-        </p>
+        <LuxeitLogo size={72} className="mx-auto rounded-2xl" />
 
-        <span className="mx-auto mt-10 grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-900/25">
+        <span className="mx-auto mt-10 grid h-20 w-20 place-items-center rounded-3xl bg-gold-500 text-ink shadow-lg shadow-gold-900/25">
           <Smartphone className="h-10 w-10" strokeWidth={1.75} />
         </span>
 
