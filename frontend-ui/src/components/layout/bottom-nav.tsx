@@ -156,7 +156,7 @@ export function BottomNav() {
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-14 flex-col items-center justify-center rounded-xl transition ${
                   active
-                    ? "text-amber-700 dark:text-amber-400"
+                    ? "text-gold-700 dark:text-gold-400"
                     : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-zinc-300 dark:hover:bg-background/70 dark:hover:text-foreground"
                 }`}
               >
@@ -175,7 +175,7 @@ export function BottomNav() {
                 </span>
                 <span
                   className={`mt-1 h-0.5 w-5 rounded-full ${
-                    active ? "bg-amber-600 dark:bg-amber-400" : "bg-transparent"
+                    active ? "bg-gold-600 dark:bg-gold-400" : "bg-transparent"
                   }`}
                 />
               </Link>

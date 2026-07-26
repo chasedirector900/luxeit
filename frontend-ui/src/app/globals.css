@@ -14,7 +14,7 @@
   --border-strong: rgba(17, 18, 23, 0.24);
   --primary: #111217;
   --primary-foreground: #f5f7fb;
-  --accent: #c78400;
+  --accent: #b8860b; /* gold-600 — readable on light */
 }
 
 :root.dark {
@@ -29,7 +29,27 @@
   --border-strong: rgba(255, 255, 255, 0.24);
   --primary: #fafafa;
   --primary-foreground: #050505;
-  --accent: #f2a313;
+  --accent: #d4af37; /* gold-500 — brand gold */
+}
+
+/* LUXE iT brand palette — the gold of the logo/shirts on near-black. The stops
+   are taken straight from the logo's gold gradient, so the app, the icon and
+   the printed branding all match. Use `gold-500` for primary accents. */
+@theme {
+  --color-gold-50: #fbf6e4;
+  --color-gold-100: #f8e7a1;
+  --color-gold-200: #f2da85;
+  --color-gold-300: #e9c95f;
+  --color-gold-400: #dfbb48;
+  --color-gold-500: #d4af37;
+  --color-gold-600: #b8860b;
+  --color-gold-700: #8f6a09;
+  --color-gold-800: #6b5007;
+  --color-gold-900: #4a3705;
+  --color-gold-950: #2a1f03;
+
+  /* The near-black the logo sits on. */
+  --color-ink: #0a0a0a;
 }
 
 @theme inline {

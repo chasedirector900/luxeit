@@ -101,10 +101,10 @@ export function HomeTopPickCard({ product }: HomeTopPickCardProps) {
               });
               setAdded(true);
             }}
-            className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-md transition-colors ${
+            className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-md transition-colors ${
               added
-                ? "bg-emerald-500 shadow-emerald-900/20"
-                : "bg-gradient-to-br from-indigo-500 to-violet-600 shadow-indigo-900/25"
+                ? "bg-emerald-500 text-white shadow-emerald-900/20"
+                : "bg-gold-500 text-ink shadow-gold-900/25"
             }`}
           >
             {added ? <Check className="h-[17px] w-[17px]" /> : <ShoppingCart className="h-[17px] w-[17px]" />}

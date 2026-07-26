@@ -67,25 +67,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <>
             <section
               style={{ animationDelay: "120ms" }}
-              className="reveal-up relative overflow-hidden rounded-[1.75rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-emerald-50 to-amber-50 p-5 shadow-sm shadow-emerald-900/[0.04] dark:border-emerald-900/40 dark:from-emerald-950/50 dark:via-emerald-950/30 dark:to-amber-950/20 dark:shadow-none"
+              className="reveal-up relative overflow-hidden rounded-[1.75rem] border border-gold-600/30 bg-gradient-to-br from-ink via-ink to-gold-950 p-5 shadow-sm shadow-black/20 dark:border-gold-600/40 dark:shadow-none"
             >
               {/* Decorative glows — pure CSS, transform-gpu, no repaint */}
-              <div className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-emerald-300/30 blur-3xl transform-gpu dark:bg-emerald-500/10" />
-              <div className="pointer-events-none absolute -bottom-12 -right-6 h-36 w-36 rounded-full bg-amber-300/30 blur-3xl transform-gpu dark:bg-amber-500/10" />
+              <div className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-gold-500/20 blur-3xl transform-gpu" />
+              <div className="pointer-events-none absolute -bottom-12 -right-6 h-36 w-36 rounded-full bg-gold-600/15 blur-3xl transform-gpu" />
 
               <div className="relative max-w-[85%]">
-                <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-800 shadow-sm dark:bg-zinc-900 dark:text-emerald-300 dark:shadow-none">
+                <span className="inline-flex items-center gap-1 rounded-full bg-gold-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gold-300 ring-1 ring-inset ring-gold-500/30">
                   Imported from China
                 </span>
-                <h2 className="mt-2.5 text-[1.9rem] font-black leading-[1.0] tracking-tight text-emerald-900 dark:text-emerald-50">
-                  Smart deals from China
+                <h2 className="mt-2.5 text-[1.9rem] font-black leading-[1.0] tracking-tight text-white">
+                  Smart deals from <span className="text-gold-400">China</span>
                 </h2>
-                <p className="mt-2 text-[13px] leading-relaxed text-emerald-900/75 dark:text-emerald-100/65">
+                <p className="mt-2 text-[13px] leading-relaxed text-zinc-300/80">
                   Quality products. Affordable prices. Delivered to your door in Zambia.
                 </p>
                 <Link
                   href="/explore/search"
-                  className="mt-4 inline-flex h-10 items-center gap-2 rounded-full bg-emerald-800 px-5 text-sm font-bold text-white shadow-md shadow-emerald-900/20 transition-transform duration-100 active:scale-[0.97] dark:bg-emerald-600 dark:shadow-emerald-950/40"
+                  className="mt-4 inline-flex h-10 items-center gap-2 rounded-full bg-gold-500 px-5 text-sm font-bold text-ink shadow-md shadow-gold-900/30 transition-transform duration-100 active:scale-[0.97]"
                 >
                   Shop Now
                   <ArrowRight className="h-4 w-4" />
@@ -93,10 +93,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               </div>
 
               <div className="relative mt-5 flex items-center gap-1.5">
-                <span className="h-1.5 w-5 rounded-full bg-emerald-700 dark:bg-emerald-400" />
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 dark:bg-emerald-800" />
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 dark:bg-emerald-800" />
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 dark:bg-emerald-800" />
+                <span className="h-1.5 w-5 rounded-full bg-gold-500" />
+                <span className="h-1.5 w-1.5 rounded-full bg-gold-500/30" />
+                <span className="h-1.5 w-1.5 rounded-full bg-gold-500/30" />
+                <span className="h-1.5 w-1.5 rounded-full bg-gold-500/30" />
               </div>
             </section>
 
@@ -108,7 +108,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 </div>
                 <Link
                   href="/explore/search"
-                  className="inline-flex items-center gap-1 text-[13px] font-semibold text-emerald-800 transition-colors active:text-emerald-600 dark:text-emerald-400"
+                  className="inline-flex items-center gap-1 text-[13px] font-semibold text-gold-700 transition-colors active:text-gold-500 dark:text-gold-400"
                 >
                   See all
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -118,20 +118,20 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </section>
 
             <section style={{ animationDelay: "300ms" }} className="reveal-up grid grid-cols-2 gap-3">
-              <article className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-emerald-100 p-3.5 shadow-sm shadow-emerald-900/[0.04] dark:border-emerald-900/40 dark:from-emerald-950/40 dark:to-emerald-900/20 dark:shadow-none">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white shadow-md shadow-emerald-900/20">
+              <article className="rounded-2xl border border-gold-200/70 bg-gradient-to-br from-gold-50 to-gold-100 p-3.5 shadow-sm shadow-gold-900/[0.04] dark:border-gold-800/40 dark:from-gold-950/50 dark:to-gold-900/20 dark:shadow-none">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gold-500 text-ink shadow-md shadow-gold-900/25">
                   <Truck className="h-5 w-5" />
                 </span>
-                <p className="mt-2.5 text-base font-extrabold leading-tight text-emerald-900 dark:text-emerald-100">Fast delivery</p>
-                <p className="mt-0.5 text-[12px] leading-snug text-emerald-900/70 dark:text-emerald-100/65">Across Zambia · 2–5 days</p>
+                <p className="mt-2.5 text-base font-extrabold leading-tight text-gold-900 dark:text-gold-100">Fast delivery</p>
+                <p className="mt-0.5 text-[12px] leading-snug text-gold-900/70 dark:text-gold-100/60">Across Zambia · 2–5 days</p>
               </article>
 
-              <article className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-amber-100 p-3.5 shadow-sm shadow-amber-900/[0.04] dark:border-amber-900/40 dark:from-amber-950/40 dark:to-amber-900/20 dark:shadow-none">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-900/20">
+              <article className="rounded-2xl border border-gold-200/70 bg-gradient-to-br from-gold-50 to-gold-100 p-3.5 shadow-sm shadow-gold-900/[0.04] dark:border-gold-800/40 dark:from-gold-950/50 dark:to-gold-900/20 dark:shadow-none">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gold-500 text-ink shadow-md shadow-gold-900/25">
                   <Tag className="h-5 w-5" />
                 </span>
-                <p className="mt-2.5 text-base font-extrabold leading-tight text-amber-900 dark:text-amber-100">Weekly Deals</p>
-                <p className="mt-0.5 text-[12px] leading-snug text-amber-900/70 dark:text-amber-100/65">New every week · Up to 40% off</p>
+                <p className="mt-2.5 text-base font-extrabold leading-tight text-gold-900 dark:text-gold-100">Weekly Deals</p>
+                <p className="mt-0.5 text-[12px] leading-snug text-gold-900/70 dark:text-gold-100/60">New every week · Up to 40% off</p>
               </article>
             </section>
           </>

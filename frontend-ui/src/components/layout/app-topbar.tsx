@@ -53,8 +53,8 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
       <button type="button" aria-label="Toggle menu" onClick={onToggleSidebar} className={iconBtn}>
         <Menu className="h-5 w-5" />
       </button>
-      <Link href="/" className="text-[1.4rem] font-black leading-none tracking-tight text-emerald-900 dark:text-emerald-300">
-        Luxe<span className="text-amber-500">it</span>
+      <Link href="/" className="text-[1.4rem] font-black leading-none tracking-tight text-gold-600 dark:text-gold-500">
+        LUXE<span className="text-slate-500 dark:text-zinc-300">iT</span>
       </Link>
 
       {/* Search — click opens the full-screen search overlay */}
@@ -93,7 +93,7 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
         <Link
           href="/account"
           aria-label="Account"
-          className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-sm"
+          className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-gold-500 text-sm font-bold text-ink shadow-sm"
         >
           {status === "authenticated" ? initial : "?"}
         </Link>
