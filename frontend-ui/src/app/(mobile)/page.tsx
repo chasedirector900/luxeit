@@ -96,11 +96,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </section>
 
             <section style={{ animationDelay: "240ms" }} className="reveal-up">
-              <div className="mb-3 flex items-end justify-between">
-                <div>
-                  <h3 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">Top Picks for You</h3>
-                  <p className="mt-0.5 text-[12px] text-slate-500 dark:text-zinc-500">Personalised · refreshes every visit</p>
-                </div>
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">Top Picks for You</h3>
                 <Link
                   href="/explore/search"
                   className="inline-flex items-center gap-1 text-[13px] font-semibold text-gold-700 transition-colors active:text-gold-500 dark:text-gold-400"

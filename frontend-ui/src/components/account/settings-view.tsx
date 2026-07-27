@@ -27,7 +27,6 @@ const ROW_CLASS = "flex w-full items-center gap-3 px-4 py-3.5 text-left transiti
 const ROW_ICON = "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300";
 const SECTION = "mb-2 px-1 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500";
 
-const APP_VERSION = "1.0.0";
 
 const PREF_ROWS: { key: keyof NotificationPrefs; label: string; desc: string }[] = [
   { key: "promotions", label: "Promotions & deals", desc: "Weekly offers and new arrivals" },
@@ -176,19 +175,6 @@ export function SettingsView() {
               <span className="flex-1 text-sm font-semibold text-slate-800 dark:text-zinc-200">Privacy policy</span>
               <ChevronRight className="h-4 w-4 text-slate-300 dark:text-zinc-600" />
             </Link>
-          </div>
-        </section>
-
-        {/* About */}
-        <section style={{ animationDelay: "180ms" }} className="reveal-up">
-          <h2 className={SECTION}>About</h2>
-          <div className={`${CARD} flex items-center gap-3 px-4 py-3.5`}>
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-[13px] font-black text-white">L</span>
-            <span className="flex-1">
-              <span className="block text-sm font-semibold text-slate-800 dark:text-zinc-200">Luxeit</span>
-              <span className="block text-[12px] text-slate-500 dark:text-zinc-400">China imports to Zambia, shipping included</span>
-            </span>
-            <span className="shrink-0 text-[12px] font-medium text-slate-400 dark:text-zinc-500">v{APP_VERSION}</span>
           </div>
         </section>
 
