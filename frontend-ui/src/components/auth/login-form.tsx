@@ -248,7 +248,7 @@ export function LoginForm() {
 
       {/* Brand + heading */}
       <div className="mb-7 text-center">
-        <LuxeitLogo size={72} priority className="mx-auto rounded-2xl" />
+        <LuxeitLogo size={92} priority className="mx-auto rounded-2xl" />
         <h1 className="mt-5 text-xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100">
           {step === "identify" ? "Sign in or sign up" : "Enter your code"}
         </h1>

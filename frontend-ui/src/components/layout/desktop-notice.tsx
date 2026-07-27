@@ -40,7 +40,7 @@ export function DesktopNotice() {
   return (
     <div className="fixed inset-0 z-[9998] hidden flex-col items-center justify-center bg-slate-50 px-8 text-center text-slate-900 md:flex dark:bg-black dark:text-zinc-100">
       <div className="mx-auto max-w-md">
-        <LuxeitLogo size={72} className="mx-auto rounded-2xl" />
+        <LuxeitLogo size={104} className="mx-auto rounded-2xl" />
 
         <span className="mx-auto mt-10 grid h-20 w-20 place-items-center rounded-3xl bg-gold-500 text-ink shadow-lg shadow-gold-900/25">
           <Smartphone className="h-10 w-10" strokeWidth={1.75} />

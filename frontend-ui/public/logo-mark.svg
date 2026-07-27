@@ -1,0 +1,43 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    LUXE iT logomark — the badge reduced to what survives at UI sizes.
+
+    The full logo (icon.svg) carries "ACCESSORIES" and a "ZM" tag, which render
+    under 2px in a header and turn into a grey smudge that reads as blur. This
+    mark drops them and enlarges the wordmark instead, so the brand stays sharp
+    from ~40px up. Use icon.svg where the logo is shown large (favicon, share
+    image, splash), and this mark in the interface.
+  -->
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8E7A1"/>
+      <stop offset="40%" stop-color="#D4AF37"/>
+      <stop offset="70%" stop-color="#B8860B"/>
+      <stop offset="100%" stop-color="#FFE08A"/>
+    </linearGradient>
+
+    <linearGradient id="silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#E4E4E4"/>
+      <stop offset="100%" stop-color="#AFAFAF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#0A0A0A"/>
+
+  <!-- Ring, thickened so it holds its weight when scaled down. -->
+  <circle cx="256" cy="256" r="196" fill="none" stroke="url(#gold)" stroke-width="14"/>
+
+  <!-- Wordmark: sized to sit inside the ring with breathing room, and
+       larger than in the full badge now that it stands alone. -->
+  <text
+      x="256"
+      y="283"
+      text-anchor="middle"
+      font-size="77"
+      font-family="Georgia, 'Times New Roman', serif"
+      font-weight="700"
+      letter-spacing="2">
+      <tspan fill="url(#gold)">LUXE</tspan><tspan fill="url(#silver)">iT</tspan>
+  </text>
+</svg>

@@ -55,7 +55,7 @@ export function AppTopbar({ onToggleSidebar, onOpenSearch }: { onToggleSidebar: 
         <Menu className="h-5 w-5" />
       </button>
       <Link href="/" aria-label="Luxeit home" className="flex items-center gap-2">
-        <LuxeitLogo size={34} priority className="rounded-lg" />
+        <LuxeitLogo size={40} priority className="rounded-lg" />
         <span className="font-brand text-[1.3rem] font-black leading-none tracking-tight text-gold-600 dark:text-gold-500">
           LUXE<span className="text-slate-500 dark:text-zinc-300">iT</span>
         </span>
