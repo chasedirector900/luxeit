@@ -3,7 +3,6 @@ import { ArrowRight, SearchX, Tag, Truck } from "lucide-react";
 import { HomeTopPickCard } from "@/components/home/home-top-pick-card";
 import { PersonalizedFeed } from "@/components/home/personalized-feed";
 import { MobileHomeHeader } from "@/components/home/mobile-home-header";
-import { InlineSearchInput } from "@/components/search/inline-search-input";
 import { fetchProducts } from "@/lib/category/api";
 
 type HomePageProps = {
@@ -25,14 +24,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <main className="min-h-screen bg-slate-50 px-3 pb-6 pt-3 text-slate-900 md:px-6 dark:bg-black dark:text-zinc-100">
       <div className="mx-auto w-full max-w-md space-y-5 md:max-w-6xl">
-        {/* Logo + bell live in the desktop top bar, so hide this on md+. */}
+        {/* Brand, search and bell share one row. The desktop top bar owns all
+            three on md+, so this whole block is mobile-only. */}
         <div className="reveal-up md:hidden">
-          <MobileHomeHeader />
-        </div>
-
-        {/* The desktop top bar owns search, so this inline box is mobile-only. */}
-        <div style={{ animationDelay: "60ms" }} className="reveal-up md:hidden">
-          <InlineSearchInput initialQuery={query} placeholder="Search products, brands, and more" />
+          <MobileHomeHeader query={query} />
         </div>
 
         {isSearching ? (

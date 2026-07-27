@@ -45,7 +45,7 @@ export function InlineSearchInput({ initialQuery, placeholder = "Search products
         placeholder={placeholder}
         aria-label={placeholder}
         autoComplete="off"
-        className="h-12 w-full rounded-xl border border-gold-200/70 bg-white pl-11 pr-10 text-sm text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500"
+        className={`h-12 w-full rounded-xl border border-gold-200/70 bg-white pl-11 text-sm ${value || isPending ? "pr-10" : "pr-4"} text-slate-900 shadow-sm shadow-slate-900/[0.03] outline-none transition-colors placeholder:text-slate-400 focus:border-gold-400 dark:border-gold-900/40 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-none dark:placeholder:text-zinc-500 dark:focus:border-gold-500`}
       />
       {isPending ? (
         <Loader2 className="pointer-events-none absolute right-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 animate-spin text-slate-400 dark:text-zinc-500" />
