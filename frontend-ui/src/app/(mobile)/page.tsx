@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, SearchX, Tag, Truck } from "lucide-react";
+import { LuxeitLogo } from "@/components/brand/luxeit-logo";
 import { HomeTopPickCard } from "@/components/home/home-top-pick-card";
 import { PersonalizedFeed } from "@/components/home/personalized-feed";
 import { MobileHomeHeader } from "@/components/home/mobile-home-header";
@@ -68,11 +69,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <div className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-gold-500/20 blur-3xl transform-gpu" />
               <div className="pointer-events-none absolute -bottom-12 -right-6 h-36 w-36 rounded-full bg-gold-600/15 blur-3xl transform-gpu" />
 
-              <div className="relative max-w-[85%]">
+              {/* The full emblem lives here rather than in the header: at this
+                  size its detail ("ACCESSORIES", the country tag) actually
+                  reads, and the glows above sit behind it like a spotlight. */}
+              <LuxeitLogo
+                variant="full"
+                size={132}
+                priority
+                className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-[1.5rem] min-[340px]:block md:right-8 md:size-44"
+              />
+
+              {/* Full width on the narrowest phones, where the emblem is hidden
+                  and the copy should use the space it frees. */}
+              <div className="relative max-w-full min-[340px]:max-w-[58%] md:max-w-[70%]">
                 <span className="inline-flex items-center gap-1 rounded-full bg-gold-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gold-300 ring-1 ring-inset ring-gold-500/30">
                   Imported from China
                 </span>
-                <h2 className="mt-2.5 text-[1.9rem] font-black leading-[1.0] tracking-tight text-white">
+                <h2 className="mt-2.5 text-[1.6rem] font-black leading-[1.05] tracking-tight text-white md:text-[2.1rem]">
                   Smart deals from <span className="text-gold-400">China</span>
                 </h2>
                 <p className="mt-2 text-[13px] leading-relaxed text-zinc-300/80">
