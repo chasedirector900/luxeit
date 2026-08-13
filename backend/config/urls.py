@@ -20,8 +20,15 @@ from django.contrib import admin
 from django.urls import include, path
 
 from config import admin_config  # noqa: F401  (applies admin branding + ordering)
+from users import staff_auth
 
 urlpatterns = [
+    # Passwordless admin sign-in (email OTP / Google) — must come before the
+    # admin's own urls since it posts to these from admin/login.html, and
+    # these views themselves are pre-login (no admin_view() wrapper).
+    path('admin/login/otp/request/', staff_auth.staff_otp_request, name='staff_otp_request'),
+    path('admin/login/otp/verify/', staff_auth.staff_otp_verify, name='staff_otp_verify'),
+    path('admin/login/google/', staff_auth.staff_google_login, name='staff_google_login'),
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
     path('api/inbox/', include('messaging.urls')),

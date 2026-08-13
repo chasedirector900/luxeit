@@ -194,6 +194,7 @@ TEMPLATES = [
                 'orders.context_processors.fulfilment_badges',
                 'products.context_processors.review_badges',
                 'messaging.context_processors.support_badges',
+                'users.context_processors.google_client_id',
             ],
         },
     },
