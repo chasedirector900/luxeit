@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils.html import format_html, format_html_join
 
 from .models import LoginCode, User
 
@@ -33,23 +34,60 @@ class SuperuserOnlyAdmin:
 @admin.register(User)
 class UserAdmin(SuperuserOnlyAdmin, BaseUserAdmin):
     ordering = ("-date_joined",)
-    list_display = ("id", "email", "phone", "full_name", "is_active", "is_staff", "date_joined")
+    list_display = ("id", "email", "phone", "full_name", "is_active", "is_staff", "last_login", "date_joined")
     list_filter = ("is_active", "is_staff", "is_superuser", "email_verified", "phone_verified")
     search_fields = ("email", "phone", "full_name")
-    readonly_fields = ("date_joined", "last_login")
+    readonly_fields = ("date_joined", "last_login", "login_activity")
+
+    class Media:
+        # No-ops on the change form (no password1/password2 there) — only
+        # active on "Add user", where it adds the Generate-password button.
+        js = ("users/js/generate_password.js",)
 
     fieldsets = (
         (None, {"fields": ("email", "phone", "password")}),
         ("Profile", {"fields": ("full_name", "email_verified", "phone_verified")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
-        ("Dates", {"fields": ("last_login", "date_joined")}),
+        ("Permissions", {
+            "fields": ("is_active", "is_staff", "is_superuser", "must_change_password", "groups", "user_permissions"),
+        }),
+        ("Dates & activity", {"fields": ("last_login", "date_joined", "login_activity")}),
     )
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
-            "fields": ("email", "phone", "full_name", "password1", "password2"),
+            "fields": ("email", "phone", "full_name", "password1", "password2", "must_change_password"),
         }),
     )
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj is None and "must_change_password" in form.base_fields:
+            # New accounts default to requiring a change — matches handing
+            # someone a freshly generated one-time password.
+            form.base_fields["must_change_password"].initial = True
+        return form
+
+    @admin.display(description="Recent sign-ins")
+    def login_activity(self, obj):
+        if obj is None:
+            return "—"
+        sessions = obj.sessions.all()[:8]
+        if not sessions:
+            return "No recorded sign-ins yet."
+        rows = format_html_join(
+            "",
+            "<tr><td style='padding-right:16px;'>{}</td><td style='padding-right:16px;'>{}</td><td>{}</td></tr>",
+            (
+                (s.last_seen.strftime("%Y-%m-%d %H:%M"), s.device_label or "Unknown device", s.ip_address or "—")
+                for s in sessions
+            ),
+        )
+        return format_html(
+            '<table><thead><tr><th style="padding-right:16px;">When</th>'
+            '<th style="padding-right:16px;">Device</th><th>IP</th></tr></thead>'
+            "<tbody>{}</tbody></table>",
+            rows,
+        )
 
 
 @admin.register(LoginCode)

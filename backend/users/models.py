@@ -63,6 +63,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
+    # Set when a superuser hands a staff account a one-time password —
+    # forces a change on the next admin login before anything else works.
+    must_change_password = models.BooleanField(
+        default=False,
+        help_text="Force a password change the next time this account logs into the admin.",
+    )
+
     objects = UserManager()
 
     # email is the canonical username field (superusers always have one); phone-only
