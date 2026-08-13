@@ -24,19 +24,43 @@
     {% endif %}
 
     {% if google_client_id %}
-    <div id="g_id_onload" data-client_id="{{ google_client_id }}" data-callback="__luxeitAdminGoogleCallback" data-auto_prompt="false"></div>
-    <div class="g_id_signin d-flex justify-content-center mb-3" data-type="standard" data-width="300"></div>
+    <div id="google-signin-holder" class="d-flex justify-content-center mb-3" style="min-height:44px;"></div>
     <form id="staff-google-form" method="post" action="{% url 'staff_google_login' %}" class="d-none">
         {% csrf_token %}
         <input type="hidden" name="credential" id="staff-google-credential">
         <input type="hidden" name="next" value="{{ next }}">
     </form>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
-        function __luxeitAdminGoogleCallback(response) {
-            document.getElementById("staff-google-credential").value = response.credential;
-            document.getElementById("staff-google-form").submit();
-        }
+        // Imperative initialize()+renderButton() with a JS callback — same
+        // approach the frontend uses. The static data-callback HTML snippet
+        // (g_id_onload/g_id_signin) triggers Google's newer FedCM/One-Tap
+        // popup path, which is currently prone to hanging on a blank
+        // accounts.google.com/gsi/transform page. This form never calls
+        // prompt()/One Tap, so it never touches that path.
+        (function () {
+            function renderGoogleButton() {
+                var holder = document.getElementById("google-signin-holder");
+                if (!window.google || !holder) return;
+                window.google.accounts.id.initialize({
+                    client_id: "{{ google_client_id }}",
+                    callback: function (response) {
+                        document.getElementById("staff-google-credential").value = response.credential;
+                        document.getElementById("staff-google-form").submit();
+                    },
+                });
+                window.google.accounts.id.renderButton(holder, {
+                    type: "standard", theme: "outline", size: "large",
+                    text: "continue_with", shape: "pill", logo_alignment: "center",
+                    width: Math.min(holder.offsetWidth || 300, 400),
+                });
+            }
+            var script = document.createElement("script");
+            script.src = "https://accounts.google.com/gsi/client";
+            script.async = true;
+            script.defer = true;
+            script.addEventListener("load", renderGoogleButton);
+            document.head.appendChild(script);
+        })();
     </script>
     <p class="text-center text-muted my-3">— or —</p>
     {% endif %}
