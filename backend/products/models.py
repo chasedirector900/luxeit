@@ -5,6 +5,9 @@ from django.db import models
 from django.db.models import F
 from django.utils import timezone
 
+from .image_processing import compress_product_image
+from .validators import validate_product_image
+
 
 class ProductType(models.TextChoices):
     FOOTWEAR = "footwear", "Footwear"
@@ -112,6 +115,7 @@ class Product(models.Model):
         "thumbnail upload",
         upload_to="products/",
         blank=True,
+        validators=[validate_product_image],
         help_text="Upload a thumbnail photo. If set, this is used instead of the thumbnail URL above.",
     )
     video = models.CharField(max_length=500, blank=True, help_text="Optional product video URL.")
@@ -182,6 +186,14 @@ class Product(models.Model):
                 {"image_file": "Upload a thumbnail photo, or paste an image URL in the thumbnail field."}
             )
 
+    def save(self, *args, **kwargs):
+        # `_committed` is False only for a freshly assigned, not-yet-stored
+        # upload — never for a file already sitting in storage — so an
+        # unrelated edit that re-saves the product doesn't reprocess it again.
+        if self.image_file and not self.image_file._committed:
+            self.image_file = compress_product_image(self.image_file)
+        super().save(*args, **kwargs)
+
     @property
     def image_url(self) -> str:
         """The thumbnail to serve: an uploaded file if there is one, else the URL.
@@ -250,6 +262,7 @@ class ProductImage(models.Model):
         "upload",
         upload_to="products/gallery/",
         blank=True,
+        validators=[validate_product_image],
         help_text="Upload a photo. If set, this is used instead of the URL above.",
     )
     alt = models.CharField(max_length=200, blank=True)
@@ -258,6 +271,11 @@ class ProductImage(models.Model):
 
     class Meta:
         ordering = ["position", "id"]
+
+    def save(self, *args, **kwargs):
+        if self.src_file and not self.src_file._committed:
+            self.src_file = compress_product_image(self.src_file)
+        super().save(*args, **kwargs)
 
     @property
     def src_url(self) -> str:

@@ -9,9 +9,11 @@ uploads — but they're still visible on `self.files` and validated/saved
 alongside the pasted links.
 """
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
 from .models import Product, ProductImage, ProductType, Warehouse
+from .validators import validate_product_image
 
 
 class GuidedProductForm(forms.ModelForm):
@@ -66,6 +68,7 @@ class GuidedProductForm(forms.ModelForm):
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
             "sub_category": forms.Select(choices=[("", "— choose a category first —")]),
+            "image_file": forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -88,7 +91,13 @@ class GuidedProductForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
-        if not cleaned.get("gallery") and not self.files.getlist("gallery_files"):
+        gallery_files = self.files.getlist("gallery_files")
+        for image_file in gallery_files:
+            try:
+                validate_product_image(image_file)
+            except ValidationError as exc:
+                self.add_error(None, exc)
+        if not cleaned.get("gallery") and not gallery_files:
             self.add_error("gallery", "Add at least one gallery photo — upload a file or paste a link.")
         return cleaned
 

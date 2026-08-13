@@ -142,7 +142,7 @@
           <div class="col-md-9">
             <label class="form-label fw-semibold" for="id_image_file">{{ form.image_file.label }}</label>
             {{ form.image_file }}
-            <div class="form-text">{{ form.image_file.help_text }}</div>
+            <div class="form-text">{{ form.image_file.help_text }} JPEG, PNG, or WebP, straight off a phone is fine — it's auto-resized on upload.</div>
             {{ form.image_file.errors }}
           </div>
           <div class="col-md-3 d-flex align-items-center justify-content-center">
@@ -158,8 +158,8 @@
         <hr class="my-4">
         <div class="mb-3">
           <label class="form-label fw-semibold" for="id_gallery_files">Upload gallery photos</label>
-          <input type="file" id="id_gallery_files" name="gallery_files" accept="image/*" multiple class="form-control">
-          <div class="form-text">Select one or more files. At least one extra photo besides the main one.</div>
+          <input type="file" id="id_gallery_files" name="gallery_files" accept="image/jpeg,image/png,image/webp" multiple class="form-control">
+          <div class="form-text">Select one or more files. At least one extra photo besides the main one. JPEG, PNG, or WebP, straight off a phone is fine — each is auto-resized on upload.</div>
         </div>
         <div class="mb-3">
           <label class="form-label fw-semibold" for="id_gallery">{{ form.gallery.label }}</label>
