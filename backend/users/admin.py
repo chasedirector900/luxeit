@@ -39,6 +39,11 @@ class UserAdmin(SuperuserOnlyAdmin, BaseUserAdmin):
     search_fields = ("email", "phone", "full_name")
     readonly_fields = ("date_joined", "last_login", "login_activity")
 
+    # The dedicated "set/change password" view for an *existing* user doesn't
+    # include ModelAdmin.Media the way add/change views do — needed for
+    # promoting an existing customer-created account to staff.
+    change_user_password_template = "admin/users/change_password.html"
+
     class Media:
         # No-ops on the change form (no password1/password2 there) — only
         # active on "Add user", where it adds the Generate-password button.
