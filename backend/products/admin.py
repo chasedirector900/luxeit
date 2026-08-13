@@ -129,7 +129,7 @@ class ProductAdmin(admin.ModelAdmin):
             return redirect("admin:products_product_changelist")
 
         if request.method == "POST":
-            form = GuidedProductForm(request.POST)
+            form = GuidedProductForm(request.POST, request.FILES)
             if form.is_valid():
                 product = form.save()
                 self.message_user(request, f"“{product.title}” is now in the catalogue.", level=messages.SUCCESS)
@@ -155,6 +155,7 @@ class ProductAdmin(admin.ModelAdmin):
             "form": form,
             "chips": chips,
             "advanced_url": reverse("admin:products_product_add") + "?advanced=1",
+            "r2_configured": bool(getattr(settings, "R2_BUCKET", "")),
         }
         return render(request, "admin/products/guided_add.html", context)
 

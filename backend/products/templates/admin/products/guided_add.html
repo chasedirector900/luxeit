@@ -10,8 +10,15 @@
 
 {% block content %}
 <div id="content-main">
-  <form method="post" id="guided-form" class="mx-auto" style="max-width:760px;">
+  <form method="post" enctype="multipart/form-data" id="guided-form" class="mx-auto" style="max-width:760px;">
     {% csrf_token %}
+
+    {% if not r2_configured %}
+      <div class="alert alert-warning">
+        <strong>Heads up:</strong> Cloudflare R2 isn't configured yet, so uploaded photos will be lost the next
+        time the server redeploys. Paste image links instead, or ask a developer to finish the R2 setup.
+      </div>
+    {% endif %}
 
     <div class="d-flex align-items-center gap-2 mb-4">
       <span class="d-inline-flex align-items-center justify-content-center rounded-3 bg-success bg-opacity-25 text-success" style="width:42px;height:42px;">
@@ -133,14 +140,26 @@
       <div class="card-body">
         <div class="row g-3 mb-3">
           <div class="col-md-9">
-            <label class="form-label fw-semibold" for="id_image">{{ form.image.label }}</label>
-            {{ form.image }}
-            <div class="form-text">{{ form.image.help_text }}</div>
-            {{ form.image.errors }}
+            <label class="form-label fw-semibold" for="id_image_file">{{ form.image_file.label }}</label>
+            {{ form.image_file }}
+            <div class="form-text">{{ form.image_file.help_text }}</div>
+            {{ form.image_file.errors }}
           </div>
           <div class="col-md-3 d-flex align-items-center justify-content-center">
             <img id="thumb-preview" src="" alt="" class="rounded border d-none" style="width:84px;height:84px;object-fit:cover;">
           </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="id_image">{{ form.image.label }}</label>
+          {{ form.image }}
+          <div class="form-text">{{ form.image.help_text }}</div>
+          {{ form.image.errors }}
+        </div>
+        <hr class="my-4">
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="id_gallery_files">Upload gallery photos</label>
+          <input type="file" id="id_gallery_files" name="gallery_files" accept="image/*" multiple class="form-control">
+          <div class="form-text">Select one or more files. At least one extra photo besides the main one.</div>
         </div>
         <div class="mb-3">
           <label class="form-label fw-semibold" for="id_gallery">{{ form.gallery.label }}</label>
@@ -169,7 +188,7 @@
 <script>
 (function () {
   // Bootstrap-ify the plain Django widgets.
-  document.querySelectorAll("#guided-form input[type=text], #guided-form input[type=number], #guided-form input[type=url], #guided-form textarea, #guided-form select")
+  document.querySelectorAll("#guided-form input[type=text], #guided-form input[type=number], #guided-form input[type=url], #guided-form input[type=file], #guided-form textarea, #guided-form select")
     .forEach(function (el) { el.classList.add("form-control"); });
   document.querySelectorAll("#guided-form input[type=checkbox], #guided-form input[type=radio]")
     .forEach(function (el) { el.classList.add("form-check-input"); });
@@ -199,30 +218,52 @@
   document.querySelectorAll("input[name=warehouse]").forEach(function (r) { r.addEventListener("change", syncAir); });
   syncAir();
 
-  // Live photo previews.
+  // Live photo previews — main thumbnail, from either the uploaded file or the pasted link.
   var image = document.getElementById("id_image");
+  var imageFile = document.getElementById("id_image_file");
   var thumb = document.getElementById("thumb-preview");
   function syncThumb() {
     var v = image.value.trim();
     thumb.src = v;
     thumb.classList.toggle("d-none", !v);
   }
+  function syncThumbFromFile() {
+    if (imageFile.files && imageFile.files[0]) {
+      thumb.src = URL.createObjectURL(imageFile.files[0]);
+      thumb.classList.remove("d-none");
+    }
+  }
   image.addEventListener("input", syncThumb);
+  imageFile.addEventListener("change", syncThumbFromFile);
   syncThumb();
 
+  // Gallery previews — uploaded files and pasted links each keep their own
+  // slice of the strip so neither clears the other out.
   var gallery = document.getElementById("id_gallery");
+  var galleryFiles = document.getElementById("id_gallery_files");
   var strip = document.getElementById("gallery-previews");
   function syncGallery() {
-    strip.innerHTML = "";
+    strip.querySelectorAll(".link-preview").forEach(function (n) { n.remove(); });
     gallery.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (src) {
       var img = document.createElement("img");
       img.src = src;
-      img.className = "rounded border";
+      img.className = "rounded border link-preview";
+      img.style.cssText = "width:56px;height:56px;object-fit:cover;";
+      strip.appendChild(img);
+    });
+  }
+  function syncGalleryFiles() {
+    strip.querySelectorAll(".file-preview").forEach(function (n) { n.remove(); });
+    Array.from(galleryFiles.files || []).forEach(function (file) {
+      var img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.className = "rounded border file-preview";
       img.style.cssText = "width:56px;height:56px;object-fit:cover;";
       strip.appendChild(img);
     });
   }
   gallery.addEventListener("input", syncGallery);
+  galleryFiles.addEventListener("change", syncGalleryFiles);
   syncGallery();
 })();
 </script>
