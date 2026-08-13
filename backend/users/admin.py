@@ -35,9 +35,21 @@ class SuperuserOnlyAdmin:
 class UserAdmin(SuperuserOnlyAdmin, BaseUserAdmin):
     ordering = ("-date_joined",)
     list_display = ("id", "email", "phone", "full_name", "is_active", "is_staff", "last_login", "date_joined")
+    list_display_links = ("email",)
     list_filter = ("is_active", "is_staff", "is_superuser", "email_verified", "phone_verified")
     search_fields = ("email", "phone", "full_name")
     readonly_fields = ("date_joined", "last_login", "login_activity")
+    actions = ("make_staff", "remove_staff")
+
+    @admin.action(description="Mark selected users as staff")
+    def make_staff(self, request, queryset):
+        updated = queryset.update(is_staff=True)
+        self.message_user(request, f"{updated} user(s) marked as staff.")
+
+    @admin.action(description="Remove staff status from selected users")
+    def remove_staff(self, request, queryset):
+        updated = queryset.update(is_staff=False)
+        self.message_user(request, f"{updated} user(s) had staff status removed.")
 
     # The dedicated "set/change password" view for an *existing* user doesn't
     # include ModelAdmin.Media the way add/change views do — needed for
