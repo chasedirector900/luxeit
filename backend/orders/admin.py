@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from django.contrib import admin, messages
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, F, Sum
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
@@ -142,6 +143,10 @@ class OrderAdmin(admin.ModelAdmin):
         return custom + super().get_urls()
 
     def analytics_view(self, request):
+        # get_urls() only wraps this in admin_view (staff-login check) — it
+        # doesn't gate on any model permission, so check explicitly.
+        if not request.user.has_perm("orders.view_order"):
+            raise PermissionDenied
         period = request.GET.get("period", PERIOD_DEFAULT)
         if period not in PERIOD_LABEL:
             period = PERIOD_DEFAULT
@@ -374,6 +379,8 @@ class ShipmentAdmin(admin.ModelAdmin):
 
     # Level 1 — the day list per stage.
     def fulfilment_view(self, request):
+        if not request.user.has_perm("orders.view_shipment"):
+            raise PermissionDenied
         sections = []
         for key, cfg in self.STAGES.items():
             days: dict = {}
@@ -404,6 +411,8 @@ class ShipmentAdmin(admin.ModelAdmin):
 
     # Level 2 — the carriers within one day of a stage.
     def fulfilment_day_view(self, request, stage, day):
+        if not request.user.has_perm("orders.view_shipment"):
+            raise PermissionDenied
         if stage not in self.STAGES:
             return self._board_redirect(request, "Unknown stage.")
         try:
@@ -435,6 +444,8 @@ class ShipmentAdmin(admin.ModelAdmin):
 
     # Level 3 — the product lines within one day+carrier; advance them here.
     def fulfilment_batch_view(self, request, stage, day, carrier):
+        if not request.user.has_perm("orders.view_shipment"):
+            raise PermissionDenied
         if stage not in self.STAGES:
             return self._board_redirect(request, "Unknown stage.")
         try:
@@ -442,6 +453,8 @@ class ShipmentAdmin(admin.ModelAdmin):
         except ValueError:
             return self._board_redirect(request, "Invalid day.")
         if request.method == "POST":
+            if not request.user.has_perm("orders.change_shipment"):
+                raise PermissionDenied
             return self._advance(request, stage, day_d, carrier)
 
         cfg = self.STAGES[stage]

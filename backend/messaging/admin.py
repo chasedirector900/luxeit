@@ -1,5 +1,6 @@
 from django.contrib import admin, messages as admin_messages
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.db.models import OuterRef, Q, Subquery
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
@@ -72,6 +73,10 @@ class ThreadAdmin(admin.ModelAdmin):
         return custom + super().get_urls()
 
     def support_inbox_view(self, request):
+        # get_urls() only wraps this in admin_view (staff-login check) — it
+        # doesn't gate on any model permission, so check explicitly.
+        if not request.user.has_perm("messaging.view_thread"):
+            raise PermissionDenied
         current = request.GET.get("filter", "awaiting")
         q = request.GET.get("q", "").strip()
         base = Thread.objects.filter(kind=ThreadKind.SUPPORT).select_related("user").prefetch_related("messages")
@@ -104,6 +109,8 @@ class ThreadAdmin(admin.ModelAdmin):
         return render(request, "admin/messaging/support_inbox.html", context)
 
     def support_chat_view(self, request, thread_id):
+        if not request.user.has_perm("messaging.view_thread"):
+            raise PermissionDenied
         thread = (
             Thread.objects.filter(pk=thread_id, kind=ThreadKind.SUPPORT)
             .select_related("user").prefetch_related("messages__agent").first()
@@ -113,6 +120,8 @@ class ThreadAdmin(admin.ModelAdmin):
             return redirect("admin:messaging_thread_support_inbox")
 
         if request.method == "POST":
+            if not request.user.has_perm("messaging.add_message"):
+                raise PermissionDenied
             body = request.POST.get("body", "").strip()
             if body:
                 Message.objects.create(thread=thread, sender=SenderRole.SUPPORT, agent=request.user, body=body)
@@ -196,6 +205,11 @@ class MessageAdmin(admin.ModelAdmin):
         return custom + super().get_urls()
 
     def send_promotion_view(self, request):
+        # Hardcoded, not a Group permission: this exposes the entire
+        # customer list for targeting, so it's a policy decision (owner
+        # only) rather than something a role should be configurable into.
+        if not request.user.is_superuser:
+            raise PermissionDenied
         User = get_user_model()
         error = None
 
