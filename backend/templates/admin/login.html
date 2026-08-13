@@ -24,7 +24,7 @@
     {% endif %}
 
     {% if google_client_id %}
-    <div id="google-signin-holder" class="d-flex justify-content-center mb-3" style="min-height:44px;"></div>
+    <div id="google-signin-holder" class="d-flex justify-content-center mb-3" style="min-height:44px; opacity:0.4; filter:grayscale(1) blur(1px); pointer-events:none;" title="Temporarily disabled — use the email code below"></div>
     <form id="staff-google-form" method="post" action="{% url 'staff_google_login' %}" class="d-none">
         {% csrf_token %}
         <input type="hidden" name="credential" id="staff-google-credential">
