@@ -2,30 +2,9 @@
 category, and their products — the backing data for the /category/<brand>
 listing pages. Idempotent: safe to run repeatedly (keyed on slug).
 """
-from urllib.parse import quote
-
 from django.core.management.base import BaseCommand
 
 from products.models import Category, Product, ProductType, Warehouse, Origin, ShippingMethod
-
-
-def listing_image(label: str, c_from: str, c_to: str) -> str:
-    """Python port of the frontend makeListingImage(): a gradient SVG data URI."""
-    svg = (
-        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>"
-        "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
-        f"<stop offset='0%' stop-color='{c_from}'/>"
-        f"<stop offset='100%' stop-color='{c_to}'/>"
-        "</linearGradient></defs>"
-        "<rect width='800' height='600' fill='url(#g)'/>"
-        "<circle cx='640' cy='120' r='150' fill='rgba(255,255,255,0.10)'/>"
-        "<circle cx='150' cy='500' r='190' fill='rgba(255,255,255,0.07)'/>"
-        f"<text x='50%' y='53%' fill='rgba(255,255,255,0.22)' font-size='62' "
-        "font-family='Arial, sans-serif' font-weight='900' text-anchor='middle' "
-        f"letter-spacing='3'>{label}</text>"
-        "</svg>"
-    )
-    return "data:image/svg+xml;utf8," + quote(svg)
 
 
 # Shared chrome for every car category (icon names match the frontend registry).
@@ -86,11 +65,6 @@ def slugify(*parts: str) -> str:
     return "-".join(parts).lower().replace(" ", "-").replace("(", "").replace(")", "").replace("/", "-")
 
 
-def short_label(name: str) -> str:
-    # First two words, uppercased, for the placeholder image text.
-    return " ".join(name.upper().split()[:2])
-
-
 def air_of(price: float) -> float:
     # Air freight runs ~45% above the sea price.
     return round(price * 1.45, 2)
@@ -138,7 +112,6 @@ class Command(BaseCommand):
                         "price": price,
                         "original_price": original,
                         "air_price": air_of(price),
-                        "image": listing_image(short_label(name), c_from, c_to),
                         "warehouse": Warehouse.CHINA,
                         "origin": Origin.CHINA,
                         "shipping_method": ShippingMethod.SEA,
@@ -191,7 +164,6 @@ class Command(BaseCommand):
                     "price": price,
                     "original_price": original,
                     "air_price": air_of(price),
-                    "image": listing_image(short_label(name), c_from, c_to),
                     "warehouse": Warehouse.CHINA,
                     "origin": Origin.CHINA,
                     "shipping_method": ShippingMethod.SEA,

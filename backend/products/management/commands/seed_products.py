@@ -3,42 +3,16 @@ as backend-driven catalogue data: each category carries its listing chrome
 (chips/features/hero) and a set of products with subtitles and, for China-hub
 goods, dual sea/air pricing. Idempotent: clears and recreates these categories.
 """
-from urllib.parse import quote
-
 from django.core.management.base import BaseCommand
 
 from ._demo_catalog import EXTRA_PRODUCTS, NEW_CATEGORIES
 from products.models import Category, Product, ProductType, Warehouse, Origin, ShippingMethod
 
 
-def listing_image(label: str, c_from: str, c_to: str) -> str:
-    svg = (
-        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>"
-        "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
-        f"<stop offset='0%' stop-color='{c_from}'/><stop offset='100%' stop-color='{c_to}'/>"
-        "</linearGradient></defs>"
-        "<rect width='800' height='600' fill='url(#g)'/>"
-        "<circle cx='640' cy='120' r='150' fill='rgba(255,255,255,0.10)'/>"
-        "<circle cx='150' cy='500' r='190' fill='rgba(255,255,255,0.07)'/>"
-        f"<text x='50%' y='53%' fill='rgba(255,255,255,0.22)' font-size='62' "
-        "font-family='Arial, sans-serif' font-weight='900' text-anchor='middle' "
-        f"letter-spacing='3'>{label}</text></svg>"
-    )
-    return "data:image/svg+xml;utf8," + quote(svg)
-
-
 FEATURES = [
     {"icon": "ShieldCheck", "title": "Trusted Suppliers", "subtitle": "Quality you can trust", "tint": "text-gold-500", "ring": "bg-gold-500/10"},
     {"icon": "Truck", "title": "Fast Shipping", "subtitle": "China & Lusaka hubs", "tint": "text-gold-400", "ring": "bg-gold-400/10"},
     {"icon": "RotateCcw", "title": "Easy Returns", "subtitle": "Hassle-free returns", "tint": "text-gold-300", "ring": "bg-gold-300/10"},
-]
-
-# Placeholder tiles stay inside the LUXE iT palette: near-black into a gold,
-# varied across the scale so a grid of products still reads with contrast.
-PALETTE = [
-    ("#0a0a0a", "#d4af37"), ("#2a1f03", "#b8860b"), ("#1a1305", "#f8e7a1"),
-    ("#0a0a0a", "#8f6a09"), ("#4a3705", "#dfbb48"), ("#151005", "#e9c95f"),
-    ("#241b02", "#d4af37"), ("#0a0a0a", "#6b5007"),
 ]
 
 # Each product: (sub_category, name, subtitle, sea_price, warehouse, original_price|None)
@@ -148,10 +122,6 @@ def slugify(name: str) -> str:
     return "-".join(out.split())
 
 
-def short_label(name: str) -> str:
-    return " ".join(name.upper().split()[:2])
-
-
 class Command(BaseCommand):
     help = "Seed footwear/watches/electronics/security categories and products."
 
@@ -184,7 +154,6 @@ class Command(BaseCommand):
             cats += 1
             items = cdef["products"] + EXTRA_PRODUCTS.get(cdef["slug"], [])
             for pi, (sub, name, subtitle, price, wh, original) in enumerate(items):
-                c_from, c_to = PALETTE[pi % len(PALETTE)]
                 china = wh == "china"
                 Product.objects.create(
                     slug=slugify(name),
@@ -196,7 +165,6 @@ class Command(BaseCommand):
                     price=price,
                     original_price=original,
                     air_price=round(price * 1.45, 2) if china else None,
-                    image=listing_image(short_label(name), c_from, c_to),
                     warehouse=Warehouse.CHINA if china else Warehouse.ZAMBIA,
                     origin=Origin.CHINA if china else Origin.GLOBAL,
                     shipping_method=ShippingMethod.SEA if china else "",

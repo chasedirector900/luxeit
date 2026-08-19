@@ -148,7 +148,7 @@ def _create_order(request):
 
         if product is not None:
             title = product.title
-            image = product.image
+            image = product.image_url
             warehouse = product.warehouse or "china"
         else:
             title = str(it.get("title") or "Item")[:200]

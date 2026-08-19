@@ -12,8 +12,8 @@ from .models import Category, Product, ProductImage, ProductReview
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    min_num = 1  # business rule: thumbnail (the `image` field) + at least one gallery image
-    fields = ("src_file", "src", "alt", "object_fit", "position")
+    min_num = 1  # business rule: thumbnail (`image_file`) + at least one gallery image
+    fields = ("src_file", "alt", "object_fit", "position")
 
 
 @admin.register(Category)
@@ -65,8 +65,8 @@ class ProductAdmin(admin.ModelAdmin):
             "fields": ("warehouse", "origin", "delivery_estimate", "import_tag", "preorder"),
         }),
         ("Media", {
-            "fields": ("image_file", "image", "video", "video_thumbnail"),
-            "description": "Upload a thumbnail (stored in R2) or paste an image URL — one is required. Add gallery images below. Video is optional.",
+            "fields": ("image_file", "video", "video_thumbnail"),
+            "description": "Upload a thumbnail photo (stored in R2) — required. Add gallery images below. Video is optional.",
         }),
         ("Extra details (optional)", {
             "classes": ("collapse",),
@@ -96,8 +96,8 @@ class ProductAdmin(admin.ModelAdmin):
                     "description": (
                         "<strong>WARNING: photo uploads are not saved permanently yet.</strong> "
                         "Cloud storage (Cloudflare R2) isn't set up, so uploaded files are lost the "
-                        "next time the site updates. Paste an image URL instead, or ask a developer "
-                        "to finish the R2 setup. "
+                        "next time the site updates. Ask a developer to finish the R2 setup before "
+                        "adding products. "
                         + str(opts.get("description", ""))
                     ),
                 }

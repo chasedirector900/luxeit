@@ -64,7 +64,7 @@ class RateLimitTests(TestCase):
 class ProductListCapTests(TestCase):
     def test_list_never_exceeds_cap(self):
         for i in range(PRODUCT_LIST_CAP + 5):
-            Product.objects.create(slug=f"p{i}", title=f"P{i}", price=1, warehouse="china", image="x")
+            Product.objects.create(slug=f"p{i}", title=f"P{i}", price=1, warehouse="china")
         res = self.client.get("/api/products")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.json()), PRODUCT_LIST_CAP)

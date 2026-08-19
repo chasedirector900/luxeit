@@ -105,7 +105,7 @@ class Command(BaseCommand):
                         price = product.air_price if (carrier == "air" and product.air_price is not None) else product.price
                         OrderItem.objects.create(
                             order=order, shipment=shipment, product=product,
-                            title=product.title, image=product.image, warehouse=warehouse,
+                            title=product.title, image=product.image_url, warehouse=warehouse,
                             shipping_method=carrier, variant=demo_variant(product, oi + pi),
                             status=status, unit_price=price, quantity=1,
                         )

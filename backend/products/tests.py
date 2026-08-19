@@ -143,7 +143,6 @@ class CarCatalogSeedTests(TestCase):
         products = toyota.products.all()
         self.assertGreater(products.count(), 0)
         self.assertTrue(all(p.product_type == ProductType.CAR_PART for p in products))
-        self.assertTrue(all(p.image.startswith("data:image/svg+xml") for p in products))
 
     def test_seeder_is_idempotent(self):
         before = Product.objects.count()

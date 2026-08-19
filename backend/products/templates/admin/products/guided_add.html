@@ -16,7 +16,7 @@
     {% if not r2_configured %}
       <div class="alert alert-warning">
         <strong>Heads up:</strong> Cloudflare R2 isn't configured yet, so uploaded photos will be lost the next
-        time the server redeploys. Paste image links instead, or ask a developer to finish the R2 setup.
+        time the server redeploys. Ask a developer to finish the R2 setup before adding products.
       </div>
     {% endif %}
 
@@ -149,23 +149,11 @@
             <img id="thumb-preview" src="" alt="" class="rounded border d-none" style="width:84px;height:84px;object-fit:cover;">
           </div>
         </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold" for="id_image">{{ form.image.label }}</label>
-          {{ form.image }}
-          <div class="form-text">{{ form.image.help_text }}</div>
-          {{ form.image.errors }}
-        </div>
         <hr class="my-4">
         <div class="mb-3">
           <label class="form-label fw-semibold" for="id_gallery_files">Upload gallery photos</label>
           <input type="file" id="id_gallery_files" name="gallery_files" accept="image/jpeg,image/png,image/webp" multiple class="form-control">
           <div class="form-text">Select one or more files. At least one extra photo besides the main one. JPEG, PNG, or WebP, straight off a phone is fine — each is auto-resized on upload.</div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold" for="id_gallery">{{ form.gallery.label }}</label>
-          {{ form.gallery }}
-          <div class="form-text">{{ form.gallery.help_text }}</div>
-          {{ form.gallery.errors }}
           <div id="gallery-previews" class="d-flex flex-wrap gap-2 mt-2"></div>
         </div>
         <div>
@@ -218,40 +206,22 @@
   document.querySelectorAll("input[name=warehouse]").forEach(function (r) { r.addEventListener("change", syncAir); });
   syncAir();
 
-  // Live photo previews — main thumbnail, from either the uploaded file or the pasted link.
-  var image = document.getElementById("id_image");
+  // Live thumbnail preview from the uploaded file.
   var imageFile = document.getElementById("id_image_file");
   var thumb = document.getElementById("thumb-preview");
-  function syncThumb() {
-    var v = image.value.trim();
-    thumb.src = v;
-    thumb.classList.toggle("d-none", !v);
-  }
   function syncThumbFromFile() {
     if (imageFile.files && imageFile.files[0]) {
       thumb.src = URL.createObjectURL(imageFile.files[0]);
       thumb.classList.remove("d-none");
+    } else {
+      thumb.classList.add("d-none");
     }
   }
-  image.addEventListener("input", syncThumb);
   imageFile.addEventListener("change", syncThumbFromFile);
-  syncThumb();
 
-  // Gallery previews — uploaded files and pasted links each keep their own
-  // slice of the strip so neither clears the other out.
-  var gallery = document.getElementById("id_gallery");
+  // Gallery previews — uploaded files only.
   var galleryFiles = document.getElementById("id_gallery_files");
   var strip = document.getElementById("gallery-previews");
-  function syncGallery() {
-    strip.querySelectorAll(".link-preview").forEach(function (n) { n.remove(); });
-    gallery.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean).forEach(function (src) {
-      var img = document.createElement("img");
-      img.src = src;
-      img.className = "rounded border link-preview";
-      img.style.cssText = "width:56px;height:56px;object-fit:cover;";
-      strip.appendChild(img);
-    });
-  }
   function syncGalleryFiles() {
     strip.querySelectorAll(".file-preview").forEach(function (n) { n.remove(); });
     Array.from(galleryFiles.files || []).forEach(function (file) {
@@ -262,9 +232,7 @@
       strip.appendChild(img);
     });
   }
-  gallery.addEventListener("input", syncGallery);
   galleryFiles.addEventListener("change", syncGalleryFiles);
-  syncGallery();
 })();
 </script>
 {% endblock %}

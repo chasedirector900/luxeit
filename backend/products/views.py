@@ -160,7 +160,7 @@ def _saved_dict(item: SavedItem) -> dict:
         "id": p.slug,  # the frontend keys saved entries by slug
         "slug": p.slug,
         "title": p.title,
-        "image": p.image,
+        "image": p.image_url,
         "price": float(p.price),
         "href": href,
     }
