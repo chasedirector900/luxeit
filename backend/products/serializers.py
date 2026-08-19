@@ -198,14 +198,14 @@ class ProductDetailSerializer(serializers.BaseSerializer):
         if obj.notices:
             data["notices"] = obj.notices
 
-        # Ratings block (aggregates + tags + reviews).
-        reviews = list(obj.reviews.all())
-        if obj.rating_count or reviews:
-            data["ratings"] = {
-                "ratingAverage": float(obj.rating_average),
-                "ratingCount": obj.rating_count,
-                "ratingBreakdown": obj.rating_breakdown or {str(s): 0 for s in range(1, 6)},
-                "reviewTags": obj.review_tags,
-                "reviews": [_review_dict(r) for r in reviews],
-            }
+        # Ratings block (aggregates + tags + reviews). Always present, even at
+        # zero, so every product — not just ones with an existing review — can
+        # be rated and reviewed.
+        data["ratings"] = {
+            "ratingAverage": float(obj.rating_average),
+            "ratingCount": obj.rating_count,
+            "ratingBreakdown": obj.rating_breakdown or {str(s): 0 for s in range(1, 6)},
+            "reviewTags": obj.review_tags,
+            "reviews": [_review_dict(r) for r in obj.reviews.all()],
+        }
         return data
