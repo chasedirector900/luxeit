@@ -88,6 +88,8 @@ export type Product = {
   notices?: string[];
   ratings?: ProductRatings;
   price: number;
+  /** "Was" price shown crossed out when the product is discounted. */
+  originalPrice?: number;
   /** China-hub air-freight price (the pricier option); `price` is the sea price. */
   airPrice?: number;
   /** Per-method price options for China-hub dual shipping. */

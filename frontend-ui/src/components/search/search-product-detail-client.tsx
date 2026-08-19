@@ -103,8 +103,7 @@ export function SearchProductDetailClient({
 
   const activeMedia = resolvedMedia[selectedMediaIndex] ?? resolvedMedia[0];
 
-  const priceRangeMin = Math.max(1, effectivePrice * 0.9);
-  const priceRangeMax = effectivePrice * 1.2;
+  const hasDiscount = product.originalPrice != null && product.originalPrice > effectivePrice;
 
   const productDescription = `${product.title} is curated for fast-moving import catalogs. Designed for quality checks, reliable supply lanes, and quick resell listing turnaround across regional marketplaces.`;
 
@@ -308,9 +307,11 @@ export function SearchProductDetailClient({
                 ) : null}
                 <p className="text-[1.75rem] font-black leading-none">{formatKwacha(effectivePrice)}</p>
               </div>
-              <p className="mt-1.5 text-[12px] text-slate-500 dark:text-zinc-400">
-                Range: {formatKwacha(priceRangeMin)} - {formatKwacha(priceRangeMax)}
-              </p>
+              {hasDiscount ? (
+                <p className="mt-1.5 text-[12px] text-slate-500 dark:text-zinc-400">
+                  <span className="line-through">{formatKwacha(product.originalPrice!)}</span>
+                </p>
+              ) : null}
             </div>
 
             <h2 className="text-lg font-extrabold leading-tight">{product.title}</h2>
