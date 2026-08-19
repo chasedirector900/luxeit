@@ -74,9 +74,16 @@ export function HomeTopPickCard({ product }: HomeTopPickCardProps) {
         </Link>
 
         <div className="mt-2.5 flex items-end justify-between gap-1.5">
-          <span className="text-[17px] font-black leading-none text-slate-900 dark:text-zinc-100">
-            {formatKwacha(product.price)}
-          </span>
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+            <span className="text-[17px] font-black leading-none text-slate-900 dark:text-zinc-100">
+              {formatKwacha(product.price)}
+            </span>
+            {product.originalPrice ? (
+              <span className="text-[12px] font-medium text-slate-400 line-through dark:text-zinc-500">
+                {formatKwacha(product.originalPrice)}
+              </span>
+            ) : null}
+          </div>
 
           <motion.button
             type="button"
