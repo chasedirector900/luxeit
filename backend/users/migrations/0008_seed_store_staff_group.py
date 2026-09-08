@@ -1,18 +1,22 @@
-"""Seed the "Store Staff" role: add/edit products, work the fulfilment board,
-and reply to customer support threads — but never delete orders, never see
-the customer list (Users/LoginCode stay superuser-only, enforced in
+"""Seed the "Store Staff" role: add/edit/delete products, work the fulfilment
+board, and reply to customer support threads — but never delete orders,
+never see the customer list (Users/LoginCode stay superuser-only, enforced in
 users/admin.py regardless of group membership), and never send bulk
 promotions (hardcoded superuser-only in messaging/admin.py).
+
+Note: product delete was added later, in 0010_store_staff_can_delete_products —
+this file is left as the historical record of what shipped first and is not
+re-run on databases that already applied it.
 """
 from django.db import migrations
 
 GROUP_NAME = "Store Staff"
 
 # (app_label, model_name, [action prefixes]) -> the exact Django auto-permission
-# codenames to grant. Deliberately excludes delete on every model, and
-# excludes auth/users/axes models entirely.
+# codenames to grant. Deliberately excludes delete on every model except
+# products (see 0010), and excludes auth/users/axes models entirely.
 PERMISSIONS = [
-    ("products", "product", ["add", "change", "view"]),
+    ("products", "product", ["add", "change", "view", "delete"]),
     ("products", "productimage", ["add", "change", "view"]),
     ("products", "category", ["view"]),  # needed for the category autocomplete widget
     ("orders", "order", ["view"]),
