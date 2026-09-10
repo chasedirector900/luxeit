@@ -24,6 +24,15 @@ class GuidedProductForm(forms.ModelForm):
         widget=forms.RadioSelect,
         initial=Warehouse.CHINA,
     )
+    # Footwear only — becomes the product's "Size" variant option on save.
+    # Not a model field: it's rendered/required conditionally in the template's
+    # step 1 and turned into `Product.options` in `save()`.
+    sizes = forms.CharField(
+        label="Available sizes",
+        required=False,
+        help_text="Footwear only — comma-separated sizes customers can pick from, e.g. 38, 39, 40, 41, 42.",
+        widget=forms.TextInput(attrs={"placeholder": "e.g. 38, 39, 40, 41, 42"}),
+    )
 
     class Meta:
         model = Product
@@ -84,16 +93,35 @@ class GuidedProductForm(forms.ModelForm):
                 self.add_error(None, exc)
         if not gallery_files:
             self.add_error(None, "Add at least one gallery photo.")
+        if cleaned.get("product_type") == ProductType.FOOTWEAR and not self._parse_sizes(cleaned.get("sizes", "")):
+            self.add_error("sizes", "Add at least one size, e.g. 38, 39, 40.")
         return cleaned
 
     def save(self, commit=True):
         product = super().save(commit=False)
         product.slug = self._unique_slug(product.title)
+        if product.product_type == ProductType.FOOTWEAR:
+            product.options = [{
+                "name": "Size",
+                "key": "size",
+                "required": True,
+                "values": self._parse_sizes(self.cleaned_data.get("sizes", "")),
+            }]
         if commit:
             product.save()
             for position, image_file in enumerate(self.files.getlist("gallery_files")):
                 ProductImage.objects.create(product=product, src_file=image_file, position=position)
         return product
+
+    @staticmethod
+    def _parse_sizes(raw: str) -> list:
+        """Comma-separated input -> a deduped, order-preserving list of size labels."""
+        sizes = []
+        for part in (raw or "").split(","):
+            value = part.strip()
+            if value and value not in sizes:
+                sizes.append(value)
+        return sizes[:30]
 
     @staticmethod
     def _unique_slug(title: str) -> str:

@@ -8,6 +8,8 @@ from django.core.management.base import BaseCommand
 from ._demo_catalog import EXTRA_PRODUCTS, NEW_CATEGORIES
 from products.models import Category, Product, ProductType, Warehouse, Origin, ShippingMethod
 
+FOOTWEAR_SIZES = [str(n) for n in range(38, 46)]  # EU 38-45
+
 
 FEATURES = [
     {"icon": "ShieldCheck", "title": "Trusted Suppliers", "subtitle": "Quality you can trust", "tint": "text-gold-500", "ring": "bg-gold-500/10"},
@@ -172,6 +174,10 @@ class Command(BaseCommand):
                     import_tag="China import" if china else "",
                     units_sold=80 + pi * 29 + ci * 13,
                     searchable_text=f"{name} {subtitle} {sub} {cdef['name']}",
+                    options=(
+                        [{"name": "Size", "key": "size", "required": True, "values": FOOTWEAR_SIZES}]
+                        if cdef["type"] == ProductType.FOOTWEAR else []
+                    ),
                     is_active=True,
                 )
                 prods += 1

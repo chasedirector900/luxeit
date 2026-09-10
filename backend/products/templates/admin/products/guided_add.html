@@ -76,6 +76,12 @@
           <div class="form-text">{{ form.description.help_text }}</div>
           {{ form.description.errors }}
         </div>
+        <div id="sizes-group" class="mb-3">
+          <label class="form-label fw-semibold" for="id_sizes">{{ form.sizes.label }}</label>
+          {{ form.sizes }}
+          <div class="form-text">{{ form.sizes.help_text }}</div>
+          {{ form.sizes.errors }}
+        </div>
         <label class="d-flex align-items-center gap-2 mb-0">
           {{ form.is_active }} <span class="fw-semibold">{{ form.is_active.label }}</span>
         </label>
@@ -196,6 +202,15 @@
   }
   category.addEventListener("change", function () { selectedSub = ""; syncSub(); });
   syncSub();
+
+  // Sizes only apply to footwear.
+  var productType = document.getElementById("id_product_type");
+  var sizesGroup = document.getElementById("sizes-group");
+  function syncSizes() {
+    sizesGroup.style.display = productType.value === "footwear" ? "" : "none";
+  }
+  productType.addEventListener("change", syncSizes);
+  syncSizes();
 
   // Air price only applies to the China hub.
   var airGroup = document.getElementById("air-price-group");
