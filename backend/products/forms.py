@@ -39,7 +39,8 @@ class GuidedProductForm(forms.ModelForm):
         fields = [
             "title", "category", "sub_category", "product_type", "subtitle",
             "description", "warehouse", "price", "original_price", "air_price",
-            "delivery_estimate", "preorder", "image_file", "video", "is_active",
+            "delivery_estimate", "preorder", "image_file", "video",
+            "searchable_text", "is_active",
         ]
         labels = {
             "title": "Product name",
@@ -55,6 +56,7 @@ class GuidedProductForm(forms.ModelForm):
             "preorder": "This is a pre-order item",
             "image_file": "Upload main photo",
             "video": "Video link (optional)",
+            "searchable_text": "Search keywords (optional)",
             "is_active": "Visible in the shop right away",
         }
         help_texts = {
@@ -64,11 +66,17 @@ class GuidedProductForm(forms.ModelForm):
             "air_price": "Only for China items. Fill this in to also offer faster air delivery at a higher price.",
             "image_file": "Uploaded photos are stored in Cloudflare R2.",
             "description": "A few sentences about the product — what it is, what's in the box, why it's good.",
+            "searchable_text": (
+                "Extra words shoppers might search for that aren't in the name — brand, alternate "
+                "spellings, what it's for, e.g. \"Curren mens chronograph steel strap\". The product "
+                "name, category and type are already searchable, so this is only for extra terms."
+            ),
         }
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
             "sub_category": forms.Select(choices=[("", "— choose a category first —")]),
             "image_file": forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
+            "searchable_text": forms.Textarea(attrs={"rows": 2, "placeholder": "e.g. Curren mens chronograph steel strap"}),
         }
 
     def __init__(self, *args, **kwargs):

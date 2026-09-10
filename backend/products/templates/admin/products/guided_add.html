@@ -76,6 +76,12 @@
           <div class="form-text">{{ form.description.help_text }}</div>
           {{ form.description.errors }}
         </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="id_searchable_text">{{ form.searchable_text.label }}</label>
+          {{ form.searchable_text }}
+          <div class="form-text">{{ form.searchable_text.help_text }}</div>
+          {{ form.searchable_text.errors }}
+        </div>
         <div id="sizes-group" class="mb-3">
           <label class="form-label fw-semibold" for="id_sizes">{{ form.sizes.label }}</label>
           {{ form.sizes }}

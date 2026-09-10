@@ -229,6 +229,47 @@ class CarReviewSeedTests(TestCase):
         self.assertEqual(before, after)
 
 
+class ProductSearchTests(TestCase):
+    """Search must find a product by category/type words even when the title
+    itself is just a brand name — the reported bug: 19 real watch products
+    titled things like "Curren" and "Mark Fairwhale" (no "watch" anywhere)
+    were invisible to a search for "watch"."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cat = Category.objects.create(slug="watches", name="Watches")
+        cls.brand_watch = Product.objects.create(
+            slug="curren", title="Curren", price=100, warehouse="zambia",
+            category=cat, product_type=ProductType.WATCH, is_active=True,
+        )
+        cls.keyword_tagged = Product.objects.create(
+            slug="mark-fairwhale", title="Mark Fairwhale", price=100, warehouse="zambia",
+            category=cat, product_type=ProductType.WATCH, is_active=True,
+            searchable_text="chronograph steel strap",
+        )
+        cls.unrelated = Product.objects.create(
+            slug="brake-pad", title="Brake Pad", price=50, warehouse="zambia",
+            product_type=ProductType.CAR_PART, is_active=True,
+        )
+
+    def _slugs(self, q):
+        return {p["slug"] for p in self.client.get(f"/api/products?q={q}").json()}
+
+    def test_finds_brand_named_product_by_category_word(self):
+        self.assertIn("curren", self._slugs("watch"))
+        self.assertNotIn("brake-pad", self._slugs("watch"))
+
+    def test_finds_product_by_staff_entered_keyword(self):
+        self.assertIn("mark-fairwhale", self._slugs("chronograph"))
+
+    def test_multi_word_search_is_and_not_or(self):
+        # "curren watch" -> title has "curren", category has "watch": both
+        # terms must match (possibly different fields) for a result.
+        self.assertIn("curren", self._slugs("curren+watch"))
+        # A brake pad shouldn't match just because the query contains "watch".
+        self.assertNotIn("brake-pad", self._slugs("curren+watch"))
+
+
 class RecommendationTests(TestCase):
     """The feed personalises from behaviour, rotates by seed, and works cold."""
 
@@ -263,9 +304,30 @@ class RecommendationTests(TestCase):
             self.client.post("/api/events", data={"slug": f"shoe-{i}", "kind": "view"}, content_type="application/json")
         prof = affinity_profile(self.user)
         self.assertGreater(prof["category"].get(self.cat_shoe.id, 0), prof["category"].get(self.cat_car.id, 0))
-        # Shoes should dominate the top of the feed.
+        # Shoes should lead the feed (personalisation), but categories are
+        # diversified so shoes can't fill it — with 2 categories and a limit
+        # of 6, round-robin gives an even 3/3 split.
         top = [p["slug"] for p in self.client.get("/api/feed?seed=x&limit=6").json()]
-        self.assertGreaterEqual(sum(1 for s in top if s.startswith("shoe")), 4)
+        self.assertTrue(top[0].startswith("shoe"))
+        self.assertEqual(sum(1 for s in top if s.startswith("shoe")), 3)
+
+    def test_feed_diversifies_across_categories(self):
+        """A category with many more (or fresher) listings shouldn't crowd out
+        the others — the exact bug reported in production, where a bulk
+        upload of watches filled the whole home feed."""
+        from products.models import Category
+
+        cat_watch = Category.objects.create(slug="watches-bulk", name="Watches bulk")
+        for i in range(20):
+            Product.objects.create(
+                slug=f"watch-bulk-{i}", title=f"Watch {i}", price=50, warehouse="china",
+                category=cat_watch, product_type="watch", units_sold=0,
+            )
+        top = [p["slug"] for p in self.client.get("/api/feed?seed=y&limit=9").json()]
+        watch_count = sum(1 for s in top if s.startswith("watch-bulk"))
+        self.assertLess(watch_count, 9)  # doesn't take over the whole feed
+        self.assertTrue(any(s.startswith("shoe") for s in top))
+        self.assertTrue(any(s.startswith("car") for s in top))
 
     def test_searches_record_and_list(self):
         self.client.force_login(self.user)

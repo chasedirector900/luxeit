@@ -118,9 +118,35 @@ def score_products(products, profile, *, seed="", now=None):
     return scored
 
 
+def _diversify(scored, limit):
+    """Spread the feed across categories instead of letting whichever one has
+    the most (or the freshest) listings crowd everything else out — e.g. a
+    bulk upload of 20 watches shouldn't fill the whole home feed with watches.
+    Round-robins the best remaining item from each category, category order
+    itself set by that category's current top score, so personalisation still
+    decides which category goes first — it just can't take every slot."""
+    by_category: dict = defaultdict(list)
+    for p, score in sorted(scored, key=lambda pair: pair[1], reverse=True):
+        by_category[p.category_id].append((p, score))
+
+    result = []
+    while len(result) < limit and by_category:
+        # Re-rank remaining categories by their current best score each round,
+        # so a category that ran out drops away and doesn't skip its turn.
+        for cat_id in sorted(by_category, key=lambda c: by_category[c][0][1], reverse=True):
+            if len(result) >= limit:
+                break
+            bucket = by_category[cat_id]
+            result.append(bucket.pop(0))
+            if not bucket:
+                del by_category[cat_id]
+    return [p for p, _ in result]
+
+
 def recommend(user, *, limit=12, seed="", category_slug=None, exclude_slugs=None):
     """The ranked feed for a user. Personalised when signed in, popularity- and
-    freshness-driven for cold start — always rotated by `seed`."""
+    freshness-driven for cold start — always rotated by `seed`. Diversified
+    across categories unless the caller already scoped to one."""
     qs = Product.objects.filter(is_active=True).select_related("category")
     if category_slug:
         qs = qs.filter(category__slug=category_slug)
@@ -132,5 +158,7 @@ def recommend(user, *, limit=12, seed="", category_slug=None, exclude_slugs=None
         return []
     profile = affinity_profile(user)
     scored = score_products(products, profile, seed=seed)
-    scored.sort(key=lambda pair: pair[1], reverse=True)
-    return [p for p, _ in scored[:limit]]
+    if category_slug:
+        scored.sort(key=lambda pair: pair[1], reverse=True)
+        return [p for p, _ in scored[:limit]]
+    return _diversify(scored, limit)

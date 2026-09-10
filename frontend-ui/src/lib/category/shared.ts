@@ -25,6 +25,8 @@ export type ListingProduct = {
   badge?: ListingBadge;
   /** Inline SVG data URI — self-contained, no network, valid cart image. */
   image: string;
+  /** Staff-entered extra search terms (brand, synonyms) — not shown in the UI. */
+  keywords?: string;
 };
 
 // `icon` is a string name resolved via the icon registry — keeps configs as
@@ -154,7 +156,15 @@ export function filterListing(products: ListingProduct[], filters: ListingFilter
     list = list.filter((product) => product.subCategory === type);
   }
   if (query) {
-    list = list.filter((product) => `${product.title} ${product.subtitle}`.toLowerCase().includes(query));
+    // Word-by-word AND (not one whole-string match) against title, subtitle
+    // and staff-entered keywords -- mirrors the backend's /api/products?q=
+    // matching, so e.g. "curren watch" can find a product titled just
+    // "Curren" once "watch" is in its keywords.
+    const terms = query.split(/\s+/).filter(Boolean);
+    list = list.filter((product) => {
+      const haystack = `${product.title} ${product.subtitle} ${product.keywords ?? ""}`.toLowerCase();
+      return terms.every((term) => haystack.includes(term));
+    });
   }
   if (price === "lt50") {
     list = list.filter((product) => product.price < 50);

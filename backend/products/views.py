@@ -73,7 +73,21 @@ class ProductListView(ListAPIView):
         if sub := params.get("sub"):
             qs = qs.filter(sub_category=sub)
         if q := params.get("q"):
-            qs = qs.filter(Q(title__icontains=q) | Q(searchable_text__icontains=q))
+            # Word-by-word AND: each term must appear somewhere across title,
+            # subtitle, staff-entered keywords, category, sub-category or
+            # product type — so "curren watch" finds a watch titled "Curren"
+            # even though neither field alone contains that whole phrase, and
+            # a bare "watch" finds every watch even if the product's brand
+            # name (the usual title) never uses the word.
+            for term in q.split():
+                qs = qs.filter(
+                    Q(title__icontains=term)
+                    | Q(subtitle__icontains=term)
+                    | Q(searchable_text__icontains=term)
+                    | Q(category__name__icontains=term)
+                    | Q(sub_category__icontains=term)
+                    | Q(product_type__icontains=term)
+                )
         return qs[:PRODUCT_LIST_CAP]
 
 

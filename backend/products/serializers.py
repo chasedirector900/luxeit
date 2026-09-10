@@ -33,6 +33,10 @@ class ListingProductSerializer(serializers.BaseSerializer):
         if obj.has_dual_shipping:
             # Signals "From {price}" on cards + the higher air option.
             data["airPrice"] = float(obj.air_price)
+        if obj.searchable_text:
+            # Staff-entered extra search terms — not shown in the UI, only fed
+            # into the in-category search box's matching (see filterListing).
+            data["keywords"] = obj.searchable_text
         return data
 
 

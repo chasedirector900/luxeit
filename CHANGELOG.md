@@ -7,6 +7,38 @@ decisions, anything a future reader would otherwise have to ask about.
 
 ## 2026-09-10
 
+- **Search: word-by-word AND matching, staff keywords, and a diversified home
+  feed.** Reported bug: searching "watch" found almost nothing despite 19 real
+  watch products, because search only matched `title`/`searchable_text` as one
+  whole substring — and every one of those products is titled by brand
+  ("Curren", "Mark Fairwhale", "Bestwin"), never the word "watch", and the
+  guided add form had no field to enter `searchable_text` at all (same gap
+  pattern as the earlier footwear-sizes and fulfilment-variant issues: a model
+  field with nowhere in the UI to set it).
+  - `ProductListView` (`backend/products/views.py`, backs the global
+    `/explore/search` page) now ANDs each word of the query across
+    title/subtitle/keywords/category/sub-category/product-type — so "watch"
+    now matches by category+type alone, and "curren watch" only matches
+    when every word is accounted for somewhere.
+  - Added a "Search keywords (optional)" field to the guided add form
+    (maps straight to `Product.searchable_text`) so staff can tag brand
+    names, synonyms, etc. going forward.
+  - The in-category listing search (`frontend-ui/src/lib/category/shared.ts`
+    `filterListing`, a separate client-side matcher against the category
+    payload) had the same whole-string/no-keywords gap — `keywords` is now
+    in `ListingProductSerializer`'s payload and `ListingProduct`'s type, and
+    matching is word-by-word AND there too.
+  - Separately reported: the home feed was showing almost nothing but one
+    category (electronics at the time, watches before that) after a bulk
+    upload. `recommend()` (`backend/products/recommendations.py`) scored and
+    sorted the whole candidate set with no cap, so a category with many
+    fresh/popular listings could take every slot. Added `_diversify()`:
+    round-robins the best remaining item from each category (ranked by that
+    category's current top score, so personalisation still decides who goes
+    first) instead of a flat sort — a bulk upload can no longer crowd out
+    every other category. Only applied when the feed isn't already scoped to
+    one category (browsing within a category still sorts by score alone).
+
 - **Product gallery: instant thumbnail switching with a skeleton, not a blank
   flash.** On a slow connection, clicking a gallery thumbnail used to leave
   the main image blank until the full-size photo finished downloading — the
