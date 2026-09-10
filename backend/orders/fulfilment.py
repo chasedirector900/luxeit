@@ -72,3 +72,62 @@ def advance_items(items, target) -> tuple[int, int]:
             _notify_items(orders[oid], changed, target)
             customers += 1
     return customers, units
+
+
+def _notify_unavailable(order, items) -> None:
+    """Distinct from `_notify_items`'s generic cancellation notice: this names
+    the product/variant and the refund amount, since the customer needs to
+    know *why* (the supplier didn't have their size) and what to expect."""
+    from messaging.models import ThreadKind
+    from messaging.services import post_message, wants_notification
+
+    if not wants_notification(order.user, "order_updates"):
+        return
+    ref = order.reference
+    refund = sum(it.line_total for it in items)
+    names = ", ".join(dict.fromkeys(
+        (f"{it.title} ({it.variant_label})" if it.variant_label else it.title) for it in items
+    ))
+    body = (
+        f"Sorry — we couldn't source {names} for order {ref} (out of stock at the supplier). "
+        f"You're being refunded K{refund:,.2f}; our team will process it shortly."
+    )
+    post_message(
+        user=order.user, kind=ThreadKind.ORDER,
+        slug=f"order-{ref.lower()}", name=f"Order {ref}", body=body,
+    )
+
+
+def cancel_unavailable_items(items) -> tuple[int, int]:
+    """Cancel items a supplier couldn't actually source (e.g. a sold-out shoe
+    size discovered while buying) and keep each order's total in sync. Marks
+    them `refunded=False` — the money still moves manually until a payment
+    gateway is wired up; this is what flags that it's owed.
+    Returns (customers_notified, units_cancelled)."""
+    items = list(items)
+    by_order: dict = defaultdict(list)
+    orders: dict = {}
+    for it in items:
+        by_order[it.order_id].append(it)
+        orders[it.order_id] = it.order
+
+    customers = units = 0
+    for oid, its in by_order.items():
+        changed = []
+        shipments = {}
+        for it in its:
+            shipments[it.shipment_id] = it.shipment
+            if it.status != OrderStatus.CANCELLED:
+                it.status = OrderStatus.CANCELLED
+                it.refunded = False
+                it.save(update_fields=["status", "refunded"])
+                units += it.quantity
+                changed.append(it)
+        for sh in shipments.values():
+            sh.recalculate_status()
+        order = orders[oid]
+        order.recalculate_total()
+        if changed:
+            _notify_unavailable(order, changed)
+            customers += 1
+    return customers, units

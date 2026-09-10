@@ -8,7 +8,7 @@ from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .fulfilment import advance_items
+from .fulfilment import advance_items, cancel_unavailable_items
 from .models import Order, OrderItem, OrderStatus, Shipment
 
 # ── Shared display helpers (Bootstrap 5 + FontAwesome, from Jazzmin) ─────────
@@ -100,14 +100,38 @@ class PeriodFilter(admin.SimpleListFilter):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    fields = ("title", "variant_summary", "warehouse", "shipping_method", "status", "unit_price", "quantity", "line_total")
+    fields = ("title", "variant_summary", "warehouse", "shipping_method", "status", "refunded", "unit_price", "quantity", "line_total")
     # status is the item-level truth, normally driven by the Fulfilment board;
     # shown here read-only so the order page reflects per-item progress.
+    # `refunded` stays editable — tick it once the money is actually sent for
+    # a cancelled line (there's no live payment gateway to do that for you).
     readonly_fields = ("variant_summary", "status", "line_total")
+
+    # Items are created by checkout only. Without this, Django renders a blank
+    # "add another" row whose unsaved OrderItem has unit_price=None, and the
+    # line_total readonly field 500s trying to multiply None * quantity.
+    def has_add_permission(self, request, obj=None):
+        return False
 
     @admin.display(description="Variant")
     def variant_summary(self, obj):
         return obj.variant_label or "—"
+
+
+class NeedsRefundFilter(admin.SimpleListFilter):
+    """Orders with a cancelled line nobody's refunded yet — the punch list for
+    "we cancelled it (couldn't source the size), now go send the money back"."""
+
+    title = "refund"
+    parameter_name = "needs_refund"
+
+    def lookups(self, request, model_admin):
+        return [("yes", "Needs refund")]
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(items__status=OrderStatus.CANCELLED, items__refunded=False).distinct()
+        return queryset
 
 
 class ShipmentInline(admin.TabularInline):
@@ -120,8 +144,8 @@ class ShipmentInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("reference", "customer", "status_badge", "payment_badge", "total_display", "item_count", "placed_at")
-    list_filter = (PeriodFilter, "status")
+    list_display = ("reference", "customer", "status_badge", "payment_badge", "total_display", "refund_owed", "item_count", "placed_at")
+    list_filter = (PeriodFilter, "status", NeedsRefundFilter)
     date_hierarchy = "placed_at"
     search_fields = ("reference", "user__email", "user__phone", "ship_city")
     # status is rolled up from shipments — edit it on the shipments instead.
@@ -219,6 +243,13 @@ class OrderAdmin(admin.ModelAdmin):
     @admin.display(description="Total", ordering="total")
     def total_display(self, obj):
         return _kwacha(obj.total)
+
+    @admin.display(description="Refund owed")
+    def refund_owed(self, obj):
+        amount = sum(i.line_total for i in obj.items.all() if i.status == OrderStatus.CANCELLED and not i.refunded)
+        if not amount:
+            return "—"
+        return format_html('<span class="badge text-bg-danger">K{} owed</span>', f"{amount:,.2f}")
 
     @admin.display(description="Items")
     def item_count(self, obj):
@@ -510,6 +541,7 @@ class ShipmentAdmin(admin.ModelAdmin):
         context = {
             **self.admin_site.each_context(request),
             "title": f"{cfg['title']} · {day_d} · {self.CARRIER_LABEL.get(carrier, carrier)}",
+            "stage": stage,
             "stage_title": cfg["title"], "stage_icon": cfg["icon"], "stage_color": cfg["color"],
             "day": day_d,
             "carrier_label": self.CARRIER_LABEL.get(carrier, carrier),
@@ -537,6 +569,22 @@ class ShipmentAdmin(admin.ModelAdmin):
         if not items:
             self.message_user(request, "Nothing to update — it may have already moved.", level=messages.WARNING)
             return redirect(request.path)
+
+        # "Couldn't source" — sourcing stage only, and only ever one product+
+        # variant line at a time (never a whole order or the whole batch): a
+        # bad size shouldn't take a customer's other items down with it.
+        if request.POST.get("item_action") == "unavailable":
+            if stage != "source" or order_id or not line_key or line_key == "__all__":
+                raise PermissionDenied
+            customers, units = cancel_unavailable_items(items)
+            self.message_user(
+                request,
+                f"Cancelled {units} unit(s) of {items[0].title} ({items[0].variant_label}) — "
+                f"{customers} customer(s) notified and flagged to refund.",
+                level=messages.WARNING,
+            )
+            return redirect(request.path)
+
         customers, units = advance_items(items, cfg["target"])
         if order_id:
             self.message_user(request, f"Order {items[0].order.reference} marked {cfg['done']} — the customer has been notified.")

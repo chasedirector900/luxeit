@@ -143,7 +143,9 @@ class Order(models.Model):
         return STATUS_META.get(self.status, ("", ""))[1]
 
     def recalculate_total(self) -> None:
-        agg = self.items.aggregate(total=Sum(F("unit_price") * F("quantity")))
+        """Sum non-cancelled lines only, so a cancelled-for-refund item (e.g. a
+        size the supplier didn't have) drops out of what the customer owes."""
+        agg = self.items.exclude(status=OrderStatus.CANCELLED).aggregate(total=Sum(F("unit_price") * F("quantity")))
         self.total = agg["total"] or 0
         self.save(update_fields=["total"])
 
@@ -228,6 +230,7 @@ class Shipment(models.Model):
         self.log_event(status)
         self._notify()
         self.order.recalculate_status()
+        self.order.recalculate_total()  # a cancel here drops the parcel's value from what's owed
 
     def recalculate_status(self) -> bool:
         """Roll this shipment's status up from its items — it's only as far along
@@ -321,6 +324,11 @@ class OrderItem(models.Model):
     # parcel's shoes can be sourced while its bags are still queued; the shipment
     # (and order) status roll up from these.
     status = models.CharField(max_length=12, choices=OrderStatus.choices, default=OrderStatus.PENDING)
+    # Set when a cancelled line's money has actually been sent back. There's no
+    # live payment gateway yet (see DEPLOYMENT.md), so the refund itself is a
+    # manual step — this is just the checklist so a cancelled-for-refund line
+    # (e.g. a size the supplier didn't have) doesn't get forgotten.
+    refunded = models.BooleanField(default=False)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 

@@ -159,6 +159,17 @@
                       <i class="fas fa-check me-1"></i>{{ action_label }}
                     </button>
                   </form>
+                  {% if stage == "source" %}
+                    <form method="post" class="mb-0 d-inline ms-1">
+                      {% csrf_token %}
+                      <input type="hidden" name="line" value="{{ line.key }}">
+                      <input type="hidden" name="item_action" value="unavailable">
+                      <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap"
+                              onclick="return confirm('Couldn\'t source {{ line.title|escapejs }}{% if line.variant %} ({{ line.variant|escapejs }}){% endif %} for any of the {{ line.customers }} customer(s) waiting on it? This cancels their line, drops it from their order total, and flags a refund. Cannot be undone here.');">
+                        <i class="fas fa-ban me-1"></i>Couldn&apos;t source
+                      </button>
+                    </form>
+                  {% endif %}
                 </td>
               </tr>
             {% endfor %}
