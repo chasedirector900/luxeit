@@ -62,6 +62,12 @@ export function SearchProductDetailClient({
   }, [product.slug]);
   const [quantity, setQuantity] = useState(1);
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+  // Which gallery images have actually finished loading, so the skeleton only
+  // shows once per image (switching back to an already-loaded one is instant)
+  // and switching the selection itself is instant even on a slow connection.
+  // Resets naturally on navigation: `slug` is a route param, so Next remounts
+  // this component (and its state) for a different product.
+  const [loadedMedia, setLoadedMedia] = useState<Set<number>>(() => new Set());
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [compatibilitySelections, setCompatibilitySelections] = useState<Record<string, string>>({});
   const [selectionError, setSelectionError] = useState<string | null>(null);
@@ -227,14 +233,24 @@ export function SearchProductDetailClient({
                 className="h-full w-full object-contain"
               />
             ) : (
-              <Image
-                src={activeMedia.src}
-                alt={activeMedia.alt ?? product.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 520px"
-                className={activeMedia.objectFit === "cover" ? "object-cover" : "object-contain"}
-                priority={selectedMediaIndex === 0}
-              />
+              <>
+                {!loadedMedia.has(selectedMediaIndex) ? (
+                  <div className="absolute inset-0 animate-pulse bg-slate-200 dark:bg-zinc-800" />
+                ) : null}
+                <Image
+                  src={activeMedia.src}
+                  alt={activeMedia.alt ?? product.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 520px"
+                  className={`transition-opacity duration-200 ${
+                    activeMedia.objectFit === "cover" ? "object-cover" : "object-contain"
+                  } ${loadedMedia.has(selectedMediaIndex) ? "opacity-100" : "opacity-0"}`}
+                  priority={selectedMediaIndex === 0}
+                  onLoad={() =>
+                    setLoadedMedia((prev) => (prev.has(selectedMediaIndex) ? prev : new Set(prev).add(selectedMediaIndex)))
+                  }
+                />
+              </>
             )}
             <div className="absolute left-3 top-3 inline-flex gap-1.5">
               {product.preorder ? (

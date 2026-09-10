@@ -7,6 +7,20 @@ decisions, anything a future reader would otherwise have to ask about.
 
 ## 2026-09-10
 
+- **Product gallery: instant thumbnail switching with a skeleton, not a blank
+  flash.** On a slow connection, clicking a gallery thumbnail used to leave
+  the main image blank until the full-size photo finished downloading — the
+  `<Image>` component doesn't keep showing the old photo while a new `src`
+  loads. `SearchProductDetailClient` (`frontend-ui/src/components/search/`)
+  is the one shared component behind every product-detail route (home,
+  explore, category all render it — see `frontend-ui/AGENTS.md` for why this
+  version's routing may not match training data), so the fix applies
+  everywhere at once: the thumbnail selection itself was already instant
+  (plain React state), but now the main image shows an animated skeleton
+  (matching this app's existing skeleton style) until that specific image's
+  `onLoad` fires, then fades it in. Already-loaded images in the same product
+  view don't re-show the skeleton on revisit.
+
 - **Fulfilment board: a "Couldn't source" action for out-of-stock variants,
   with refund tracking.** Dropshipping risk: a size/variant a customer picked
   may not actually be available when staff go to buy it from the China
