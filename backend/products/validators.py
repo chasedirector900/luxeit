@@ -13,7 +13,13 @@ from PIL import Image
 # which re-encodes every upload to a small WebP regardless of how big the
 # original camera photo was. This just stops someone uploading something
 # absurd (a wrong file, a 200 MB video renamed to .jpg).
-MAX_PRODUCT_IMAGE_SIZE = 20 * 1024 * 1024  # 20 MB
+#
+# Kept fairly tight (not just "absurd") because decoding a raw camera photo
+# with Pillow briefly uses far more memory than the file size suggests (a
+# 12MP JPEG can decode to 100MB+ of raw pixel data) — on the 512MB Render
+# instance, a couple of full-size camera uploads back-to-back was enough to
+# exceed the memory limit and crash the service.
+MAX_PRODUCT_IMAGE_SIZE = 8 * 1024 * 1024  # 8 MB
 ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 

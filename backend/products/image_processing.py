@@ -18,6 +18,11 @@ from PIL import Image, ImageOps
 # multi-megapixel camera original around.
 MAX_DIMENSION = 1600
 WEBP_QUALITY = 82
+# WebP encode effort, 0 (fastest/lightest) - 6 (smallest file, most CPU/memory).
+# 6 was tipping a 512MB instance over its memory limit when staff uploaded
+# several large camera photos back-to-back; 4 costs a little more file size
+# for a much lighter encode.
+WEBP_METHOD = 4
 
 
 def compress_product_image(file):
@@ -38,7 +43,7 @@ def compress_product_image(file):
     image.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.LANCZOS)
 
     buffer = io.BytesIO()
-    image.save(buffer, format="WEBP", quality=WEBP_QUALITY, method=6)
+    image.save(buffer, format="WEBP", quality=WEBP_QUALITY, method=WEBP_METHOD)
     buffer.seek(0)
 
     name = Path(file.name).stem + ".webp"
